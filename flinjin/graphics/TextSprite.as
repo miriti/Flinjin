@@ -1,11 +1,11 @@
-package BlitEngine
+package flinjin.graphics
 {
-	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.text.AntiAliasType;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
+	
 	/**
 	 * ...
 	 * @author Michael Miriti

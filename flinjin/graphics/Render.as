@@ -1,6 +1,5 @@
-package BlitEngine
+package flinjin.graphics
 {
-	import BlitEngine.PostEffects.PostEffect;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
@@ -8,13 +7,11 @@ package BlitEngine
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
-	import flash.text.TextField;
-	import flash.text.TextFieldAutoSize;
-	import flash.ui.Keyboard;
-	import flash.utils.setInterval;
+	import flinjin.graphics.PostEffects.PostEffect;
+	import flinjin.input.Input;
 	
 	/**
-	 * Вывод графики
+	 * Main render unit
 	 *
 	 * @author Michael Miriti
 	 */
@@ -34,9 +31,6 @@ package BlitEngine
 		
 		// Это для прорисовки
 		private var _bitmapSurface:Bitmap;
-		
-		// Отладочная информация
-		private var _debugText:TextField = new TextField();
 		
 		// Цвет заливки
 		private var _fillColor:uint = 0x0;
@@ -101,13 +95,6 @@ package BlitEngine
 				}
 			}
 			
-			if (Debug) {
-				_debugText.text = 'Sprite count: ' + SpritesRoot.spriteCount +
-					"\nFPS: " + _fps_last +
-					"\nUPS: " + _ups_last;
-				_bitmapSurface.bitmapData.draw(_debugText);
-			}
-			
 			_fps_curr++;
 		}
 		
@@ -122,12 +109,6 @@ package BlitEngine
 		
 		private function onKeyDown(e:KeyboardEvent):void {
 			Input.KeysPressed[e.keyCode] = true;
-			
-			if (e.keyCode == Keyboard.D) {
-				Debug = !Debug;
-			}
-			
-			trace(e.keyCode);
 		}
 		
 		private function onKeyUp(e:KeyboardEvent):void {
@@ -177,19 +158,8 @@ package BlitEngine
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			
-			_debugText.background = true;
-			_debugText.autoSize = TextFieldAutoSize.LEFT;
-			
 			var time:Date = new Date();
 			_last_update_time = time.getTime();
-			
-			setInterval(function ():void {
-				_fps_last = _fps_curr;
-				_fps_curr = 0;
-				
-				_ups_last = _ups_curr;
-				_ups_curr = 0;
-			}, 1000);
 		}
 		
 	}

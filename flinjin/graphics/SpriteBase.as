@@ -1,4 +1,4 @@
-package BlitEngine
+package flinjin.graphics
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -7,7 +7,6 @@ package BlitEngine
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.utils.ByteArray;
 	
 	/**
 	 * Базовый класс спрайта

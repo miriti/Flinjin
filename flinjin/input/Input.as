@@ -1,4 +1,4 @@
-package BlitEngine
+package flinjin.input
 {
 	import flash.geom.Point;
 	/**

@@ -1,8 +1,8 @@
-package BlitEngine
+package flinjin.graphics
 {
+	import flash.display.BitmapData;
 	import flash.display.Shape;
 	import flash.geom.Matrix;
-	import flash.display.BitmapData;
 	/**
 	 * ...
 	 * @author KEFIR

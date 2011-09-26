@@ -1,4 +1,4 @@
-package BlitEngine.PostEffects
+package flinjin.graphics.PostEffects
 {
 	import flash.display.BitmapData;
 	import flash.geom.ColorTransform;

@@ -1,4 +1,4 @@
-package BlitEngine
+package flinjin.graphics
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
