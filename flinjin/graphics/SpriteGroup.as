@@ -237,6 +237,16 @@ package flinjin.graphics
 			super.rotation = value;
 		}
 		
+		override public function get width():uint 
+		{
+			return _clipRect.width;
+		}
+		
+		override public function get height():uint 
+		{
+			return _clipRect.height;
+		}
+		
 		override public function onMouseDown():void
 		{
 			for (var i:int = 0; i < Sprites.length; i++)
