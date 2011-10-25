@@ -27,7 +27,7 @@ package flinjin.graphics
 		public var PostEffects:Array = new Array();
 		
 		// Использовать компинсацию лага
-		public var UseLagCompinstation:Boolean = true;
+		public var UseLagCompinstation:Boolean = false;
 		
 		// Это для прорисовки
 		private var _bitmapSurface:Bitmap;
