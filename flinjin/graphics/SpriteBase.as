@@ -9,9 +9,9 @@ package flinjin.graphics
 	import flash.geom.Rectangle;
 	
 	/**
-	 * Базовый класс спрайта
+	 * DEPRICATED
 	 *
-	 * @author ...
+	 * @author Michael Miriti <m.s.miriti@gmail.com> 
 	 */
 	public class SpriteBase extends Object
 	{

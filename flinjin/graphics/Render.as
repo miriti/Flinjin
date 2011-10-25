@@ -13,36 +13,33 @@ package flinjin.graphics
 	/**
 	 * Main render unit
 	 *
-	 * @author Michael Miriti
+	 * @author Michael Miriti <m.s.miriti@gmail.com> 
 	 */
 	public class Render extends Sprite
 	{
-		// Все спрайты начинаются тут
-		public var SpritesRoot:SpriteGroup;
+		// Root Layer
+		public var MainLayer:Layer;
 		
-		// Отладка
-		public var Debug:Boolean = false;
-		
-		// Еффекты
+		// Array of postrender effects (look in flinjin.graphics.PostEffects)
 		public var PostEffects:Array = new Array();
 		
-		// Использовать компинсацию лага
-		public var UseLagCompinstation:Boolean = false;
+		// Lag compenstation algorithm flag
+		public var UseLagCompinstation:Boolean = false;		
 		
-		// Это для прорисовки
 		private var _bitmapSurface:Bitmap;
 		
-		// Цвет заливки
-		private var _fillColor:uint = 0x0;
+		private var _fillColor:uint;
 		
+		// Lag compensation vars
 		private var _fps_last:int = 0;
 		private var _fps_curr:int = 0;
 		
 		private var _ups_last:int = 0;
 		private var _ups_curr:int = 0;
 		
-		// Интервал между обновлениями в миллисекундах. 40 = 25/с
+		// Update interval
 		private static const UPDATE_INTERVAL:uint = 30;
+		
 		private var _last_update_time:uint = 0;
 		private var _deley_accum:uint = 0;
 		
@@ -58,7 +55,7 @@ package flinjin.graphics
 				if (_delay < UPDATE_INTERVAL) {
 					if (_delay + _deley_accum >= UPDATE_INTERVAL) {
 						_deley_accum = 0;
-						SpritesRoot.Move();
+						MainLayer.Move();
 						_ups_curr++;
 					}else {
 						_deley_accum += _delay;
@@ -67,29 +64,29 @@ package flinjin.graphics
 					var repeats:uint = Math.floor(_delay / UPDATE_INTERVAL);
 					
 					for (var i:uint = 0; i < repeats; i++) {
-						SpritesRoot.Move();
+						MainLayer.Move();
 						_ups_curr++;
 					}
 				}
 				
 				_last_update_time = time.getTime();
 			}else {
-				SpritesRoot.Move();
+				MainLayer.Move();
 			}
 		}
 		
 		/**
-		 * Прорисовка
-		 * Вызывется при каждом кадре
-		 *
+		 * Actual rendering method
+		 * 
 		 * @param	e
 		 */
-		private function doRender(e:Event):void {
-			_bitmapSurface.bitmapData.fillRect(_bitmapSurface.bitmapData.rect, _fillColor);
+		private function doRender(e:Event = null):void {
 			doUpdate();
-			SpritesRoot.Draw(_bitmapSurface.bitmapData);
+			_bitmapSurface.bitmapData.fillRect(_bitmapSurface.bitmapData.rect, _fillColor);
+			MainLayer.Draw(_bitmapSurface.bitmapData);
 			
 			if (PostEffects.length) {
+				// Applying post effects
 				for (var i:int = 0; i < PostEffects.length; i++) {
 					PostEffect(PostEffects[i]).Apply(_bitmapSurface.bitmapData);
 				}
@@ -120,7 +117,6 @@ package flinjin.graphics
 			Input.mousePos.x = e.stageX;
 			Input.mousePos.y = e.stageY;
 			Input.LMBDown = true;
-			SpritesRoot.onMouseDown();
 		}
 		
 		private function onMouseUp(e:MouseEvent):void {
@@ -132,21 +128,28 @@ package flinjin.graphics
 		private function onMouseMove(e:MouseEvent):void {
 			Input.mousePos.x = e.stageX;
 			Input.mousePos.y = e.stageY;
-			SpritesRoot.onMouseOver();
 		}
 		
 		/**
-		 * Инициализация интерфейса прорисовки
-		 *
-		 * @param	nWidth Ширина области прорисовки
-		 * @param	nHeight Высота области прорисовки
-		 * @param	fillColor Цвет заполнения
+		 * Adding new post effect to convair
+		 * 
+		 * @param	newPostEffect
 		 */
-		public function Render(nWidth:int, nHeight:int, fillColor:uint=0x0)
+		public function addPostEffect(newPostEffect:PostEffect):void {
+			PostEffects[PostEffects.length] = newPostEffect;
+		}
+		
+		/**
+		 * Initialize rendering unit
+		 * 
+		 * @param	nWidth
+		 * @param	nHeight
+		 * @param	fillColor
+		 */
+		public function Render(nWidth:int, nHeight:int, fillColor:uint=0x00000000)
 		{
-			SpritesRoot = new SpriteGroup();
-			SpritesRoot.SetClipRect(new Rectangle(0, 0, nWidth, nHeight));
-			_bitmapSurface = new Bitmap(new BitmapData(nWidth, nHeight, false, fillColor));
+			MainLayer = new Layer(nWidth, nHeight);
+			_bitmapSurface = new Bitmap(new BitmapData(nWidth, nHeight, true, fillColor));
 			addChild(_bitmapSurface);
 			
 			_fillColor = fillColor;

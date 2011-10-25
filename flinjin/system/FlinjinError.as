@@ -1,4 +1,4 @@
-package src.flinjin.system 
+package flinjin.system 
 {
 	/**
 	 * ...

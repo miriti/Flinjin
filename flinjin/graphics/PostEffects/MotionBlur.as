@@ -5,7 +5,7 @@ package flinjin.graphics.PostEffects
 	
 	/**
 	 * ...
-	 * @author KEFIR
+	 * @author Michael Miriti <m.s.miriti@gmail.com> 
 	 */
 	public class MotionBlur extends PostEffect
 	{

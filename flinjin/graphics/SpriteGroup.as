@@ -7,7 +7,7 @@ package flinjin.graphics
 	
 	/**
 	 * ...
-	 * @author ...
+	 * @author Michael Miriti <m.s.miriti@gmail.com> 
 	 */
 	public class SpriteGroup extends SpriteBase
 	{

@@ -1,13 +1,17 @@
 package flinjin.graphics
 {
 	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.display.IBitmapDrawable;
 	import flash.geom.ColorTransform;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flinjin.system.FlinjinError;
 	
 	/**
-	 * ...
+	 * Base Sprite class
+	 *
 	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
 	public class Sprite
@@ -27,18 +31,22 @@ package flinjin.graphics
 		private var _frameRate:Number = 1;
 		private var _playing:Boolean = true;
 		
-		private var _globalPosition:Point = new Point();
-		private var _centerPoint:Point;
+		private var _position:Point = new Point();
+		private var _center:Point;
 		private var _angle:Number = 0;
+		private var _scale:Number = 1;
 		private var _scaleX:Number = 1;
 		private var _scaleY:Number = 1;
 		
 		private var _matrix:Matrix = new Matrix();
 		
+		private var _colorTransform:ColorTransform = new ColorTransform();
+		
 		public var _flipHorizontal:Boolean = false;
 		public var _flipVertical:Boolean = false;
 		
-		public var colorTransform:ColorTransform = new ColorTransform();
+		public var Visible:Boolean = true;
+		
 		public var Drawed:Boolean = false;
 		public var Delete:Boolean = false;
 		public var zIndex:int = 0;
@@ -47,9 +55,225 @@ package flinjin.graphics
 		public var Interactive:Boolean = false;
 		public var MouseOver:Boolean = false;
 		
+		public function set angle(val:Number):void
+		{
+			_angle = val;
+		}
+		
+		public function get angle():Number
+		{
+			return _angle;
+		}
+		
+		public function set alpha(val:Number):void
+		{
+			_colorTransform.alphaMultiplier = val;
+		}
+		
+		public function get alpha():Number
+		{
+			return _colorTransform.alphaMultiplier;
+		}
+		
+		public function set color(val:uint):void
+		{
+			_colorTransform.color = val;
+		}
+		
+		public function get color():uint
+		{
+			return _colorTransform.color;
+		}
+		
+		public function set y(val:Number):void
+		{
+			_position.y = val;
+		}
+		
+		public function get y():Number
+		{
+			return _position.y;
+		}
+		
+		public function set x(val:Number):void
+		{
+			_position.x = val;
+		}
+		
+		public function get x():Number
+		{
+			return _position.x;
+		}
+		
+		public function set CurrentBitmap(val:BitmapData):void
+		{
+			_current_bitmap = val;
+		}
+		
+		public function get CurrentBitmap():BitmapData
+		{
+			return _current_bitmap;
+		}
+		
+		public function set Center(val:Point):void
+		{
+			if (val != null)
+			{
+				_center = val;
+			}
+			else
+			{
+				_center = new Point();
+			}
+		}
+		
+		public function get Center():Point
+		{
+			return _center;
+		}
+		
+		public function set scale(val:Number):void
+		{
+			_scale = val;
+		}
+		
+		public function get scale():Number
+		{
+			return _scale;
+		}
+		
+		/**
+		 * Gettting private property _matrix to read
+		 *
+		 * @return
+		 */
+		public function getMatrix():Matrix
+		{
+			return _matrix;
+		}
+		
+		/**
+		 * Start or resume playing animation
+		 */
+		public function PlayAnimation():void
+		{
+			_animated = true;
+		}
+		
+		/**
+		 * Stop playing animation
+		 */
+		public function StopAnimation():void
+		{
+			_animated = false;
+			_currentFrame = _minFrame;
+		}
+		
+		public function PauseAnimation():void
+		{
+			_animated = false;
+		}
+		
+		/**
+		 * This function is triggered when animation or current animation part riches final frame. Override this function if you need to handle this event
+		 */
+		public function onAnimationFinished():void
+		{
+		
+		}
+		
+		/**
+		 * Updating animation state is sprite is animated
+		 */
+		public function Move():void
+		{
+			if (_animated)
+			{
+				_current_bitmap = _frames[Math.floor(_currentFrame)];
+				
+				if (_playing)
+				{
+					_currentFrame += _frameRate;
+					if (Math.floor(_currentFrame) > _maxFrame)
+					{
+						_currentFrame = _minFrame;
+						onAnimationFinished();
+					}
+				}
+			}
+		}
+		
+		/**
+		 * Reset animation region to 0 .. _maxFrame
+		 */
+		public function ResetAnimationRegion():void
+		{
+			_minFrame = 0;
+			_maxFrame = _frames.length - 1;
+		}
+		
+		/**
+		 * Draw sprite on the surface with all transformations
+		 *
+		 * @param	surface
+		 */
+		public function Draw(surface:BitmapData):void
+		{
+			// nothing to do if visible is false
+			if (!Visible)
+				return;
+			
+			// nothing to do is scale is zero
+			if (_scale == 0)
+				return;
+			
+			// Loading matrix indentity
+			_matrix.identity();
+			
+			// Flipping if necessery
+			if (_flipHorizontal)
+			{
+				_matrix.scale(-1, 1);
+				_matrix.translate(_spriteWidth, 0);
+			}
+			
+			if (_flipVertical)
+			{
+				_matrix.scale(1, -1);
+				_matrix.translate(0, _spriteHeight);
+			}
+			
+			// Moving to center
+			_matrix.translate(-_center.x, -_center.y);
+			
+			// Rotation
+			if (_angle != 0)
+			{
+				_matrix.rotate(_angle);
+			}
+			
+			// Scaling
+			if ((_scaleX != 1) || (_scaleY != 1) || (_scale != 1))
+			{
+				_matrix.scale(_scaleX * _scale, _scaleY * _scale);
+			}
+			
+			// Moving to the place
+			_matrix.translate(_position.x, _position.y);
+			
+			// Actual draw
+			if (_current_bitmap is IBitmapDrawable) // dunno why it is here...
+			{
+				surface.draw(_current_bitmap, _matrix, _colorTransform, null, null, true);
+			}
+			
+			_spriteRect.left = _matrix.tx;
+			_spriteRect.top = _matrix.ty;
+		}
+		
 		/**
 		 * Base Sprite class constructor
-		 * 
+		 *
 		 * @param	spriteBmp	Bitmap containing sprite frame(s)
 		 * @param	rotationCenter	Rotation point of sprite
 		 * @param	animated	Is sprite animated
@@ -75,19 +299,18 @@ package flinjin.graphics
 			_bitmap = spriteBmp;
 			_matrix = new Matrix();
 			
-			if (rotationCenter == null)
-			{
-				_centerPoint = new Point(0, 0);
-			}
-			else
-			{
-				_centerPoint = rotationCenter;
-			}
+			Center = rotationCenter;
 			
 			_animated = animated;
 			
 			if (animated)
 			{
+				if ((_bitmap.width % frameWidth != 0) || (_bitmap.height % frameHeight != 0))
+				{
+					throw new FlinjinError('Frame size does not fits Bitmap size');
+					return;
+				}
+				
 				_spriteWidth = frameWidth;
 				_spriteHeight = frameHeight;
 				_frameRate = frameRate;
