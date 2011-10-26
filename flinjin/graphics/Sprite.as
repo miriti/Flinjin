@@ -48,7 +48,7 @@ package flinjin.graphics
 		public var Visible:Boolean = true;
 		
 		public var Drawed:Boolean = false;
-		public var Delete:Boolean = false;
+		public var DeleteFlag:Boolean = false;
 		public var zIndex:int = 0;
 		public var CollisionEnabled:Boolean = false;
 		public var CollisionPixelCheck:Boolean = false;
@@ -87,6 +87,7 @@ package flinjin.graphics
 		
 		public function set y(val:Number):void
 		{
+			_spriteRect.y = val;
 			_position.y = val;
 		}
 		
@@ -97,6 +98,7 @@ package flinjin.graphics
 		
 		public function set x(val:Number):void
 		{
+			_spriteRect.x = val;
 			_position.x = val;
 		}
 		
@@ -108,6 +110,8 @@ package flinjin.graphics
 		public function set CurrentBitmap(val:BitmapData):void
 		{
 			_current_bitmap = val;
+			_spriteRect.width = val.width;
+			_spriteRect.height = val.height;
 		}
 		
 		public function get CurrentBitmap():BitmapData
@@ -140,6 +144,18 @@ package flinjin.graphics
 		public function get scale():Number
 		{
 			return _scale;
+		}
+		
+		public function get rect():Rectangle {
+			return _spriteRect;
+		}
+		
+		/**
+		 * Mark this sprite for deletion
+		 * 
+		 */
+		public function Delete():void {
+			DeleteFlag = true;
 		}
 		
 		/**
@@ -183,7 +199,29 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Updating animation state is sprite is animated
+		 * Mouse down or tap
+		 * 
+		 * Override this method to react
+		 * 
+		 * @param	mousePos
+		 */
+		public function MouseDown(mousePos:Point):void {
+			
+		}
+		
+		/**
+		 * Mouse up or tap finished
+		 * 
+		 * Override this method to react
+		 * 
+		 * @param	mousePos
+		 */
+		public function MouseUp(mousePos:Point):void {
+			
+		}
+		
+		/**
+		 * Updating animation state if sprite is animated
 		 */
 		public function Move():void
 		{

@@ -6,6 +6,7 @@ package flinjin.graphics
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flinjin.graphics.PostEffects.PostEffect;
 	import flinjin.input.Input;
@@ -95,6 +96,42 @@ package flinjin.graphics
 			_fps_curr++;
 		}
 		
+		public function doMouseDown(mousePos:Point):void {
+			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
+				if (eachSprite.rect.containsPoint(mousePos)) {					
+					var localMousePos:Point = mousePos.clone();
+					localMousePos.x -= eachSprite.x;
+					localMousePos.y -= eachSprite.y;
+					
+					eachSprite.MouseDown(localMousePos);
+				}				
+			}
+		}
+		
+		public function doMouseUp(mousePos:Point):void {
+			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
+				if (eachSprite.rect.containsPoint(mousePos)) {					
+					var localMousePos:Point = mousePos.clone();
+					localMousePos.x -= eachSprite.x;
+					localMousePos.y -= eachSprite.y;
+					
+					eachSprite.MouseUp(localMousePos);
+				}				
+			}
+		}
+		
+		public function doKeyDown():void {
+			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
+				
+			}
+		}
+		
+		public function doKeyUp():void {
+			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
+				
+			}
+		}
+		
 		/**
 		 * При добавлении в дисплей лист
 		 * @param	e
@@ -102,33 +139,7 @@ package flinjin.graphics
 		private function onAddedToStage(e:Event):void {
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			addEventListener(Event.ENTER_FRAME, doRender);
-		}
-		
-		private function onKeyDown(e:KeyboardEvent):void {
-			Input.KeysPressed[e.keyCode] = true;
-		}
-		
-		private function onKeyUp(e:KeyboardEvent):void {
-			Input.KeysPressed[e.keyCode] = false;
-		}
-		
-		private function onMouseDown(e:MouseEvent):void {
-			stage.focus = this;
-			Input.mousePos.x = e.stageX;
-			Input.mousePos.y = e.stageY;
-			Input.LMBDown = true;
-		}
-		
-		private function onMouseUp(e:MouseEvent):void {
-			Input.mousePos.x = e.stageX;
-			Input.mousePos.y = e.stageY;
-			Input.LMBDown = false;
-		}
-		
-		private function onMouseMove(e:MouseEvent):void {
-			Input.mousePos.x = e.stageX;
-			Input.mousePos.y = e.stageY;
-		}
+		}		
 		
 		/**
 		 * Adding new post effect to convair
@@ -156,10 +167,7 @@ package flinjin.graphics
 			
 			focusRect = false;
 			
-			addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-			addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			
 			var time:Date = new Date();
 			_last_update_time = time.getTime();
