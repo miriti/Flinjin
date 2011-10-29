@@ -24,6 +24,9 @@ package flinjin.graphics
 		private var _spriteHeight:uint;
 		private var _spriteRect:Rectangle;
 		
+		private var _namedAnimationRegions:Array = new Array();
+		private var _currentRegion:String = null;
+		
 		private var _animated:Boolean = false;
 		private var _minFrame:uint = 0;
 		private var _maxFrame:uint = 0;
@@ -146,15 +149,17 @@ package flinjin.graphics
 			return _scale;
 		}
 		
-		public function get rect():Rectangle {
+		public function get rect():Rectangle
+		{
 			return _spriteRect;
 		}
 		
 		/**
 		 * Mark this sprite for deletion
-		 * 
+		 *
 		 */
-		public function Delete():void {
+		public function Delete():void
+		{
 			DeleteFlag = true;
 		}
 		
@@ -192,32 +197,67 @@ package flinjin.graphics
 		
 		/**
 		 * This function is triggered when animation or current animation part riches final frame. Override this function if you need to handle this event
-		 */
-		public function onAnimationFinished():void
+		 * @param	region
+		 */ 
+		public function onAnimationFinished(region:String=null):void
 		{
 		
 		}
 		
 		/**
+		 * Creating name animation region
+		 * @param	name
+		 * @param	frameStart
+		 * @param	frameEnd
+		 * @return
+		 */
+		public function addNamedAnimationRegion(name:String, frameStart:uint, frameEnd:uint):Object {
+			var newRegion:Object = new Object();
+			newRegion['name'] = name;
+			newRegion['start'] = frameStart;
+			newRegion['end'] = frameEnd;
+			_namedAnimationRegions[_namedAnimationRegions.length] = newRegion;
+			
+			return newRegion;
+		}
+		
+		/**
+		 * 
+		 * @param	name
+		 */
+		public function setNamedAnimationRegion(name:String):void {
+			for each(var o:Object in _namedAnimationRegions) {
+				if (o['name'] == name) {
+					_minFrame = o['start'];
+					_maxFrame = o['end'];
+					_currentRegion = name;
+					_currentFrame = _minFrame;
+				}
+			}
+		}
+		
+		/**
 		 * Mouse down or tap
-		 * 
+		 *
 		 * Override this method to react
-		 * 
+		 *
 		 * @param	mousePos
 		 */
-		public function MouseDown(mousePos:Point):void {
-			
+		public function MouseDown(mousePos:Point):void
+		{
+		
 		}
 		
 		/**
 		 * Mouse up or tap finished
-		 * 
+		 *
 		 * Override this method to react
-		 * 
+		 *
 		 * @param	mousePos
 		 */
-		public function MouseUp(mousePos:Point):void {
-			
+		public function MouseUp(mousePos:Point):void
+		{
+		
 		}
 		
 		/**
@@ -235,19 +275,20 @@ package flinjin.graphics
 					if (Math.floor(_currentFrame) > _maxFrame)
 					{
 						_currentFrame = _minFrame;
-						onAnimationFinished();
+						onAnimationFinished(_currentRegion);
 					}
 				}
 			}
 		}
 		
 		/**
-		 * Reset animation region to 0 .. _maxFrame
+		 * Reset animation region to 0 .. _frames.length
 		 */
 		public function ResetAnimationRegion():void
 		{
 			_minFrame = 0;
 			_maxFrame = _frames.length - 1;
+			_currentRegion = null;
 		}
 		
 		/**

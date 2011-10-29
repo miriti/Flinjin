@@ -52,7 +52,7 @@ package flinjin
 				regionRect = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
 			}
 			
-			Screen = new Render(_regionRect.width, _regionRect.height, 0x000000ff);
+			Screen = new Render(_regionRect.width, _regionRect.height, 0x000000);
 			addChild(Screen);
 			
 			x = _regionRect.left;

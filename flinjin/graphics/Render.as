@@ -25,7 +25,7 @@ package flinjin.graphics
 		public var PostEffects:Array = new Array();
 		
 		// Lag compenstation algorithm flag
-		public var UseLagCompinstation:Boolean = false;		
+		public var UseLagCompensation:Boolean = false;		
 		
 		private var _bitmapSurface:Bitmap;
 		
@@ -48,7 +48,7 @@ package flinjin.graphics
 		 *
 		 */
 		private function doUpdate():void {
-			if (UseLagCompinstation)
+			if (UseLagCompensation)
 			{
 				var time:Date = new Date();
 				var _delay:uint = time.getTime() - _last_update_time;
@@ -157,10 +157,10 @@ package flinjin.graphics
 		 * @param	nHeight
 		 * @param	fillColor
 		 */
-		public function Render(nWidth:int, nHeight:int, fillColor:uint=0x00000000)
+		public function Render(nWidth:int, nHeight:int, fillColor:uint=0x000000)
 		{
 			MainLayer = new Layer(nWidth, nHeight);
-			_bitmapSurface = new Bitmap(new BitmapData(nWidth, nHeight, true, fillColor));
+			_bitmapSurface = new Bitmap(new BitmapData(nWidth, nHeight, false, fillColor));
 			addChild(_bitmapSurface);
 			
 			_fillColor = fillColor;
