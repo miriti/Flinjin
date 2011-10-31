@@ -10,7 +10,7 @@ package flinjin.graphics
 	 * ...
 	 * @author Michael Miriti
 	 */
-	public class TextSprite extends SpriteBase
+	public class SpriteText extends Sprite
 	{
 		private var _font:String;
 		private var _size:uint;
@@ -18,7 +18,8 @@ package flinjin.graphics
 		private var _field:TextField;
 		private var _textformat:TextFormat;
 		
-		public function set text(val:String):void {
+		public function set text(val:String):void
+		{
 			_field.text = val;
 			_field.setTextFormat(_textformat);
 			
@@ -26,24 +27,49 @@ package flinjin.graphics
 			
 			bd.draw(_field);
 			
-			spriteBitmapData = bd;
+			CurrentBitmap = bd;
 		}
 		
-		override public function get width():uint
+		public function get text():String
 		{
-			return _field.width;
+			return _field.text;
 		}
 		
-		override public function get height():uint
+		override public function get width():Number
 		{
 			return _field.height;
 		}
 		
-		public function get text():String {
-			return _field.text;
+		override public function set width(value:Number):void
+		{
 		}
 		
-		public function TextSprite(newtext:String, font:String, size:uint)
+		override public function get height():Number
+		{
+			return _field.height;
+		}
+		
+		override public function set height(value:Number):void
+		{
+			super.height = value;
+		}
+		
+		public function set Format(val:TextFormat):void
+		{
+			_textformat = val;
+		}
+		
+		public function get Format():TextFormat
+		{
+			return _textformat;
+		}
+		
+		/**
+		 *
+		 * @param	initText
+		 * @param	initTextFormat
+		 */
+		public function SpriteText(initText:String, initTextFormat:TextFormat)
 		{
 			super(null);
 			
@@ -53,11 +79,11 @@ package flinjin.graphics
 			_field.antiAliasType = AntiAliasType.ADVANCED;
 			_field.embedFonts = true;
 			
-			_textformat = new TextFormat(font, size, 0xffffff);
+			Format = initTextFormat;
 			
-			text = newtext;
+			text = initText;
 		}
-		
+	
 	}
 
 }

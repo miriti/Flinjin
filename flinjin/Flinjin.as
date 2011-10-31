@@ -5,6 +5,7 @@ package flinjin
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
+	import flinjin.events.FlinjinEvent;
 	import flinjin.graphics.Layer;
 	import flinjin.graphics.Render;
 	import flinjin.input.Input;
@@ -21,6 +22,9 @@ package flinjin
 		
 		// Rendering region
 		private var _regionRect:Rectangle = null;
+		
+		// Debug state
+		public static var Debug:Boolean = false;
 		
 		override public function get width():Number {
 			return _regionRect.width;
@@ -58,42 +62,7 @@ package flinjin
 			x = _regionRect.left;
 			y = _regionRect.top;
 			
-			EngineStartup();
-		}
-		
-		private function onKeyDown(e:KeyboardEvent):void {
-			Input.KeysPressed[e.keyCode] = true;
-		}
-		
-		private function onKeyUp(e:KeyboardEvent):void {
-			Input.KeysPressed[e.keyCode] = false;
-		}
-		
-		private function onMouseDown(e:MouseEvent):void {
-			stage.focus = this;
-			Input.mousePos.x = e.stageX;
-			Input.mousePos.y = e.stageY;
-			Input.LMBDown = true;
-			Screen.doMouseDown(Input.mousePos);
-		}
-		
-		private function onMouseUp(e:MouseEvent):void {
-			Input.mousePos.x = e.stageX;
-			Input.mousePos.y = e.stageY;
-			Input.LMBDown = false;
-			Screen.doMouseUp(Input.mousePos);
-		}
-		
-		private function onMouseMove(e:MouseEvent):void {
-			Input.mousePos.x = e.stageX;
-			Input.mousePos.y = e.stageY;
-		}
-		
-		/**
-		 * Override this method to handle moment right after engine was initialized
-		 */
-		public function EngineStartup():void {
-			
+			dispatchEvent(new FlinjinEvent(FlinjinEvent.ENGINE_STARTUP, e.bubbles, e.cancelable));			
 		}
 		
 		public function get regionRect():Rectangle {
@@ -108,9 +77,6 @@ package flinjin
 		{
 			focusRect = false;
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-			addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);			
-			addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 		}
 		
 	}

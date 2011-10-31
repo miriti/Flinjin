@@ -8,6 +8,7 @@ package flinjin.graphics
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.ui.Mouse;
 	import flinjin.graphics.PostEffects.PostEffect;
 	import flinjin.input.Input;
 	
@@ -45,7 +46,7 @@ package flinjin.graphics
 		private var _deley_accum:uint = 0;
 		
 		/**
-		 *
+		 * Update movements
 		 */
 		private function doUpdate():void {
 			if (UseLagCompensation)
@@ -96,44 +97,43 @@ package flinjin.graphics
 			_fps_curr++;
 		}
 		
-		public function doMouseDown(mousePos:Point):void {
+		/**
+		 * Each mouse event broadcasting to all childs
+		 * 
+		 * @param	e
+		 */
+		private function onMouseEvent(e:MouseEvent):void {
+			var mousePos:Point = new Point(e.localX, e.localY);
+			
 			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
 				if (eachSprite.rect.containsPoint(mousePos)) {					
 					var localMousePos:Point = mousePos.clone();
 					localMousePos.x -= eachSprite.x;
 					localMousePos.y -= eachSprite.y;
 					
-					eachSprite.MouseDown(localMousePos);
-				}				
-			}
-		}
-		
-		public function doMouseUp(mousePos:Point):void {
-			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
-				if (eachSprite.rect.containsPoint(mousePos)) {					
-					var localMousePos:Point = mousePos.clone();
-					localMousePos.x -= eachSprite.x;
-					localMousePos.y -= eachSprite.y;
+					var subEvent:MouseEvent = e.clone() as MouseEvent;					
+					subEvent.localX = localMousePos.x;
+					subEvent.localY = localMousePos.y;
 					
-					eachSprite.MouseUp(localMousePos);
+					eachSprite.dispatchEvent(subEvent);
 				}				
-			}
-		}
-		
-		public function doKeyDown():void {
-			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
-				
-			}
-		}
-		
-		public function doKeyUp():void {
-			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
-				
 			}
 		}
 		
 		/**
-		 * При добавлении в дисплей лист
+		 * Each keyboard event broadcasting to all childs
+		 * 
+		 * @param	e
+		 */
+		private function onKeyEvent(e:KeyboardEvent):void {
+			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
+				eachSprite.dispatchEvent(e);
+			}
+		}
+		
+		/**
+		 * Added to stage event
+		 * 
 		 * @param	e
 		 */
 		private function onAddedToStage(e:Event):void {
@@ -171,6 +171,11 @@ package flinjin.graphics
 			
 			var time:Date = new Date();
 			_last_update_time = time.getTime();
+			
+			addEventListener(MouseEvent.MOUSE_DOWN,		onMouseEvent);
+			addEventListener(MouseEvent.MOUSE_UP,		onMouseEvent);
+			addEventListener(KeyboardEvent.KEY_DOWN,	onKeyEvent);
+			addEventListener(KeyboardEvent.KEY_UP,		onKeyEvent);
 		}
 		
 	}

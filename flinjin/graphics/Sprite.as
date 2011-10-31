@@ -3,10 +3,14 @@ package flinjin.graphics
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.IBitmapDrawable;
+	import flash.events.Event;
+	import flash.events.EventDispatcher;
+	import flash.events.IEventDispatcher;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flinjin.events.FlinjinSpriteEvent;
 	import flinjin.system.FlinjinError;
 	
 	/**
@@ -14,7 +18,7 @@ package flinjin.graphics
 	 *
 	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
-	public class Sprite
+	public class Sprite extends EventDispatcher
 	{
 		private var _bitmap:Bitmap;
 		private var _frames:Array;
@@ -88,6 +92,21 @@ package flinjin.graphics
 			return _colorTransform.color;
 		}
 		
+		public function set currentAnimation(val:String):void {
+			for each(var o:Object in _namedAnimationRegions) {
+				if (o['name'] == val) {
+					setNamedAnimationRegion(val);
+					return;
+				}
+			}
+			
+			throw new FlinjinError("Animation not found in list <" + val + ">");
+		}
+		
+		public function get currentAnimation():String {
+			return _currentRegion;
+		}
+		
 		public function set y(val:Number):void
 		{
 			_spriteRect.y = val;
@@ -108,6 +127,26 @@ package flinjin.graphics
 		public function get x():Number
 		{
 			return _position.x;
+		}
+		
+		public function set width(val:Number):void
+		{
+		
+		}
+		
+		public function get width():Number
+		{
+			return _spriteRect.width;
+		}
+		
+		public function set height(val:Number):void
+		{
+		
+		}
+		
+		public function get height():Number
+		{
+			return _spriteRect.height;
 		}
 		
 		public function set CurrentBitmap(val:BitmapData):void
@@ -196,22 +235,14 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * This function is triggered when animation or current animation part riches final frame. Override this function if you need to handle this event
-		 * @param	region
-		 */ 
-		public function onAnimationFinished(region:String=null):void
-		{
-		
-		}
-		
-		/**
 		 * Creating name animation region
 		 * @param	name
 		 * @param	frameStart
 		 * @param	frameEnd
 		 * @return
 		 */
-		public function addNamedAnimationRegion(name:String, frameStart:uint, frameEnd:uint):Object {
+		public function addNamedAnimationRegion(name:String, frameStart:uint, frameEnd:uint):Object
+		{
 			var newRegion:Object = new Object();
 			newRegion['name'] = name;
 			newRegion['start'] = frameStart;
@@ -222,42 +253,21 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * 
+		 *
 		 * @param	name
 		 */
-		public function setNamedAnimationRegion(name:String):void {
-			for each(var o:Object in _namedAnimationRegions) {
-				if (o['name'] == name) {
+		private function setNamedAnimationRegion(name:String):void
+		{
+			for each (var o:Object in _namedAnimationRegions)
+			{
+				if (o['name'] == name)
+				{
 					_minFrame = o['start'];
 					_maxFrame = o['end'];
 					_currentRegion = name;
 					_currentFrame = _minFrame;
 				}
 			}
-		}
-		
-		/**
-		 * Mouse down or tap
-		 *
-		 * Override this method to react
-		 *
-		 * @param	mousePos
-		 */
-		public function MouseDown(mousePos:Point):void
-		{
-		
-		}
-		
-		/**
-		 * Mouse up or tap finished
-		 *
-		 * Override this method to react
-		 *
-		 * @param	mousePos
-		 */
-		public function MouseUp(mousePos:Point):void
-		{
-		
 		}
 		
 		/**
@@ -275,7 +285,7 @@ package flinjin.graphics
 					if (Math.floor(_currentFrame) > _maxFrame)
 					{
 						_currentFrame = _minFrame;
-						onAnimationFinished(_currentRegion);
+						dispatchEvent(new Event(FlinjinSpriteEvent.ANIMATION_FINISHED));
 					}
 				}
 			}

@@ -1,6 +1,7 @@
 package flinjin.graphics
 {
 	import flash.display.BitmapData;
+	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flinjin.system.FlinjinError;
@@ -118,37 +119,19 @@ package flinjin.graphics
 		 *
 		 * @param	mousePos
 		 */
-		override public function MouseDown(mousePos:Point):void
+		private function onMouseEvent(e:MouseEvent):void
 		{
+			var mousePos:Point = new Point(e.localX, e.localY);
+			
 			for each (var eachSprite:Sprite in Sprites)
 			{
 				if (eachSprite.rect.containsPoint(mousePos))
 				{
-					var localMousePos:Point = mousePos.clone();
-					localMousePos.x -= eachSprite.x;
-					localMousePos.y -= eachSprite.y;
+					var subEvent:MouseEvent = e.clone() as MouseEvent;
+					subEvent.localX -= eachSprite.x;
+					subEvent.localY -= eachSprite.y;
 					
-					eachSprite.MouseDown(localMousePos);
-				}
-			}
-		}
-		
-		/**
-		 * Mouse up on Layer
-		 *
-		 * @param	mousePos
-		 */
-		override public function MouseUp(mousePos:Point):void
-		{
-			for each (var eachSprite:Sprite in Sprites)
-			{
-				if (eachSprite.rect.containsPoint(localMousePos))
-				{
-					var localMousePos:Point = mousePos.clone();
-					localMousePos.x -= eachSprite.x;
-					localMousePos.y -= eachSprite.y;
-					
-					eachSprite.MouseUp(localMousePos);
+					eachSprite.dispatchEvent(subEvent);
 				}
 			}
 		}
@@ -208,6 +191,9 @@ package flinjin.graphics
 			{
 				throw new FlinjinError('Layer can not be zero size');
 			}
+			
+			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
+			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
 		}
 	}
 
