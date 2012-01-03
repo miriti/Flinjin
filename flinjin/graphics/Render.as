@@ -15,7 +15,7 @@ package flinjin.graphics
 	/**
 	 * Main render unit
 	 *
-	 * @author Michael Miriti <m.s.miriti@gmail.com> 
+	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
 	public class Render extends Sprite
 	{
@@ -26,7 +26,7 @@ package flinjin.graphics
 		public var PostEffects:Array = new Array();
 		
 		// Lag compenstation algorithm flag
-		public var UseLagCompensation:Boolean = false;		
+		public var UseLagCompensation:Boolean = false;
 		
 		private var _bitmapSurface:Bitmap;
 		
@@ -43,53 +43,66 @@ package flinjin.graphics
 		private static const UPDATE_INTERVAL:uint = 30;
 		
 		private var _last_update_time:uint = 0;
-		private var _deley_accum:uint = 0;
+		private var _delay_accum:uint = 0;
 		
 		/**
 		 * Update movements
 		 */
-		private function doUpdate():void {
+		private function doUpdate():void
+		{
 			if (UseLagCompensation)
 			{
 				var time:Date = new Date();
 				var _delay:uint = time.getTime() - _last_update_time;
 				
-				if (_delay < UPDATE_INTERVAL) {
-					if (_delay + _deley_accum >= UPDATE_INTERVAL) {
-						_deley_accum = 0;
+				if (_delay < UPDATE_INTERVAL)
+				{
+					if (_delay + _delay_accum >= UPDATE_INTERVAL)
+					{
+						_delay_accum = 0;
 						MainLayer.Move();
 						_ups_curr++;
-					}else {
-						_deley_accum += _delay;
 					}
-				}else {
+					else
+					{
+						_delay_accum += _delay;
+					}
+				}
+				else
+				{
 					var repeats:uint = Math.floor(_delay / UPDATE_INTERVAL);
 					
-					for (var i:uint = 0; i < repeats; i++) {
+					for (var i:uint = 0; i < repeats; i++)
+					{
 						MainLayer.Move();
 						_ups_curr++;
 					}
 				}
 				
 				_last_update_time = time.getTime();
-			}else {
+			}
+			else
+			{
 				MainLayer.Move();
 			}
 		}
 		
 		/**
 		 * Actual rendering method
-		 * 
+		 *
 		 * @param	e
 		 */
-		private function doRender(e:Event = null):void {
+		private function doRender(e:Event = null):void
+		{
 			doUpdate();
 			_bitmapSurface.bitmapData.fillRect(_bitmapSurface.bitmapData.rect, _fillColor);
 			MainLayer.Draw(_bitmapSurface.bitmapData);
 			
-			if (PostEffects.length) {
+			if (PostEffects.length)
+			{
 				// Applying post effects
-				for (var i:int = 0; i < PostEffects.length; i++) {
+				for (var i:int = 0; i < PostEffects.length; i++)
+				{
 					PostEffect(PostEffects[i]).Apply(_bitmapSurface.bitmapData);
 				}
 			}
@@ -99,68 +112,85 @@ package flinjin.graphics
 		
 		/**
 		 * Each mouse event broadcasting to all childs
-		 * 
+		 *
 		 * @param	e
 		 */
-		private function onMouseEvent(e:MouseEvent):void {
+		private function onMouseEvent(e:MouseEvent):void
+		{
 			var mousePos:Point = new Point(e.localX, e.localY);
 			
-			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
-				if (eachSprite.rect.containsPoint(mousePos)) {					
+			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites)
+			{
+				if (eachSprite.rect.containsPoint(mousePos))
+				{
 					var localMousePos:Point = mousePos.clone();
 					localMousePos.x -= eachSprite.x;
 					localMousePos.y -= eachSprite.y;
 					
-					var subEvent:MouseEvent = e.clone() as MouseEvent;					
+					var subEvent:MouseEvent = e.clone() as MouseEvent;
 					subEvent.localX = localMousePos.x;
 					subEvent.localY = localMousePos.y;
 					
 					eachSprite.dispatchEvent(subEvent);
-				}				
+				}
 			}
 		}
 		
 		/**
 		 * Each keyboard event broadcasting to all childs
-		 * 
+		 *
 		 * @param	e
 		 */
-		private function onKeyEvent(e:KeyboardEvent):void {
-			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites) {
+		private function onKeyEvent(e:KeyboardEvent):void
+		{
+			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites)
+			{
 				eachSprite.dispatchEvent(e);
 			}
 		}
 		
 		/**
 		 * Added to stage event
-		 * 
+		 *
 		 * @param	e
 		 */
-		private function onAddedToStage(e:Event):void {
+		private function onAddedToStage(e:Event):void
+		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			addEventListener(Event.ENTER_FRAME, doRender);
-		}		
+		}
+		
+		/**
+		 * Sets the default fill color of renderer
+		 *
+		 * @param	color
+		 */
+		public function setFillColor(color:uint):void
+		{
+			_fillColor = color;
+		}
 		
 		/**
 		 * Adding new post effect to convair
-		 * 
+		 *
 		 * @param	newPostEffect
 		 */
-		public function addPostEffect(newPostEffect:PostEffect):void {
+		public function addPostEffect(newPostEffect:PostEffect):void
+		{
 			PostEffects[PostEffects.length] = newPostEffect;
 		}
 		
 		/**
 		 * Initialize rendering unit
-		 * 
+		 *
 		 * @param	nWidth
 		 * @param	nHeight
 		 * @param	fillColor
 		 */
-		public function Render(nWidth:int, nHeight:int, fillColor:uint=0x000000)
+		public function Render(nWidth:uint, nHeight:uint, fillColor:uint = 0x000000)
 		{
 			MainLayer = new Layer(nWidth, nHeight);
-			_bitmapSurface = new Bitmap(new BitmapData(nWidth, nHeight, false, fillColor));
+			_bitmapSurface = new Bitmap(new BitmapData(nWidth, nHeight, false, fillColor), "auto", false);
 			addChild(_bitmapSurface);
 			
 			_fillColor = fillColor;
@@ -172,12 +202,12 @@ package flinjin.graphics
 			var time:Date = new Date();
 			_last_update_time = time.getTime();
 			
-			addEventListener(MouseEvent.MOUSE_DOWN,		onMouseEvent);
-			addEventListener(MouseEvent.MOUSE_UP,		onMouseEvent);
-			addEventListener(KeyboardEvent.KEY_DOWN,	onKeyEvent);
-			addEventListener(KeyboardEvent.KEY_UP,		onKeyEvent);
+			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
+			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
+			addEventListener(KeyboardEvent.KEY_DOWN, onKeyEvent);
+			addEventListener(KeyboardEvent.KEY_UP, onKeyEvent);
 		}
-		
+	
 	}
 
 }

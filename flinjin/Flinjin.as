@@ -1,4 +1,4 @@
-package flinjin 
+package flinjin
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -12,10 +12,10 @@ package flinjin
 	
 	/**
 	 * Flinjin application base class
-	 * 
-	 * @author Michael Miriti <m.s.miriti@gmail.com> 
+	 *
+	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
-	public class Flinjin extends Sprite 
+	public class Flinjin extends Sprite
 	{
 		// Main rendering unit
 		public var Screen:Render;
@@ -52,6 +52,7 @@ package flinjin
 		 */
 		private function onAddedToStage(e:Event):void {
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			
 			if (_regionRect == null) {
 				regionRect = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
 			}
@@ -62,7 +63,7 @@ package flinjin
 			x = _regionRect.left;
 			y = _regionRect.top;
 			
-			dispatchEvent(new FlinjinEvent(FlinjinEvent.ENGINE_STARTUP, e.bubbles, e.cancelable));			
+			dispatchEvent(new FlinjinEvent(FlinjinEvent.ENGINE_STARTUP, e.bubbles, e.cancelable));
 		}
 		
 		public function get regionRect():Rectangle {
@@ -73,7 +74,7 @@ package flinjin
 			_regionRect = newRegionRect;
 		}
 		
-		public function Flinjin() 
+		public function Flinjin()
 		{
 			focusRect = false;
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);

@@ -4,6 +4,7 @@ package flinjin.graphics
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flinjin.events.FlinjinSpriteEvent;
 	import flinjin.system.FlinjinError;
 	
 	/**
@@ -25,9 +26,13 @@ package flinjin.graphics
 		 * Adding new sprite to list
 		 * @param	newSprite
 		 */
-		public function addSprite(newSprite:Sprite):void
+		public function addSprite(newSprite:Sprite, atX:Object = null, atY:Object = null):void
 		{
+			newSprite.x = (atX != null) && (atX is Number) ? (atX as Number) : newSprite.x;
+			newSprite.y = (atY != null) && (atY is Number) ? (atY as Number) : newSprite.y;
 			Sprites[Sprites.length] = newSprite;
+			
+			newSprite.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.ADDED_TO_LAYER, this));
 		}
 		
 		override public function get x():Number
@@ -57,7 +62,11 @@ package flinjin.graphics
 			return _layerRect;
 		}
 		
-		override public function Delete():void 
+		/**
+		 * Delete all child sprites form this layer
+		 *
+		 */
+		override public function Delete():void
 		{
 			for each (var eachSprite:Sprite in Sprites)
 			{
@@ -162,11 +171,15 @@ package flinjin.graphics
 		/**
 		 * Preparing sprites to render.
 		 * Deleting, culling, sorting etc.
-		 * 
+		 *
 		 */
-		private function _prepareSprites():void {
-			for (var i:uint = 0; i < Sprites.length; i++) {
-				if ((Sprites[i] as Sprite).DeleteFlag) {
+		private function _prepareSprites():void
+		{
+			for (var i:uint = 0; i < Sprites.length; i++)
+			{
+				if ((Sprites[i] as Sprite).DeleteFlag)
+				{
+					(Sprites[i] as Sprite).dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.REMOVED_FROM_LAYER, this));
 					Sprites[i] = Sprites.pop();
 				}
 			}

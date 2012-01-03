@@ -62,6 +62,8 @@ package flinjin.graphics
 		public var Interactive:Boolean = false;
 		public var MouseOver:Boolean = false;
 		
+		public static var Smoothing:Boolean = false;
+		
 		public function set angle(val:Number):void
 		{
 			_angle = val;
@@ -92,9 +94,12 @@ package flinjin.graphics
 			return _colorTransform.color;
 		}
 		
-		public function set currentAnimation(val:String):void {
-			for each(var o:Object in _namedAnimationRegions) {
-				if (o['name'] == val) {
+		public function set currentAnimation(val:String):void
+		{
+			for each (var o:Object in _namedAnimationRegions)
+			{
+				if (o['name'] == val)
+				{
 					setNamedAnimationRegion(val);
 					return;
 				}
@@ -103,7 +108,8 @@ package flinjin.graphics
 			throw new FlinjinError("Animation not found in list <" + val + ">");
 		}
 		
-		public function get currentAnimation():String {
+		public function get currentAnimation():String
+		{
 			return _currentRegion;
 		}
 		
@@ -229,9 +235,48 @@ package flinjin.graphics
 			_currentFrame = _minFrame;
 		}
 		
+		/**
+		 * Pause animation
+		 *
+		 */
 		public function PauseAnimation():void
 		{
 			_animated = false;
+		}
+		
+		/**
+		 * Creating new Sprite object from frame bitmap data
+		 *
+		 * @param	frameNumber
+		 * @param	rotationPoint
+		 * @return
+		 */
+		public function CreateSpriteFromFrame(frameNumber:uint, rotationPoint:Point = null):Sprite
+		{
+			if (rotationPoint == null)
+			{
+				rotationPoint = new Point();
+			}
+			
+			return new Sprite(getBitmapAtFrame(frameNumber), rotationPoint);
+		}
+		
+		/**
+		 * Get bitmap from specified frame
+		 *
+		 * @param	frameNumber
+		 * @return
+		 */
+		public function getBitmapAtFrame(frameNumber:uint):Bitmap
+		{
+			if (frameNumber < _frames.length - 1)
+			{
+				return new Bitmap(_frames[frameNumber]);
+			}
+			else
+			{
+				throw new FlinjinError('frame number is out of range of frames: ' + frameNumber);
+			}
 		}
 		
 		/**
@@ -275,6 +320,8 @@ package flinjin.graphics
 		 */
 		public function Move():void
 		{
+			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.BEFORE_MOVE));
+			
 			if (_animated)
 			{
 				_current_bitmap = _frames[Math.floor(_currentFrame)];
@@ -289,6 +336,8 @@ package flinjin.graphics
 					}
 				}
 			}
+			
+			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.AFTER_MOVE));
 		}
 		
 		/**
@@ -308,6 +357,8 @@ package flinjin.graphics
 		 */
 		public function Draw(surface:BitmapData):void
 		{
+			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.BEFORE_RENDER));
+			
 			// nothing to do if visible is false
 			if (!Visible)
 				return;
@@ -353,11 +404,13 @@ package flinjin.graphics
 			// Actual draw
 			if (_current_bitmap is IBitmapDrawable) // dunno why it is here...
 			{
-				surface.draw(_current_bitmap, _matrix, _colorTransform, null, null, true);
+				surface.draw(_current_bitmap, _matrix, _colorTransform, null, null, Smoothing);
 			}
 			
 			_spriteRect.left = _matrix.tx;
 			_spriteRect.top = _matrix.ty;
+			
+			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.AFTER_RENDER));
 		}
 		
 		/**
