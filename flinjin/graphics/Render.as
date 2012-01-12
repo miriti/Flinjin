@@ -6,14 +6,19 @@ package flinjin.graphics
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.ui.Mouse;
+	import flash.utils.Timer;
+	import flinjin.Flinjin;
 	import flinjin.graphics.PostEffects.PostEffect;
 	import flinjin.input.Input;
 	
 	/**
 	 * Main render unit
+	 *
+	 * !!! Extends flash.display.Sprite !!!
 	 *
 	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
@@ -44,6 +49,8 @@ package flinjin.graphics
 		
 		private var _last_update_time:uint = 0;
 		private var _delay_accum:uint = 0;
+		
+		private var _fpsTimer:Timer;
 		
 		/**
 		 * Update movements
@@ -117,23 +124,7 @@ package flinjin.graphics
 		 */
 		private function onMouseEvent(e:MouseEvent):void
 		{
-			var mousePos:Point = new Point(e.localX, e.localY);
-			
-			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites)
-			{
-				if (eachSprite.rect.containsPoint(mousePos))
-				{
-					var localMousePos:Point = mousePos.clone();
-					localMousePos.x -= eachSprite.x;
-					localMousePos.y -= eachSprite.y;
-					
-					var subEvent:MouseEvent = e.clone() as MouseEvent;
-					subEvent.localX = localMousePos.x;
-					subEvent.localY = localMousePos.y;
-					
-					eachSprite.dispatchEvent(subEvent);
-				}
-			}
+			MainLayer.dispatchEvent(e);
 		}
 		
 		/**
@@ -143,10 +134,7 @@ package flinjin.graphics
 		 */
 		private function onKeyEvent(e:KeyboardEvent):void
 		{
-			for each (var eachSprite:flinjin.graphics.Sprite in MainLayer.Sprites)
-			{
-				eachSprite.dispatchEvent(e);
-			}
+			MainLayer.dispatchEvent(e);
 		}
 		
 		/**
@@ -205,9 +193,34 @@ package flinjin.graphics
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
 			addEventListener(KeyboardEvent.KEY_DOWN, onKeyEvent);
+			addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void
+				{
+					Input.KeysPressed[e.keyCode] = true;
+				});
+			
 			addEventListener(KeyboardEvent.KEY_UP, onKeyEvent);
+			addEventListener(KeyboardEvent.KEY_UP, function(e:KeyboardEvent):void
+				{
+					Input.KeysPressed[e.keyCode] = false;
+				});
+			
+			if (Flinjin.Debug)
+			{
+				_fpsTimer = new Timer(1000);
+				_fpsTimer.addEventListener(TimerEvent.TIMER, onFpsTimer);
+				_fpsTimer.start();
+			}
 		}
-	
+		
+		private function onFpsTimer(e:TimerEvent):void
+		{
+			if (Flinjin.Debug)
+			{
+				_fps_last = _fps_curr;
+				trace('FPS:', _fps_curr);
+				_fps_curr = 0;
+			}
+		}
 	}
 
 }

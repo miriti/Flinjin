@@ -2,6 +2,7 @@ package flinjin.graphics
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.display.BlendMode;
 	import flash.display.IBitmapDrawable;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -11,6 +12,7 @@ package flinjin.graphics
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flinjin.events.FlinjinSpriteEvent;
+	import flinjin.Flinjin;
 	import flinjin.system.FlinjinError;
 	
 	/**
@@ -20,13 +22,15 @@ package flinjin.graphics
 	 */
 	public class Sprite extends EventDispatcher
 	{
-		private var _bitmap:Bitmap;
-		private var _frames:Array;
-		private var _current_bitmap:BitmapData;
+		protected var _bitmap:Bitmap;
+		protected var _frames:Array;
+		protected var _current_bitmap:BitmapData;
 		
 		private var _spriteWidth:uint;
 		private var _spriteHeight:uint;
 		private var _spriteRect:Rectangle;
+		
+		private var _collisionRect:Rectangle;
 		
 		private var _namedAnimationRegions:Array = new Array();
 		private var _currentRegion:String = null;
@@ -38,12 +42,12 @@ package flinjin.graphics
 		private var _frameRate:Number = 1;
 		private var _playing:Boolean = true;
 		
-		private var _position:Point = new Point();
-		private var _center:Point;
-		private var _angle:Number = 0;
-		private var _scale:Number = 1;
-		private var _scaleX:Number = 1;
-		private var _scaleY:Number = 1;
+		protected var _position:Point = new Point();
+		protected var _center:Point;
+		protected var _angle:Number = 0;
+		protected var _scale:Number = 1;
+		protected var _scaleX:Number = 1;
+		protected var _scaleY:Number = 1;
 		
 		private var _matrix:Matrix = new Matrix();
 		
@@ -53,6 +57,7 @@ package flinjin.graphics
 		public var _flipVertical:Boolean = false;
 		
 		public var Visible:Boolean = true;
+		public var Dynamic:Boolean = true;
 		
 		public var Drawed:Boolean = false;
 		public var DeleteFlag:Boolean = false;
@@ -63,6 +68,9 @@ package flinjin.graphics
 		public var MouseOver:Boolean = false;
 		
 		public static var Smoothing:Boolean = false;
+		public static var SharpBlitting:Boolean = false;
+		
+		protected var parentSprite:Sprite = null;
 		
 		public function set angle(val:Number):void
 		{
@@ -113,9 +121,26 @@ package flinjin.graphics
 			return _currentRegion;
 		}
 		
+		public function get currentFrame():uint
+		{
+			return _currentFrame;
+		}
+		
+		public function set currentFrame(val:uint):void
+		{
+			_currentFrame = val;
+			_current_bitmap = _frames[val];
+		}
+		
+		public function get totalFrames():uint
+		{
+			return _frames.length;
+		}
+		
 		public function set y(val:Number):void
 		{
-			_spriteRect.y = val;
+			_spriteRect.y = val - _center.x;
+			_collisionRect.y = val - _center.y;
 			_position.y = val;
 		}
 		
@@ -126,7 +151,8 @@ package flinjin.graphics
 		
 		public function set x(val:Number):void
 		{
-			_spriteRect.x = val;
+			_spriteRect.x = val - _center.x;
+			_collisionRect.x = val - _center.x;
 			_position.x = val;
 		}
 		
@@ -142,7 +168,7 @@ package flinjin.graphics
 		
 		public function get width():Number
 		{
-			return _spriteRect.width;
+			return _spriteWidth;
 		}
 		
 		public function set height(val:Number):void
@@ -152,19 +178,7 @@ package flinjin.graphics
 		
 		public function get height():Number
 		{
-			return _spriteRect.height;
-		}
-		
-		public function set CurrentBitmap(val:BitmapData):void
-		{
-			_current_bitmap = val;
-			_spriteRect.width = val.width;
-			_spriteRect.height = val.height;
-		}
-		
-		public function get CurrentBitmap():BitmapData
-		{
-			return _current_bitmap;
+			return _spriteHeight;
 		}
 		
 		public function set Center(val:Point):void
@@ -186,6 +200,8 @@ package flinjin.graphics
 		
 		public function set scale(val:Number):void
 		{
+			//_scaleX  = val;
+			//_scaleY = val;
 			_scale = val;
 		}
 		
@@ -197,6 +213,36 @@ package flinjin.graphics
 		public function get rect():Rectangle
 		{
 			return _spriteRect;
+		}
+		
+		public function get Paused():Boolean
+		{
+			return _animated;
+		}
+		
+		public function get position():Point
+		{
+			return _position;
+		}
+		
+		public function get collisionRect():Rectangle
+		{
+			return _collisionRect;
+		}
+		
+		public function set collisionRect(value:Rectangle):void
+		{
+			_collisionRect = value;
+		}
+		
+		public function get colorTransform():ColorTransform 
+		{
+			return _colorTransform;
+		}
+		
+		public function set colorTransform(value:ColorTransform):void 
+		{
+			_colorTransform = value;
 		}
 		
 		/**
@@ -269,7 +315,7 @@ package flinjin.graphics
 		 */
 		public function getBitmapAtFrame(frameNumber:uint):Bitmap
 		{
-			if (frameNumber < _frames.length - 1)
+			if (frameNumber <= _frames.length - 1)
 			{
 				return new Bitmap(_frames[frameNumber]);
 			}
@@ -281,6 +327,7 @@ package flinjin.graphics
 		
 		/**
 		 * Creating name animation region
+		 *
 		 * @param	name
 		 * @param	frameStart
 		 * @param	frameEnd
@@ -301,7 +348,7 @@ package flinjin.graphics
 		 *
 		 * @param	name
 		 */
-		private function setNamedAnimationRegion(name:String):void
+		public function setNamedAnimationRegion(name:String):void
 		{
 			for each (var o:Object in _namedAnimationRegions)
 			{
@@ -317,6 +364,7 @@ package flinjin.graphics
 		
 		/**
 		 * Updating animation state if sprite is animated
+		 *
 		 */
 		public function Move():void
 		{
@@ -350,12 +398,17 @@ package flinjin.graphics
 			_currentRegion = null;
 		}
 		
+		public function Draw(surface:BitmapData, shiftVector:Point = null):void
+		{
+			_Draw(surface, shiftVector);
+		}
+		
 		/**
 		 * Draw sprite on the surface with all transformations
 		 *
 		 * @param	surface
 		 */
-		public function Draw(surface:BitmapData):void
+		protected function _Draw(surface:BitmapData, shiftVector:Point = null):void
 		{
 			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.BEFORE_RENDER));
 			
@@ -398,32 +451,69 @@ package flinjin.graphics
 				_matrix.scale(_scaleX * _scale, _scaleY * _scale);
 			}
 			
-			// Moving to the place
-			_matrix.translate(_position.x, _position.y);
-			
-			// Actual draw
-			if (_current_bitmap is IBitmapDrawable) // dunno why it is here...
+			if (shiftVector != null)
 			{
-				surface.draw(_current_bitmap, _matrix, _colorTransform, null, null, Smoothing);
+				if (SharpBlitting)
+				{
+					shiftVector.x = Math.floor(shiftVector.x);
+					shiftVector.y = Math.floor(shiftVector.y);
+				}
+				
+				_matrix.translate(shiftVector.x, shiftVector.y);
 			}
 			
-			_spriteRect.left = _matrix.tx;
-			_spriteRect.top = _matrix.ty;
+			// Moving to the place
+			if (SharpBlitting)
+			{
+				_matrix.translate(Math.floor(_position.x), Math.floor(_position.y));
+			}
+			else
+			{
+				_matrix.translate(_position.x, _position.y);
+			}
+			
+			surface.draw(_current_bitmap, _matrix, _colorTransform, null, null, Smoothing);
+			
+			_spriteRect.x = _matrix.tx;
+			_spriteRect.y = _matrix.ty;
 			
 			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.AFTER_RENDER));
 		}
 		
 		/**
-		 * Base Sprite class constructor
-		 *
-		 * @param	spriteBmp	Bitmap containing sprite frame(s)
-		 * @param	rotationCenter	Rotation point of sprite
-		 * @param	animated	Is sprite animated
-		 * @param	frameWidth	Width of animation frame
-		 * @param	frameHeight	Height of animation frame
-		 * @param	frameRate	Animation speed scale. Defines how many frames of animation passes in one application frame. 1/2 means 1 animation frame per 2 application frames
+		 * Set new center for sprite
+		 * 
+		 * @param	newCX
+		 * @param	newCY
 		 */
-		public function Sprite(spriteBmp:Bitmap, rotationCenter:Point = null, animated:Boolean = false, frameWidth:uint = 0, frameHeight:uint = 0, frameRate:Number = 1)
+		public function setCenter(newCX:Number, newCY:Number):void
+		{
+			_center.x = newCX;
+			_center.y = newCY;
+		}
+		
+		/**
+		 * Set new possition for sprite
+		 *
+		 * @param	newX
+		 * @param	newY
+		 */
+		public function setPosition(newX:Number, newY:Number):void
+		{
+			x = newX;
+			y = newY;
+		}
+		
+		/**
+		 *
+		 * @param	spriteBmp
+		 * @param	rotationCenter
+		 * @param	animated
+		 * @param	frameWidth
+		 * @param	frameHeight
+		 * @param	frameRate
+		 */
+		protected function _initSprite(spriteBmp:Bitmap, rotationCenter:Point = null, animated:Boolean = false, frameWidth:uint = 0, frameHeight:uint = 0, frameRate:Number = 1):void
 		{
 			if (spriteBmp == null)
 			{
@@ -479,9 +569,30 @@ package flinjin.graphics
 				_current_bitmap = _bitmap.bitmapData;
 			}
 			
-			_spriteRect = new Rectangle(0, 0, _spriteWidth, _spriteHeight);
+			_spriteRect = new Rectangle(-_center.x, -_center.y, _spriteWidth, _spriteHeight);
+			_collisionRect = _spriteRect.clone();
 		}
-	
+		
+		/**
+		 * Base Sprite class constructor
+		 *
+		 * @param	spriteBmp	Bitmap containing sprite frame(s)
+		 * @param	rotationCenter	Rotation point of sprite
+		 * @param	animated	Is sprite animated
+		 * @param	frameWidth	Width of animation frame
+		 * @param	frameHeight	Height of animation frame
+		 * @param	frameRate	Animation speed scale. Defines how many frames of animation passes in one application frame. 1/2 means 1 animation frame per 2 application frames
+		 */
+		public function Sprite(spriteBmp:Bitmap, rotationCenter:Point = null, animated:Boolean = false, frameWidth:uint = 0, frameHeight:uint = 0, frameRate:Number = 1)
+		{
+			_initSprite(spriteBmp, rotationCenter, animated, frameWidth, frameHeight, frameRate);
+			addEventListener(FlinjinSpriteEvent.ADDED_TO_LAYER, onAddedToLayer);
+		}
+		
+		private function onAddedToLayer(e:FlinjinSpriteEvent):void
+		{
+			parentSprite = e.interactionSprite;
+		}
 	}
 
 }

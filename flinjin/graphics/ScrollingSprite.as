@@ -59,7 +59,6 @@ package flinjin.graphics
 			var BlitsArray:Array = new Array();
 			var BlitsPoints:Array = new Array();
 			
-			// TODO Оптимизировать! Совсем не обязательно создавать все эти штуки при каждом вызове!
 			BlitsArray[0] = new Rectangle(_bitmap.width - shiftX, _bitmap.height - shiftY, shiftX, shiftY);
 			BlitsArray[1] = new Rectangle(0, _bitmap.height - shiftY, _bitmap.width - shiftX, shiftY);
 			BlitsArray[2] = new Rectangle(_bitmap.width - shiftX, 0, shiftX, _bitmap.height - shiftY);

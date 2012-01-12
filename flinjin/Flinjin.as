@@ -60,6 +60,8 @@ package flinjin
 			Screen = new Render(_regionRect.width, _regionRect.height, 0x000000);
 			addChild(Screen);
 			
+			stage.focus = Screen;
+			
 			x = _regionRect.left;
 			y = _regionRect.top;
 			
@@ -77,7 +79,24 @@ package flinjin
 		public function Flinjin()
 		{
 			focusRect = false;
-			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage); 
+			addEventListener(Event.ACTIVATE, onActivate);
+			addEventListener(Event.DEACTIVATE, onDeactivate);
+			addEventListener(MouseEvent.CLICK, onClick);
+		}
+		
+		private function onClick(e:MouseEvent):void 
+		{
+			stage.focus = Screen;
+		}
+		
+		private function onActivate(e:Event):void 
+		{
+			stage.focus = Screen;
+		}
+		
+		private function onDeactivate(e:Event):void 
+		{
 		}
 		
 	}
