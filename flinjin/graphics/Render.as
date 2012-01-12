@@ -192,6 +192,7 @@ package flinjin.graphics
 			
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
+			addEventListener(MouseEvent.CLICK, onMouseEvent);
 			addEventListener(KeyboardEvent.KEY_DOWN, onKeyEvent);
 			addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void
 				{

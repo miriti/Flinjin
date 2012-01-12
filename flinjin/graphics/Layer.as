@@ -15,17 +15,20 @@ package flinjin.graphics
 	 */
 	public class Layer extends Sprite
 	{
-		// Buffer where all children sprites will be drawed in
+		/** Buffer where all children sprites will be drawed in */
 		protected var _buffer:BitmapData = null;
 		
-		// Layer boundings
-		private var _layerRect:Rectangle;
+		/** Layer boundings */
+		protected var _layerRect:Rectangle;
 		
-		// Children sprites collection
-		public var Sprites:Array = new Array(); /** @todo Maybe we should use Vector here? **/
+		/** List of the Leyer's sprites **/
+		protected var Sprites:Array = new Array();
 		
+		
+		/** Enable clipping of the layer by it's rect **/
 		public var EnableClip:Boolean = false;
 		
+		/** Backgroung filling of the Layer **/
 		public var FillColor:uint = 0x00000000;
 		
 		public var shift:Point = new Point(0, 0);
@@ -215,6 +218,12 @@ package flinjin.graphics
 			}
 		}
 		
+		/**
+		 * Set visibility of all sprites
+		 * 
+		 * @param	toClass
+		 * @param	val
+		 */
 		public function setVisibility(toClass:Class, val:Boolean):void
 		{
 			for (var i:int = 0; i < Sprites.length; i++)

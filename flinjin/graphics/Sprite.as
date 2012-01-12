@@ -48,17 +48,16 @@ package flinjin.graphics
 		protected var _scale:Number = 1;
 		protected var _scaleX:Number = 1;
 		protected var _scaleY:Number = 1;
+		protected var _visible:Boolean = true;
 		
-		private var _matrix:Matrix = new Matrix();
+		protected var _matrix:Matrix = new Matrix();
 		
-		private var _colorTransform:ColorTransform = new ColorTransform();
+		protected var _colorTransform:ColorTransform = new ColorTransform();
 		
-		public var _flipHorizontal:Boolean = false;
-		public var _flipVertical:Boolean = false;
+		protected var _flipHorizontal:Boolean = false;
+		protected var _flipVertical:Boolean = false;
 		
-		public var Visible:Boolean = true;
-		public var Dynamic:Boolean = true;
-		
+		public var Dynamic:Boolean = true;		
 		public var Drawed:Boolean = false;
 		public var DeleteFlag:Boolean = false;
 		public var zIndex:int = 0;
@@ -70,7 +69,7 @@ package flinjin.graphics
 		public static var Smoothing:Boolean = false;
 		public static var SharpBlitting:Boolean = false;
 		
-		protected var parentSprite:Sprite = null;
+		protected var _parentSprite:Sprite = null;
 		
 		public function set angle(val:Number):void
 		{
@@ -161,19 +160,9 @@ package flinjin.graphics
 			return _position.x;
 		}
 		
-		public function set width(val:Number):void
-		{
-		
-		}
-		
 		public function get width():Number
 		{
 			return _spriteWidth;
-		}
-		
-		public function set height(val:Number):void
-		{
-		
 		}
 		
 		public function get height():Number
@@ -200,8 +189,6 @@ package flinjin.graphics
 		
 		public function set scale(val:Number):void
 		{
-			//_scaleX  = val;
-			//_scaleY = val;
 			_scale = val;
 		}
 		
@@ -235,14 +222,29 @@ package flinjin.graphics
 			_collisionRect = value;
 		}
 		
-		public function get colorTransform():ColorTransform 
+		public function get colorTransform():ColorTransform
 		{
 			return _colorTransform;
 		}
 		
-		public function set colorTransform(value:ColorTransform):void 
+		public function set colorTransform(value:ColorTransform):void
 		{
 			_colorTransform = value;
+		}
+		
+		public function get Visible():Boolean 
+		{
+			return _visible;
+		}
+		
+		public function set Visible(value:Boolean):void 
+		{
+			_visible = value;
+		}
+		
+		public function get parent():Sprite 
+		{
+			return _parentSprite;
 		}
 		
 		/**
@@ -404,6 +406,29 @@ package flinjin.graphics
 		}
 		
 		/**
+		 * Checks is point not transporent
+		 *
+		 * @param	p Point
+		 * @return Boolean True is this is non transporent pixel, false otherwise.
+		 */
+		public function PintPixelCheck(p:Point):Boolean
+		{
+			if (p != null)
+			{
+				if ((p.x < width) && (p.y < height) && (p.x >= 0) && (p.y >= 0))
+				{
+					var pixel:uint = _current_bitmap.getPixel(p.x, p.y);
+				} else {
+					throw new FlinjinError("Pint is out of sprite");
+				}
+			}
+			else
+			{
+				throw new FlinjinError("Point must not be null");
+			}
+		}
+		
+		/**
 		 * Draw sprite on the surface with all transformations
 		 *
 		 * @param	surface
@@ -482,7 +507,7 @@ package flinjin.graphics
 		
 		/**
 		 * Set new center for sprite
-		 * 
+		 *
 		 * @param	newCX
 		 * @param	newCY
 		 */
@@ -569,7 +594,8 @@ package flinjin.graphics
 				_current_bitmap = _bitmap.bitmapData;
 			}
 			
-			_spriteRect = new Rectangle(-_center.x, -_center.y, _spriteWidth, _spriteHeight);
+			_spriteRect = new Rectangle( -_center.x, -_center.y, _spriteWidth, _spriteHeight);
+			
 			_collisionRect = _spriteRect.clone();
 		}
 		
@@ -591,7 +617,7 @@ package flinjin.graphics
 		
 		private function onAddedToLayer(e:FlinjinSpriteEvent):void
 		{
-			parentSprite = e.interactionSprite;
+			parent = e.interactionSprite;
 		}
 	}
 
