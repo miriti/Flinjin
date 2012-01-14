@@ -125,7 +125,7 @@ package flinjin.graphics
 			return _layerRect.width;
 		}
 		
-		override public function set width(value:Number):void
+		public function set width(value:Number):void
 		{
 			_layerRect.width = value;
 		}
@@ -135,7 +135,7 @@ package flinjin.graphics
 			return _layerRect.height;
 		}
 		
-		override public function set height(value:Number):void
+		public function set height(value:Number):void
 		{
 			_layerRect.height = value;
 		}
@@ -158,6 +158,10 @@ package flinjin.graphics
 			super.Delete();
 		}
 		
+		/**
+		 * Delete all sprites
+		 * 
+		 */
 		public function Clear():void
 		{
 			for (var i:int = Sprites.length - 1; i >= 0; i--)

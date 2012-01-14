@@ -191,19 +191,18 @@ package flinjin.graphics
 			_last_update_time = time.getTime();
 			
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
+			addEventListener(MouseEvent.MOUSE_DOWN, Input.onMouseDown);
+			
 			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
+			addEventListener(MouseEvent.MOUSE_UP, Input.onMouseUp);
+			
 			addEventListener(MouseEvent.CLICK, onMouseEvent);
+			
 			addEventListener(KeyboardEvent.KEY_DOWN, onKeyEvent);
-			addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void
-				{
-					Input.KeysPressed[e.keyCode] = true;
-				});
+			addEventListener(KeyboardEvent.KEY_DOWN, Input.onKeyDown);
 			
 			addEventListener(KeyboardEvent.KEY_UP, onKeyEvent);
-			addEventListener(KeyboardEvent.KEY_UP, function(e:KeyboardEvent):void
-				{
-					Input.KeysPressed[e.keyCode] = false;
-				});
+			addEventListener(KeyboardEvent.KEY_UP, Input.onKeyUp);
 			
 			if (Flinjin.Debug)
 			{

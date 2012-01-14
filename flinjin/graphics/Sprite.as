@@ -29,18 +29,16 @@ package flinjin.graphics
 		private var _spriteWidth:uint;
 		private var _spriteHeight:uint;
 		private var _spriteRect:Rectangle;
-		
 		private var _collisionRect:Rectangle;
-		
 		private var _namedAnimationRegions:Array = new Array();
 		private var _currentRegion:String = null;
-		
 		private var _animated:Boolean = false;
 		private var _minFrame:uint = 0;
 		private var _maxFrame:uint = 0;
 		private var _currentFrame:Number = 0;
 		private var _frameRate:Number = 1;
 		private var _playing:Boolean = true;
+		private var _collisionType:uint;
 		
 		protected var _position:Point = new Point();
 		protected var _center:Point;
@@ -49,20 +47,16 @@ package flinjin.graphics
 		protected var _scaleX:Number = 1;
 		protected var _scaleY:Number = 1;
 		protected var _visible:Boolean = true;
-		
 		protected var _matrix:Matrix = new Matrix();
-		
 		protected var _colorTransform:ColorTransform = new ColorTransform();
-		
 		protected var _flipHorizontal:Boolean = false;
 		protected var _flipVertical:Boolean = false;
 		
-		public var Dynamic:Boolean = true;		
+		public var Dynamic:Boolean = true;
 		public var Drawed:Boolean = false;
 		public var DeleteFlag:Boolean = false;
 		public var zIndex:int = 0;
 		public var CollisionEnabled:Boolean = false;
-		public var CollisionPixelCheck:Boolean = false;
 		public var Interactive:Boolean = false;
 		public var MouseOver:Boolean = false;
 		
@@ -232,19 +226,29 @@ package flinjin.graphics
 			_colorTransform = value;
 		}
 		
-		public function get Visible():Boolean 
+		public function get Visible():Boolean
 		{
 			return _visible;
 		}
 		
-		public function set Visible(value:Boolean):void 
+		public function set Visible(value:Boolean):void
 		{
 			_visible = value;
 		}
 		
-		public function get parent():Sprite 
+		public function get parent():Sprite
 		{
 			return _parentSprite;
+		}
+		
+		public function get collisionType():uint 
+		{
+			return _collisionType;
+		}
+		
+		public function set collisionType(value:uint):void 
+		{
+			_collisionType = value;
 		}
 		
 		/**
@@ -418,7 +422,10 @@ package flinjin.graphics
 				if ((p.x < width) && (p.y < height) && (p.x >= 0) && (p.y >= 0))
 				{
 					var pixel:uint = _current_bitmap.getPixel(p.x, p.y);
-				} else {
+					return true;
+				}
+				else
+				{
 					throw new FlinjinError("Pint is out of sprite");
 				}
 			}
@@ -426,6 +433,8 @@ package flinjin.graphics
 			{
 				throw new FlinjinError("Point must not be null");
 			}
+			
+			return false;
 		}
 		
 		/**
@@ -594,9 +603,16 @@ package flinjin.graphics
 				_current_bitmap = _bitmap.bitmapData;
 			}
 			
-			_spriteRect = new Rectangle( -_center.x, -_center.y, _spriteWidth, _spriteHeight);
+			_spriteRect = new Rectangle(-_center.x, -_center.y, _spriteWidth, _spriteHeight);
 			
 			_collisionRect = _spriteRect.clone();
+			
+			if (_spriteWidth >= _spriteHeight)
+			{
+			}
+			else
+			{
+			}
 		}
 		
 		/**
@@ -617,7 +633,7 @@ package flinjin.graphics
 		
 		private function onAddedToLayer(e:FlinjinSpriteEvent):void
 		{
-			parent = e.interactionSprite;
+			_parentSprite = e.interactionSprite;
 		}
 	}
 
