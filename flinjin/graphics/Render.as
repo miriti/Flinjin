@@ -9,7 +9,6 @@ package flinjin.graphics
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.net.drm.VoucherAccessInfo;
 	import flash.ui.Mouse;
 	import flash.utils.Timer;
 	import flinjin.Flinjin;
