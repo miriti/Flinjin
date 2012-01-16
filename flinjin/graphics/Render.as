@@ -9,6 +9,7 @@ package flinjin.graphics
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.net.drm.VoucherAccessInfo;
 	import flash.ui.Mouse;
 	import flash.utils.Timer;
 	import flinjin.Flinjin;
@@ -43,6 +44,9 @@ package flinjin.graphics
 		
 		private var _ups_last:int = 0;
 		private var _ups_curr:int = 0;
+		
+		private var _surfaceWidth:uint;
+		private var _surfaceHeight:uint;
 		
 		// Update interval
 		private static const UPDATE_INTERVAL:uint = 30;
@@ -145,7 +149,11 @@ package flinjin.graphics
 		private function onAddedToStage(e:Event):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			InitSurface();
 			addEventListener(Event.ENTER_FRAME, doRender);
+			
+			var time:Date = new Date();
+			_last_update_time = time.getTime();
 		}
 		
 		/**
@@ -158,6 +166,12 @@ package flinjin.graphics
 			_fillColor = color;
 		}
 		
+		public function setDemensions(nWidth:uint, nHeight:uint):void
+		{
+			_surfaceWidth = nWidth;
+			_surfaceHeight = nHeight;
+		}
+		
 		/**
 		 * Adding new post effect to convair
 		 *
@@ -168,6 +182,14 @@ package flinjin.graphics
 			PostEffects[PostEffects.length] = newPostEffect;
 		}
 		
+		protected function InitSurface():void
+		{
+			_bitmapSurface = new Bitmap(new BitmapData(_surfaceWidth, _surfaceHeight, false, _fillColor), "auto", false);
+			addChild(_bitmapSurface);
+			
+			MainLayer = new Layer(_surfaceWidth, _surfaceHeight);
+		}
+		
 		/**
 		 * Initialize rendering unit
 		 *
@@ -175,32 +197,18 @@ package flinjin.graphics
 		 * @param	nHeight
 		 * @param	fillColor
 		 */
-		public function Render(nWidth:uint, nHeight:uint, fillColor:uint = 0x000000)
+		public function Render()
 		{
-			MainLayer = new Layer(nWidth, nHeight);
-			_bitmapSurface = new Bitmap(new BitmapData(nWidth, nHeight, false, fillColor), "auto", false);
-			addChild(_bitmapSurface);
-			
-			_fillColor = fillColor;
-			
 			focusRect = false;
 			
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-			
-			var time:Date = new Date();
-			_last_update_time = time.getTime();
-			
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_DOWN, Input.onMouseDown);
-			
 			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_UP, Input.onMouseUp);
-			
 			addEventListener(MouseEvent.CLICK, onMouseEvent);
-			
 			addEventListener(KeyboardEvent.KEY_DOWN, onKeyEvent);
 			addEventListener(KeyboardEvent.KEY_DOWN, Input.onKeyDown);
-			
 			addEventListener(KeyboardEvent.KEY_UP, onKeyEvent);
 			addEventListener(KeyboardEvent.KEY_UP, Input.onKeyUp);
 			

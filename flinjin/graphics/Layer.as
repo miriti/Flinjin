@@ -7,7 +7,6 @@ package flinjin.graphics
 	import flash.geom.Rectangle;
 	import flinjin.events.FlinjinSpriteEvent;
 	import flinjin.system.FlinjinError;
-	import game.mobs.PlayerMob;
 	
 	/**
 	 * ...

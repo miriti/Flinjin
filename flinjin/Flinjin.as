@@ -26,15 +26,18 @@ package flinjin
 		// Debug state
 		public static var Debug:Boolean = false;
 		
-		override public function get width():Number {
+		override public function get width():Number
+		{
 			return _regionRect.width;
 		}
 		
-		override public function get height():Number {
+		override public function get height():Number
+		{
 			return _regionRect.height;
 		}
 		
-		public function addToMainLayer(newObject:flinjin.graphics.Sprite):void {
+		public function addToMainLayer(newObject:flinjin.graphics.Sprite):void
+		{
 			Screen.MainLayer.addSprite(newObject);
 		}
 		
@@ -42,7 +45,8 @@ package flinjin
 		 * Overriding current main layer
 		 * @param	newLayer
 		 */
-		public function setMainLayer(newLayer:Layer):void {
+		public function setMainLayer(newLayer:Layer):void
+		{
 			Screen.MainLayer = newLayer;
 		}
 		
@@ -50,14 +54,17 @@ package flinjin
 		 * Added to stage event
 		 * @param	e
 		 */
-		private function onAddedToStage(e:Event):void {
+		private function onAddedToStage(e:Event):void
+		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			
-			if (_regionRect == null) {
-				regionRect = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
+			if (_regionRect == null)
+			{
+				regionRect = new Rectangle(x, y, stage.stageWidth - x, stage.stageHeight - y);
 			}
 			
-			Screen = new Render(_regionRect.width, _regionRect.height, 0x000000);
+			Screen.setDemensions(_regionRect.width, _regionRect.height);
+			
 			addChild(Screen);
 			
 			stage.focus = Screen;
@@ -68,37 +75,41 @@ package flinjin
 			dispatchEvent(new FlinjinEvent(FlinjinEvent.ENGINE_STARTUP, e.bubbles, e.cancelable));
 		}
 		
-		public function get regionRect():Rectangle {
+		public function get regionRect():Rectangle
+		{
 			return _regionRect;
 		}
 		
-		public function set regionRect(newRegionRect:Rectangle):void {
+		public function set regionRect(newRegionRect:Rectangle):void
+		{
 			_regionRect = newRegionRect;
 		}
 		
 		public function Flinjin()
 		{
+			Screen = new Render();
+			
 			focusRect = false;
-			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage); 
+			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			addEventListener(Event.ACTIVATE, onActivate);
 			addEventListener(Event.DEACTIVATE, onDeactivate);
 			addEventListener(MouseEvent.CLICK, onClick);
 		}
 		
-		private function onClick(e:MouseEvent):void 
+		private function onClick(e:MouseEvent):void
 		{
 			stage.focus = Screen;
 		}
 		
-		private function onActivate(e:Event):void 
+		private function onActivate(e:Event):void
 		{
 			stage.focus = Screen;
 		}
 		
-		private function onDeactivate(e:Event):void 
+		private function onDeactivate(e:Event):void
 		{
 		}
-		
+	
 	}
 
 }
