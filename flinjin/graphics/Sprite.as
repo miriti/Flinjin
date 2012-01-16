@@ -11,9 +11,11 @@ package flinjin.graphics
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flinjin.algorithms.collisions.BoundingSphere;
 	import flinjin.events.FlinjinSpriteEvent;
 	import flinjin.Flinjin;
 	import flinjin.system.FlinjinError;
+	import flinjin.types.BoundingShape;
 	
 	/**
 	 * Base Sprite class
@@ -38,7 +40,7 @@ package flinjin.graphics
 		private var _currentFrame:Number = 0;
 		private var _frameRate:Number = 1;
 		private var _playing:Boolean = true;
-		private var _collisionType:uint;
+		private var _collisionShape:BoundingShape;
 		
 		protected var _position:Point = new Point();
 		protected var _center:Point;
@@ -241,14 +243,19 @@ package flinjin.graphics
 			return _parentSprite;
 		}
 		
-		public function get collisionType():uint 
+		public function get collisionType():uint
 		{
 			return _collisionType;
 		}
 		
-		public function set collisionType(value:uint):void 
+		public function set collisionType(value:uint):void
 		{
 			_collisionType = value;
+		}
+		
+		public function get collisionShape():BoundingShape
+		{
+			return _collisionShape;
 		}
 		
 		/**
@@ -396,6 +403,7 @@ package flinjin.graphics
 		
 		/**
 		 * Reset animation region to 0 .. _frames.length
+		 * 
 		 */
 		public function ResetAnimationRegion():void
 		{
@@ -404,6 +412,14 @@ package flinjin.graphics
 			_currentRegion = null;
 		}
 		
+		/**
+		 * Actual draw of sprite
+		 * 
+		 * Wrap of protected method _Draw
+		 * 
+		 * @param	surface
+		 * @param	shiftVector
+		 */
 		public function Draw(surface:BitmapData, shiftVector:Point = null):void
 		{
 			_Draw(surface, shiftVector);
@@ -512,6 +528,26 @@ package flinjin.graphics
 			_spriteRect.y = _matrix.ty;
 			
 			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.AFTER_RENDER));
+		}
+		
+		/**
+		 * Sets bounding shape for this sprite
+		 * @param	boundingShape BoundingShape or null if you need to disable collisions for this sprite
+		 * @return
+		 */
+		public function setBoundingShape(boundingShape:BoundingShape):BoundingSphere
+		{
+			if (boundingShape != null)
+			{
+				_collisionShape = boundingShape;
+				CollisionEnabled = false;
+			}
+			else
+			{
+				CollisionEnabled = false;
+			}
+			
+			return boundingShape;
 		}
 		
 		/**
