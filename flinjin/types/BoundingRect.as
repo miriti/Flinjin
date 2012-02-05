@@ -1,6 +1,10 @@
 package flinjin.types
 {
+	import flash.display.BitmapData;
+	import flash.display.IBitmapDrawable;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flinjin.graphics.Sprite;
 	
 	/**
 	 * ...
@@ -8,37 +12,85 @@ package flinjin.types
 	 */
 	public class BoundingRect extends BoundingShape
 	{
-		private var _rect:Rectangle;
+		protected var _halfWidth:Number;
+		protected var _halfHeight:Number;
+		protected var _centerShift:Point = new Point();
 		
-		public function BoundingRect(width:Number, height:Number)
+		public function BoundingRect(toObj:Sprite, newHalfWidth:Number, newHalfHeight:Number, centerShift:Point = null)
 		{
-			_rect = new Rectangle(0, 0, width, height);
-			super();
+			_halfWidth = newHalfWidth;
+			_halfHeight = newHalfHeight;
+			
+			if (centerShift != null)
+			{
+				_centerShift = centerShift;
+			}
+			
+			super(toObj);
 		}
 		
-		public function get rect():Rectangle
+		public function getRect():Rectangle
 		{
-			return _rect;
+			// TODO optimize!
+			return new Rectangle(x - halfWidth + _centerShift.x, y - halfHeight + _centerShift.y, width, height);
+		}
+		
+		override public function DebugDraw(surface:BitmapData, shiftVector:Point):void
+		{
+			var stX:Number = (shiftVector.x + x + _centerShift.x) - _halfWidth;
+			var stY:Number = (shiftVector.y + y + _centerShift.y) - _halfWidth;
+			
+			for (var i:int = stX; i < (stX + width); i++)
+			{
+				surface.setPixel32(i, stY, 0xffff0000);
+				surface.setPixel32(i, stY + height - 1, 0xffff0000);
+			}
+			
+			for (var j:int = stY; j < (stY + height); j++)
+			{
+				surface.setPixel32(stX, j, 0xffff0000);
+				surface.setPixel32(stX + width - 1, j, 0xffff0000);
+			}
 		}
 		
 		public function get height():Number
 		{
-			return _rect.height;
-		}
-		
-		public function set height(value:Number):void
-		{
-			_rect.height = value;
+			return _halfHeight * 2;
 		}
 		
 		public function get width():Number
 		{
-			return _rect.width;
+			return _halfWidth * 2;
 		}
 		
-		public function set width(value:Number):void
+		public function get halfWidth():Number
 		{
-			_rect.width = value;
+			return _halfWidth;
+		}
+		
+		public function set halfWidth(value:Number):void
+		{
+			_halfWidth = value;
+		}
+		
+		public function get halfHeight():Number
+		{
+			return _halfHeight;
+		}
+		
+		public function set halfHeight(value:Number):void
+		{
+			_halfHeight = value;
+		}
+		
+		public function get shift():Point
+		{
+			return _centerShift;
+		}
+		
+		public function set shift(value:Point):void
+		{
+			_centerShift = value;
 		}
 	
 	}

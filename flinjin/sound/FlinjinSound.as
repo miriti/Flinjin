@@ -1,84 +1,97 @@
 package flinjin.sound
 {
+	import flash.events.Event;
 	import flash.media.Sound;
+	import flash.media.SoundChannel;
 	
 	/**
 	 * ...
 	 * @author Michael Miriti
 	 */
-	public class FlinjinSound extends Object
+	public class FlinjinSound
 	{
+		private var _snd:Sound;
+		private var _sndChannel:SoundChannel;
+		private var _loop:Boolean;
 		
-		public static var Sounds:Array;
+		private var _volume:Number = 1;
 		
-		public static function playSound(name:String):void
+		public function stop():FlinjinSound
 		{
-			for (var i:int = 0; i < Sounds.length; i++) 
+			if (_sndChannel != null)
 			{
-				if (SoundItem(Sounds[i]).Name == name) {
-					SoundItem(Sounds[i]).Play();
-				}
+				FlinjinSoundCollection.Channels.splice(FlinjinSoundCollection.Channels.indexOf(_sndChannel), 1);
+				_sndChannel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete);
+				_sndChannel.stop();
+			}
+			
+			return this;
+		}
+		
+		public function play():FlinjinSound
+		{
+			if (!FlinjinSoundCollection.enabled)
+				return this;
+				
+			_sndChannel = _snd.play();
+			if (_sndChannel != null)
+			{
+				FlinjinSoundCollection.Channels.push(_sndChannel);
+				_sndChannel.soundTransform.volume = _volume;
+				_sndChannel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete);
+			}
+			else
+			{
+				trace('Maximum sound channels count riched');
+			}
+			return this;
+		}
+		
+		private function onSoundComplete(e:Event = null):void
+		{
+			_sndChannel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete);
+			FlinjinSoundCollection.Channels.splice(FlinjinSoundCollection.Channels.indexOf(_sndChannel), 1);
+			if (_loop)
+			{
+				play();
 			}
 		}
 		
-		public static function addSound(sndObject:Sound, name:String, looping:Boolean = false):Boolean
+		public function FlinjinSound(snd:Sound)
 		{
-			if (Sounds == null)
-			{
-				Sounds = new Array();
-			}
-			
-			for (var i:int = 0; i < Sounds.length; i++)
-			{
-				if (SoundItem(Sounds[i]).Name == name)
-				{
-					return false;
-				}
-			}
-			
-			Sounds[Sounds.length] = new SoundItem(name, sndObject, looping);
-			
-			return true;
+			_snd = snd;
+		}
+		
+		public function get sndChannel():SoundChannel
+		{
+			return _sndChannel;
+		}
+		
+		public function get loop():Boolean
+		{
+			return _loop;
+		}
+		
+		public function set loop(value:Boolean):void
+		{
+			_loop = value;
+		}
+		
+		public function get volume():Number
+		{
+			if (_sndChannel != null)
+				return _sndChannel.soundTransform.volume;
+			else
+				return _volume;
+		}
+		
+		public function set volume(value:Number):void
+		{
+			_volume = value;
+			if (_sndChannel != null)
+				_sndChannel.soundTransform.volume = value;
 		}
 	
 	}
 
-}
-
-import flash.events.Event;
-import flash.media.Sound;
-import flash.media.SoundChannel;
-
-class SoundItem
-{
-	public var Name:String;
-	public var Snd:Sound;
-	public var Loop:Boolean = false;
-	
-	private var _soundChannel:SoundChannel;
-	
-	public function Play():void
-	{
-		_soundChannel = Snd.play();
-		_soundChannel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete);
-	}
-	
-	public function Stop():void {
-		_soundChannel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete);
-		_soundChannel.stop();
-	}
-	
-	private function onSoundComplete(e:Event):void 
-	{
-		if (Loop) {
-			Play();
-		}
-	}
-	
-	public function SoundItem(newName:String, newSnd:Sound, isLoop:Boolean)
-	{
-		Name = newName;
-		Snd = newSnd;
-		Loop = isLoop;
-	}
 }

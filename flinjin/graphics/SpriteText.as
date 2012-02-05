@@ -1,6 +1,7 @@
 package flinjin.graphics
 {
 	import flash.display.BitmapData;
+	import flash.geom.Point;
 	import flash.text.AntiAliasType;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
@@ -27,7 +28,13 @@ package flinjin.graphics
 			
 			bd.draw(_field);
 			
-			CurrentBitmap = bd;
+			_current_bitmap = bd;
+			_current_result = _current_bitmap;
+		}
+		
+		override protected function _Draw(surface:BitmapData, shiftVector:Point = null):void 
+		{
+			super._Draw(surface, shiftVector);
 		}
 		
 		public function get text():String
@@ -77,7 +84,7 @@ package flinjin.graphics
 			_field.autoSize = TextFieldAutoSize.LEFT;
 			_field.background = false;
 			_field.antiAliasType = AntiAliasType.ADVANCED;
-			_field.embedFonts = true;
+			_field.wordWrap = false;
 			
 			Format = initTextFormat;
 			

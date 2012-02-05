@@ -9,6 +9,7 @@ package flinjin.graphics
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.system.System;
 	import flash.ui.Mouse;
 	import flash.utils.Timer;
 	import flinjin.Flinjin;
@@ -181,12 +182,33 @@ package flinjin.graphics
 			PostEffects[PostEffects.length] = newPostEffect;
 		}
 		
-		protected function InitSurface():void
+		public function InitSurface():void
 		{
+			if (_bitmapSurface != null)
+			{
+				removeChild(_bitmapSurface);
+				_bitmapSurface = null;
+				System.gc();
+			}
 			_bitmapSurface = new Bitmap(new BitmapData(_surfaceWidth, _surfaceHeight, false, _fillColor), "auto", false);
 			addChild(_bitmapSurface);
 			
-			MainLayer = new Layer(_surfaceWidth, _surfaceHeight);
+			if (MainLayer == null)
+			{
+				MainLayer = new Layer(_surfaceWidth, _surfaceHeight);
+			}
+			else
+			{
+				MainLayer.width = _surfaceWidth;
+				MainLayer.height = _surfaceHeight;
+			}
+			
+			MainLayer.dispatchEvent(new Event(Event.RESIZE));
+			
+			if (Flinjin.Debug)
+			{
+				trace('Screen size: ', _surfaceWidth + 'x' + _surfaceHeight);
+			}
 		}
 		
 		/**
@@ -201,6 +223,8 @@ package flinjin.graphics
 			focusRect = false;
 			
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			//addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			addEventListener(MouseEvent.MOUSE_MOVE, onMouseOver);
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_DOWN, Input.onMouseDown);
 			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
@@ -217,6 +241,13 @@ package flinjin.graphics
 				_fpsTimer.addEventListener(TimerEvent.TIMER, onFpsTimer);
 				_fpsTimer.start();
 			}
+			
+			buttonMode = true;
+		}
+		
+		private function onMouseOver(e:MouseEvent):void
+		{
+			Input.MousePosition.setTo(e.stageX, e.stageY);
 		}
 		
 		private function onFpsTimer(e:TimerEvent):void

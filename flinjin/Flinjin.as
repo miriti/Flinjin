@@ -26,6 +26,9 @@ package flinjin
 		// Debug state
 		public static var Debug:Boolean = false;
 		
+		public static var sceneWidth:Number;
+		public static var sceneHeight:Number;
+		
 		override public function get width():Number
 		{
 			return _regionRect.width;
@@ -72,7 +75,18 @@ package flinjin
 			x = _regionRect.left;
 			y = _regionRect.top;
 			
+			stage.addEventListener(Event.RESIZE, onStageResize);
+			
+			Flinjin.sceneWidth = stage.stageWidth;
+			Flinjin.sceneHeight = stage.stageHeight;
+			
 			dispatchEvent(new FlinjinEvent(FlinjinEvent.ENGINE_STARTUP, e.bubbles, e.cancelable));
+		}
+		
+		private function onStageResize(e:Event):void 
+		{
+			Screen.setDemensions(stage.stageWidth, stage.stageHeight);
+			Screen.InitSurface();
 		}
 		
 		public function get regionRect():Rectangle

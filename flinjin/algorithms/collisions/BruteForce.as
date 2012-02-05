@@ -1,6 +1,7 @@
 package flinjin.algorithms.collisions
 {
 	import flinjin.graphics.Sprite;
+	import flinjin.system.FlinjinError;
 	
 	/**
 	 * ...
@@ -21,8 +22,21 @@ package flinjin.algorithms.collisions
 			
 			if (indexOf != -1)
 			{
-				_Collection.splice(indexOf, 1);
+				_Collection = _Collection.splice(indexOf, 1);
 			}
+		}
+		
+		override public function FindCollision(toSprite:Sprite):Boolean
+		{
+			for (var i:int = 0; i < _Collection.length; i++)
+			{
+				if (_Collection[i] != toSprite)
+				{
+					CollisionTest(toSprite, _Collection[i]);
+				}
+			}
+			
+			return false;
 		}
 		
 		override public function Run():void
@@ -33,7 +47,7 @@ package flinjin.algorithms.collisions
 				{
 					for (var j:int = i + 1; j < _Collection.length; j++)
 					{
-						
+						CollisionTest(_Collection[i], _Collection[j]);
 					}
 				}
 			}
