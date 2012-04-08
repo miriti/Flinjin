@@ -571,9 +571,9 @@ package flinjin.graphics
 		 * @param	surface
 		 * @param	shiftVector
 		 */
-		public function Draw(surface:BitmapData, shiftVector:Point = null):void
+		public function Draw(surface:BitmapData, shiftVector:Point = null, innerScale:Number = 1):void
 		{
-			_Draw(surface, shiftVector);
+			_Draw(surface, shiftVector, innerScale);
 		}
 		
 		public function Dispose():void
@@ -628,7 +628,7 @@ package flinjin.graphics
 		 *
 		 * @param	surface
 		 */
-		protected function _Draw(surface:BitmapData, shiftVector:Point = null):void
+		protected function _Draw(surface:BitmapData, shiftVector:Point = null, innerScale:Number = 1):void
 		{
 			if ((null != _current_bitmap) && (null != _current_result))
 			{
@@ -639,6 +639,7 @@ package flinjin.graphics
 				// nothing to do is scale is zero
 				if (0 == _scale)
 					return;
+				
 				// absolutly transporent
 				if (0 == _colorTransform.alphaMultiplier)
 					return;
@@ -717,6 +718,9 @@ package flinjin.graphics
 					_matrix.scale(_scaleX * _scale, _scaleY * _scale);
 				}
 				
+				if (innerScale != 1)
+					_matrix.scale(innerScale, innerScale);
+				
 				if (shiftVector != null)
 				{
 					if (SharpBlitting)
@@ -731,11 +735,11 @@ package flinjin.graphics
 				// Moving to the place
 				if (SharpBlitting)
 				{
-					_matrix.translate(Math.floor(_position.x), Math.floor(_position.y));
+					_matrix.translate(Math.floor(_position.x * innerScale), Math.floor(_position.y * innerScale));
 				}
 				else
 				{
-					_matrix.translate(_position.x, _position.y);
+					_matrix.translate(_position.x * innerScale, _position.y * innerScale);
 				}
 				
 				surface.draw(_bitmapToDraw, _matrix, _colorTransform, null, null, Smoothing);

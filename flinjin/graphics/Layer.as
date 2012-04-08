@@ -21,6 +21,9 @@ package flinjin.graphics
 	{
 		private var _collisionsAlgorithm:CollisionDetection;
 		
+		/** scale of the inside components **/
+		protected var _contentScale:Number = 1;
+		
 		/** Layer boundings */
 		protected var _layerRect:Rectangle = new Rectangle();
 		protected var _layerShift:Point = new Point();
@@ -97,7 +100,6 @@ package flinjin.graphics
 				}
 				else
 				{
-					//throw new FlinjinError("Index is out of range <" + spriteToDelete + ">");
 					return false;
 				}
 			}
@@ -147,6 +149,18 @@ package flinjin.graphics
 				_collisionsAlgorithm.AddToCollection(newSprite);
 			}
 			newSprite.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.ADDED_TO_LAYER, this));
+		}
+		
+		/**
+		 * Adding array of new sprites
+		 * 
+		 * @param	newSpritesArray
+		 */
+		public function addSprites(newSpritesArray:Array):void {
+			for (var i:int = 0; i < newSpritesArray.length; i++) 
+			{
+				addSprite(newSpritesArray[i]);
+			}
 		}
 		
 		public function get shiftX():Number
@@ -239,6 +253,16 @@ package flinjin.graphics
 		public function get Sprites():Vector.<Sprite>
 		{
 			return sprites;
+		}
+		
+		public function get contentScale():Number 
+		{
+			return _contentScale;
+		}
+		
+		public function set contentScale(value:Number):void 
+		{
+			_contentScale = value;
 		}
 		
 		/**
@@ -405,8 +429,7 @@ package flinjin.graphics
 			{
 				if (_current_bitmap != null)
 				{
-					_current_bitmap = null;
-					System.gc();
+					_current_bitmap.dispose();
 				}
 				_current_bitmap = new BitmapData(newWidth, newHeight, true, 0x00000000);
 				
@@ -425,7 +448,7 @@ package flinjin.graphics
 		 *
 		 * @param	surface
 		 */
-		override public function Draw(surface:BitmapData, shiftVector:Point = null):void
+		override public function Draw(surface:BitmapData, shiftVector:Point = null, innerScale:Number = 1):void
 		{
 			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.BEFORE_RENDER));
 			
@@ -445,16 +468,16 @@ package flinjin.graphics
 					{
 						if (_isSpriteVisible(eachSprite, _layerShift))
 						{
-							eachSprite.Draw(_current_bitmap, _layerShift);
+							eachSprite.Draw(_current_bitmap, _layerShift, _contentScale);
 						}
 					}
 					else
 					{
-						eachSprite.Draw(_current_bitmap, _layerShift);
+						eachSprite.Draw(_current_bitmap, _layerShift, _contentScale);
 					}
 				}
 				
-				super.Draw(surface, shiftVector);
+				super.Draw(surface, shiftVector, innerScale);
 			}
 			
 			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.AFTER_RENDER));

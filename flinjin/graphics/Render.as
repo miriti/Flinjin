@@ -187,9 +187,9 @@ package flinjin.graphics
 			if (_bitmapSurface != null)
 			{
 				removeChild(_bitmapSurface);
-				_bitmapSurface = null;
-				System.gc();
+				_bitmapSurface.bitmapData.dispose();
 			}
+			
 			_bitmapSurface = new Bitmap(new BitmapData(_surfaceWidth, _surfaceHeight, false, _fillColor), "auto", false);
 			addChild(_bitmapSurface);
 			
@@ -208,6 +208,9 @@ package flinjin.graphics
 			if (Flinjin.Debug)
 			{
 				trace('Screen size: ', _surfaceWidth + 'x' + _surfaceHeight);
+				_fpsTimer = new Timer(1000);
+				_fpsTimer.addEventListener(TimerEvent.TIMER, onFpsTimer);
+				_fpsTimer.start();
 			}
 		}
 		
@@ -223,7 +226,7 @@ package flinjin.graphics
 			focusRect = false;
 			
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-			//addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
 			addEventListener(MouseEvent.MOUSE_MOVE, onMouseOver);
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_DOWN, Input.onMouseDown);
@@ -235,19 +238,13 @@ package flinjin.graphics
 			addEventListener(KeyboardEvent.KEY_UP, onKeyEvent);
 			addEventListener(KeyboardEvent.KEY_UP, Input.onKeyUp);
 			
-			if (Flinjin.Debug)
-			{
-				_fpsTimer = new Timer(1000);
-				_fpsTimer.addEventListener(TimerEvent.TIMER, onFpsTimer);
-				_fpsTimer.start();
-			}
-			
 			buttonMode = true;
 		}
 		
 		private function onMouseOver(e:MouseEvent):void
 		{
-			Input.MousePosition.setTo(e.stageX, e.stageY);
+			Input.MousePosition.x = e.stageX;
+			Input.MousePosition.y = e.stageY;
 		}
 		
 		private function onFpsTimer(e:TimerEvent):void
