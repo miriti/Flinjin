@@ -32,9 +32,9 @@ package flinjin.graphics
 			_current_result = _current_bitmap;
 		}
 		
-		override protected function _Draw(surface:BitmapData, shiftVector:Point = null):void 
+		override protected function _Draw(surface:BitmapData, shiftVector:Point = null, innerScale:Number = 1):void 
 		{
-			super._Draw(surface, shiftVector);
+			super._Draw(surface, shiftVector, innerScale);
 		}
 		
 		public function get text():String

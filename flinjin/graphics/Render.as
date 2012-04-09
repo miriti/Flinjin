@@ -29,10 +29,13 @@ package flinjin.graphics
 		public var MainLayer:Layer;
 		
 		// Array of postrender effects (look in flinjin.graphics.PostEffects)
-		public var PostEffects:Array = new Array();
+		public var PostEffects:Array = new Array(); // TODO make it vector
 		
 		// Lag compenstation algorithm flag
 		public var UseLagCompensation:Boolean = false;
+		
+		// If render and update paused
+		public var Paused:Boolean = false;
 		
 		private var _bitmapSurface:Bitmap;
 		
@@ -105,6 +108,7 @@ package flinjin.graphics
 		 */
 		private function doRender(e:Event = null):void
 		{
+			if (Paused) return;
 			doUpdate();
 			_bitmapSurface.bitmapData.fillRect(_bitmapSurface.bitmapData.rect, _fillColor);
 			MainLayer.Draw(_bitmapSurface.bitmapData);
@@ -182,6 +186,10 @@ package flinjin.graphics
 			PostEffects[PostEffects.length] = newPostEffect;
 		}
 		
+		/**
+		 * Initialising of rendering surface
+		 * 
+		 */
 		public function InitSurface():void
 		{
 			if (_bitmapSurface != null)

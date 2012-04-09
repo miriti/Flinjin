@@ -100,6 +100,7 @@ package flinjin.algorithms.collisions
 		 */
 		private function testShapeIntersection(shape1:Object, shape2:Object):Boolean
 		{
+			// TODO It must be another way 
 			if (shape1 is BoundingCircle)
 			{
 				if (shape2 is BoundingCircle)

@@ -19,8 +19,8 @@ package flinjin.types
 			
 			for (var i:int = 0; i < 8; i++)
 			{
-				// TODO fix it!
-				surface.setPixel32(stX + Math.sin((i * 45) / 180 / Math.PI) * _radius, stY + Math.cos((i * 45) / 180 / Math.PI) * _radius, 0xffff0000);
+				// TODO fix it! FIXED?
+				surface.setPixel32(stX + Math.sin((i * 45) * Math.PI / 180) * _radius, stY + Math.cos((i * 45) * Math.PI / 180) * _radius, 0xffff0000);
 			}
 		}
 		

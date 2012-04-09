@@ -15,6 +15,7 @@ package flinjin.types
 		protected var _halfWidth:Number;
 		protected var _halfHeight:Number;
 		protected var _centerShift:Point = new Point();
+		protected var _rect:Rectangle = new Rectangle();
 		
 		public function BoundingRect(toObj:Sprite, newHalfWidth:Number, newHalfHeight:Number, centerShift:Point = null)
 		{
@@ -31,8 +32,11 @@ package flinjin.types
 		
 		public function getRect():Rectangle
 		{
-			// TODO optimize!
-			return new Rectangle(x - halfWidth + _centerShift.x, y - halfHeight + _centerShift.y, width, height);
+			_rect.x = x - halfWidth + _centerShift.x;
+			_rect.y = y - halfHeight + _centerShift.y;
+			_rect.width = width;
+			_rect.height = height;
+			return _rect;
 		}
 		
 		override public function DebugDraw(surface:BitmapData, shiftVector:Point):void

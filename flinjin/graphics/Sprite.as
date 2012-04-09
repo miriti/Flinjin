@@ -8,6 +8,8 @@ package flinjin.graphics
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.net.drm.AuthenticationMethod;
+	import flash.utils.Dictionary;
 	import flinjin.events.FlinjinSpriteEvent;
 	import flinjin.Flinjin;
 	import flinjin.motion.Motion;
@@ -35,8 +37,7 @@ package flinjin.graphics
 		private var _spriteRect:Rectangle;
 		private var _repeatX:Boolean = false;
 		private var _repeatY:Boolean = false;
-		// TODO convert to Dictionary
-		private var _namedAnimationRegions:Array = new Array();
+		private var _namedAnimationRegions:Dictionary = new Dictionary();
 		private var _currentRegion:String = null;
 		private var _animated:Boolean = false;
 		private var _minFrame:uint = 0;
@@ -481,42 +482,38 @@ package flinjin.graphics
 		 * @param	frameEnd
 		 * @return
 		 */
-		public function addNamedAnimationRegion(name:String, frameStart:uint, frameEnd:uint):Object
+		public function addNamedAnimationRegion(name:String, frameStart:uint, frameEnd:uint):AnimationNamedRegion
 		{
-			// TODO Создать специальный класс для этого вне package
-			var newRegion:Object = new Object();
-			newRegion['name'] = name;
-			newRegion['start'] = frameStart;
-			newRegion['end'] = frameEnd;
-			_namedAnimationRegions[_namedAnimationRegions.length] = newRegion;
-			
+			var newRegion:AnimationNamedRegion = new AnimationNamedRegion(frameStart, frameEnd);
+			_namedAnimationRegions[name] = newRegion;
 			return newRegion;
 		}
 		
 		/**
-		 *
+		 * Set current animation min and max frame from named animation region
+		 * 
 		 * @param	name
 		 */
 		public function setNamedAnimationRegion(name:String):void
 		{
-			for each (var o:Object in _namedAnimationRegions)
+			var o:AnimationNamedRegion;
+			if ((o = _namedAnimationRegions[name]) != null)
 			{
-				if (o['name'] == name)
-				{
-					_minFrame = o['start'];
-					_maxFrame = o['end'];
-					_currentRegion = name;
-					_currentFrame = _minFrame;
-				}
+				_minFrame = o.start;
+				_maxFrame = o.end;
+				_currentRegion = name;
+				_currentFrame = _minFrame;
 			}
 		}
 		
 		/**
-		 *
+		 * If sprite changed position
+		 * 
 		 * @return
 		 */
 		public function Moved():Boolean
 		{
+			// TODO can change some flags in setters of x and y maybe..
 			return _position.equals(_prevPosition);
 		}
 		
@@ -576,6 +573,9 @@ package flinjin.graphics
 			_Draw(surface, shiftVector, innerScale);
 		}
 		
+		/**
+		 * Removw anything about this sprite from memory
+		 */
 		public function Dispose():void
 		{
 			if (_bitmap != null)
@@ -612,7 +612,7 @@ package flinjin.graphics
 				}
 				else
 				{
-					throw new FlinjinError("Pint is out of sprite");
+					throw new FlinjinError("Point is out of sprite");
 				}
 			}
 			else
@@ -907,4 +907,26 @@ package flinjin.graphics
 		}
 	}
 
+}
+
+class AnimationNamedRegion
+{
+	private var _start:uint;
+	private var _end:uint;
+	
+	function AnimationNamedRegion(newStart:uint, newEnd:uint)
+	{
+		_start = newStart;
+		_end = newEnd;
+	}
+	
+	public function get start():uint
+	{
+		return _start;
+	}
+	
+	public function get end():uint
+	{
+		return _end;
+	}
 }

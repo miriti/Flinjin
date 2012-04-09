@@ -19,6 +19,9 @@ package flinjin.motion
 		private var _vector:Point = new Point();
 		private var _len:Number;
 		
+		/**
+		 * actual progress function for overrition
+		 */
 		protected function _update():void
 		{
 			_currentPoint.x = _startPoint.x + _vector.x * (_len * (_currentStep / _duration));
@@ -26,12 +29,19 @@ package flinjin.motion
 			_currentStep++;
 		}
 		
+		/**
+		 * Make some progress in motion 
+		 */
 		public function Update():void
 		{
-			// TODO  fix it
+			// TODO  fix it. fix what, dammnit
 			_update();
 		}
 		
+		/**
+		 * Finished animation flag
+		 * 
+		 */
 		public function get finished():Boolean
 		{
 			return _currentStep == _duration;
@@ -58,11 +68,19 @@ package flinjin.motion
 			}
 		}
 		
+		/**
+		 * Start motion over
+		 * 
+		 */
 		public function reset():void
 		{
 			_currentStep = 0;
 		}
 		
+		/**
+		 * get current point
+		 * 
+		 */
 		public function get currentPoint():Point
 		{
 			return _currentPoint;
