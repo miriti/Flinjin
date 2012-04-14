@@ -20,7 +20,6 @@ package flinjin
 		
 		public function FlinjinPreloader()
 		{
-			
 			if (stage)
 			{
 				stage.scaleMode = StageScaleMode.NO_SCALE;

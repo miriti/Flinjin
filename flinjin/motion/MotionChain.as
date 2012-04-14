@@ -62,7 +62,7 @@ package flinjin.motion
 					_chain.push(chain[i]);
 				}
 				else
-					throw new FlinjinEvent("One of the parametrs is not a Motion object");
+					throw new FlinjinEvent("One of parametrs is not a Motion object");
 			}
 		}
 	

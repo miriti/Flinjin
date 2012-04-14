@@ -4,10 +4,11 @@ package flinjin.input
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.ui.Keyboard;
+	import flinjin.system.FlinjinError;
 	
 	/**
 	 * ...
-	 * @author KEFIR
+	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
 	public class Input
 	{
@@ -35,6 +36,14 @@ package flinjin.input
 		public static function isDown():Boolean
 		{
 			return KeysPressed[Keyboard.DOWN] || (KeysPressed[Keyboard.S] && enableWASD);
+		}
+		
+		public static function isKey(key:uint):Boolean
+		{
+			if (key < 256)
+				return Input.KeysPressed[key];
+			else
+				throw new FlinjinError("Invalid key [" + key + "]");
 		}
 		
 		public static function onKeyDown(e:KeyboardEvent):void

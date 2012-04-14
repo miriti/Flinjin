@@ -347,6 +347,7 @@ package flinjin.graphics
 		 */
 		public function setVisibility(toClass:Class, val:Boolean):void
 		{
+			// TODO looks like kostyl
 			for (var i:int = 0; i < Sprites.length; i++)
 			{
 				if (Sprites[i] is toClass)
@@ -517,7 +518,6 @@ package flinjin.graphics
 		public function Layer(layerWidth:uint, layerHeight:uint)
 		{
 			super(new Bitmap(new BitmapData(layerWidth, layerHeight, true, 0x00000000), "auto", Sprite.Smoothing));
-			//resetSize(layerWidth, layerHeight);
 			
 			_layerRect.width = layerWidth;
 			_layerRect.height = layerHeight;

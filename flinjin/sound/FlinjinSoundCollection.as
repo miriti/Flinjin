@@ -28,7 +28,6 @@ package flinjin.sound
 		
 		public static function getSound(name:String):FlinjinSound
 		{
-			
 			var _newSnd:FlinjinSound = new FlinjinSound(Sounds[name]);
 			return _newSnd;
 		}

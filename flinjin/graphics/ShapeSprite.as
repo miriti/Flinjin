@@ -4,7 +4,7 @@ package flinjin.graphics
 	import flash.display.Shape;
 	import flash.geom.Matrix;
 	/**
-	 * ...
+	 * TODO remove this
 	 * @author KEFIR
 	 */
 	public class ShapeSprite extends SpriteBase
