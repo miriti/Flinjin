@@ -72,7 +72,8 @@ package flinjin.graphics
 		}
 		
 		/**
-		 *
+		 * This class using standart or embeded TrueType fonts to draw text
+		 * 
 		 * @param	initText
 		 * @param	initTextFormat
 		 */

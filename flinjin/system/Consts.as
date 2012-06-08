@@ -6,8 +6,7 @@ package flinjin.system
 	 */
 	public class Consts 
 	{
-		public static const ENGINE_VERSION:String = '0.0.2 a';
-		
+		public static const ENGINE_VERSION:String = '0.0.3a';		
 	}
 
 }

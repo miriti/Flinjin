@@ -20,6 +20,7 @@ package flinjin.graphics
 	public class Layer extends Sprite
 	{
 		private var _collisionsAlgorithm:CollisionDetection;
+		private var _nextSpriteZIndex:Number;
 		
 		/** scale of the inside components **/
 		protected var _contentScale:Number = 1;
@@ -90,11 +91,11 @@ package flinjin.graphics
 					}
 					
 					var _deleting:Sprite = Sprites[num];
-					_deleting.Dispose();
+					_deleting.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.REMOVED_FROM_LAYER, this));
 					var _last:Sprite = Sprites.pop();
 					
 					if (num != Sprites.length)
-						Sprites[num] = _last;					
+						Sprites[num] = _last;
 					
 					return true;
 				}
@@ -107,22 +108,7 @@ package flinjin.graphics
 			{
 				if ((spriteToDelete >= 0) && (spriteToDelete < Sprites.length))
 				{
-					if (Sprites[spriteToDelete] is Layer)
-						(Sprites[spriteToDelete] as Layer).Clear();
-					
-					if (spriteToDelete < Sprites.length - 1)
-					{
-						if (_collisionsAlgorithm != null)
-						{
-							_collisionsAlgorithm.RemoveFromCollection(Sprites[spriteToDelete]);
-						}
-						Sprites[spriteToDelete] = Sprites.pop();
-					}
-					else
-					{
-						Sprites.pop();
-					}
-					return true;
+					return deleteSprite(sprites[spriteToDelete]);
 				}
 				else
 				{
@@ -140,27 +126,52 @@ package flinjin.graphics
 		 *
 		 * @param	newSprite
 		 */
-		public function addSprite(newSprite:Sprite, atX:Object = null, atY:Object = null):void
+		public function addSprite(newSprite:Sprite, atX:Object = null, atY:Object = null, atZIndex:Object = null):void
 		{
-			newSprite.setPosition((atX != null) && (atX is Number) ? (atX as Number) : newSprite.x, (atY != null) && (atY is Number) ? (atY as Number) : newSprite.y);
-			Sprites[Sprites.length] = newSprite;
-			if (_collisionsAlgorithm != null)
+			if (newSprite is Sprite)
 			{
-				_collisionsAlgorithm.AddToCollection(newSprite);
+				if (newSprite.zIndex == 0)
+				{
+					if (atZIndex != null)
+						newSprite.zIndex = (atZIndex as Number);
+					else
+					{
+						newSprite.zIndex = _nextSpriteZIndex;
+						_nextSpriteZIndex++;
+					}
+				}
+				
+				newSprite.setPosition((atX != null) && (atX is Number) ? (atX as Number) : newSprite.x, (atY != null) && (atY is Number) ? (atY as Number) : newSprite.y);
+				Sprites[Sprites.length] = newSprite;
+				if (_collisionsAlgorithm != null)
+				{
+					_collisionsAlgorithm.AddToCollection(newSprite);
+				}
+				newSprite.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.ADDED_TO_LAYER, this));
 			}
-			newSprite.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.ADDED_TO_LAYER, this));
+			else
+			{
+				throw new FlinjinError("You can add only flinjin.graphics.Sprite objects to Layer");
+			}
 		}
 		
 		/**
 		 * Adding array of new sprites
-		 * 
+		 *
 		 * @param	newSpritesArray
 		 */
-		public function addSprites(newSpritesArray:Array):void {
-			for (var i:int = 0; i < newSpritesArray.length; i++) 
+		public function addSprites(newSpritesArray:Array):void
+		{
+			for (var i:int = 0; i < newSpritesArray.length; i++)
 			{
 				addSprite(newSpritesArray[i]);
 			}
+		}
+		
+		public function resetDefaultZIndex():Number
+		{
+			_nextSpriteZIndex = 1;
+			return _nextSpriteZIndex;
 		}
 		
 		public function get shiftX():Number
@@ -255,12 +266,12 @@ package flinjin.graphics
 			return sprites;
 		}
 		
-		public function get contentScale():Number 
+		public function get contentScale():Number
 		{
 			return _contentScale;
 		}
 		
-		public function set contentScale(value:Number):void 
+		public function set contentScale(value:Number):void
 		{
 			_contentScale = value;
 		}
@@ -485,26 +496,50 @@ package flinjin.graphics
 		}
 		
 		/**
+		 *
+		 * @param	cmp1
+		 * @param	cmp2
+		 * @return
+		 */
+		private function _spriteSortFunction(cmp1:Sprite, cmp2:Sprite):int
+		{
+			if (cmp1.zIndex < cmp2.zIndex)
+			{
+				return -1;
+			}
+			else if (cmp1.zIndex > cmp2.zIndex)
+			{
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		
+		/**
 		 * Preparing sprites to render.
 		 * Deleting, culling, sorting etc.
 		 *
 		 */
 		private function _prepareSprites():void
 		{
-			if (Sprites.length > 0)
+			if (sprites.length > 0)
 			{
-				for (var i:int = Sprites.length - 1; i > 0; i--)
+				// Delete sprites
+				for (var i:int = sprites.length - 1; i > 0; i--)
 				{
-					if ((Sprites[i] as Sprite).DeleteFlag)
+					if ((sprites[i] as Sprite).DeleteFlag)
 					{
-						(Sprites[i] as Sprite).dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.REMOVED_FROM_LAYER, this));
-						Sprites[i] = Sprites.pop();
+						(sprites[i] as Sprite).dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.REMOVED_FROM_LAYER, this));
+						sprites[i] = sprites.pop();
 					}
 				}
 				
-				if (Sprites.length >= 2)
+				// Sort sprites by zIndex
+				if (sprites.length >= 2)
 				{
-					// TODO sort by zIndex
+					sprites = sprites.sort(_spriteSortFunction);
 				}
 			}
 		}
@@ -526,6 +561,8 @@ package flinjin.graphics
 			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
 			addEventListener(KeyboardEvent.KEY_DOWN, onKeyboardEvent);
 			addEventListener(KeyboardEvent.KEY_UP, onKeyboardEvent);
+			
+			resetDefaultZIndex();
 		}
 	}
 

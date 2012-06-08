@@ -491,7 +491,7 @@ package flinjin.graphics
 		
 		/**
 		 * Set current animation min and max frame from named animation region
-		 * 
+		 *
 		 * @param	name
 		 */
 		public function setNamedAnimationRegion(name:String):void
@@ -507,8 +507,17 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * If sprite changed position
+		 * Set center of sprite in it's bitmap (or frame) center
 		 * 
+		 */
+		public function setCenterInBitmapCenter():void
+		{
+			setCenter(width / 2, height / 2);
+		}
+		
+		/**
+		 * If sprite changed position
+		 *
 		 * @return
 		 */
 		public function Moved():Boolean
@@ -518,7 +527,7 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Updating animation state if sprite is animated
+		 * Updating sprite properties
 		 *
 		 */
 		public function Move():void
@@ -542,10 +551,8 @@ package flinjin.graphics
 			
 			if (_motion != null)
 			{
-				
 				_motion.Update();
 				_position = _motion.currentPoint;
-				
 			}
 		}
 		

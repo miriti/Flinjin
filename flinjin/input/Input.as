@@ -1,5 +1,6 @@
 package flinjin.input
 {
+	import flash.events.EventDispatcher;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
@@ -7,10 +8,11 @@ package flinjin.input
 	import flinjin.system.FlinjinError;
 	
 	/**
-	 * ...
+	 * @todo replace stupid function calls with event dispatching
+	 * 
 	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
-	public class Input
+	public class Input extends EventDispatcher
 	{
 		public static var KeysPressed:Array = new Array(256);
 		public static var enableWASD:Boolean = true;
@@ -58,7 +60,7 @@ package flinjin.input
 		
 		public static function onMouseDown(e:MouseEvent):void
 		{
-			_isMouseDown = true;
+			_isMouseDown = true;			
 		}
 		
 		public static function onMouseUp(e:MouseEvent):void
