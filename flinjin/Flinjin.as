@@ -106,6 +106,7 @@ package flinjin
 		/**
 		 * Stage3d initializing Context3d created event handler
 		 *
+		 * @todo Go in this direction
 		 * @param	e
 		 */
 		private function onContext3DCreate(e:Event):void
@@ -130,7 +131,7 @@ package flinjin
 		 */
 		private function onStageResize(e:Event):void
 		{
-			/** @todo Put resize actions here **/
+		/** @todo Put resize actions here **/
 		}
 		
 		public function get regionRect():Rectangle
@@ -159,9 +160,9 @@ package flinjin
 		}
 		
 		/**
-		 * 
+		 *
 		 */
-		public function get Camera():FlinjinCamera 
+		public function get Camera():FlinjinCamera
 		{
 			return _Camera;
 		}
@@ -190,26 +191,29 @@ package flinjin
 			Flinjin.Instance = this;
 			
 			_contextMenu = new ContextMenu();
-			_contextMenu.hideBuiltInItems();
-			
-			_flinjinContextMenuItem = new ContextMenuItem("powered by Flinjin v" + Consts.ENGINE_VERSION);
-			_flinjinContextMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onFlinjinMenuItemSelect);
-			
-			_contextMenu.customItems.push(_flinjinContextMenuItem);
-			
-			contextMenu = _contextMenu;
+			if (_contextMenu.customItems != null)
+			{
+				_contextMenu.hideBuiltInItems();
+				
+				_flinjinContextMenuItem = new ContextMenuItem("powered by Flinjin v" + Consts.ENGINE_VERSION);
+				_flinjinContextMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onFlinjinMenuItemSelect);
+				
+				_contextMenu.customItems.push(_flinjinContextMenuItem);
+				
+				contextMenu = _contextMenu;
+			}
 		}
 		
-		private function onFlinjinMenuItemSelect(e:ContextMenuEvent):void 
+		private function onFlinjinMenuItemSelect(e:ContextMenuEvent):void
 		{
 			/**
-			 * @todo utm_ marks in URL
+			 * @todo utm_ marks in URL?
 			 */
-			var _flinjinURLRequest:URLRequest = new URLRequest("http://flinjin.com/");
+			var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/");
 			navigateToURL(_flinjinURLRequest);
 		}
 		
-		private function onEnterFrame(e:Event):void 
+		private function onEnterFrame(e:Event):void
 		{
 			_Camera.Render();
 		}
@@ -241,7 +245,7 @@ package flinjin
 		 */
 		private function onDeactivate(e:Event):void
 		{
-			/** @todo It is possible to make pause here **/
+		/** @todo It is possible to make pause here **/
 		}
 	}
 }

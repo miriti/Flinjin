@@ -374,33 +374,54 @@ package flinjin.graphics
 		private function onMouseEvent(e:MouseEvent):void
 		{
 			var mousePos:Point = new Point(e.localX * _scaleX, e.localY * _scaleY);
+			var clickedSprites:Vector.<Sprite> = new Vector.<Sprite>;
 			
+			/**
+			 * @todo use simple for here
+			 */
 			for each (var eachSprite:Sprite in Sprites)
 			{
+				/** @todo if(eachSprite.Interactive) **/
 				var _tmpRect:Rectangle;
 				
-				// TODO Fucked up
 				if (scale != 1)
 				{
-					_tmpRect = eachSprite.rect.clone();
-					_tmpRect.x *= scale;
-					_tmpRect.y *= scale;
-					_tmpRect.width *= scale;
-					_tmpRect.height *= scale;
+					/**
+					 * @todo Mind the scale of the sprites. Need to count new rect to check interuption with pointer
+					 */
 				}
 				else
-				{
 					_tmpRect = eachSprite.rect;
-				}
 				
-				if (_tmpRect.containsPoint(mousePos))
-				{
-					var subEvent:MouseEvent = e.clone() as MouseEvent;
-					subEvent.localX -= eachSprite.x;
-					subEvent.localY -= eachSprite.y;
-					
-					eachSprite.dispatchEvent(subEvent);
+				if (_tmpRect.containsPoint(mousePos)) {
+					if (1) { /** @todo pixelCheck **/
+						
+					}
+					clickedSprites.push(eachSprite);
 				}
+			}
+			
+			if (clickedSprites.length > 1)
+			{
+				clickedSprites = clickedSprites.sort(_spriteSortFunction);
+			}
+			
+			/**
+			 * Formating list of sprites under the mouse poiner while clicking.
+			 * @todo Determine which sprites must dispatch this mouse event: topmost or all. Now it is only topmost
+			 */
+			if (1)
+			{
+				clickedSprites = clickedSprites.splice(clickedSprites.length - 1, 1);
+			}
+			
+			for (var i:int = 0; i < clickedSprites.length; i++)
+			{
+				var subEvent:MouseEvent = e.clone() as MouseEvent;
+				subEvent.localX -= eachSprite.x;
+				subEvent.localY -= eachSprite.y;
+				
+				clickedSprites[i].dispatchEvent(subEvent);
 			}
 		}
 		
