@@ -122,32 +122,42 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Adding new sprite to list
+		 * Adding new sprite to Flinjin display list
 		 *
-		 * @param	newSprite
+		 * @param	newSprite	flinjin.graphics.Sprite or it's child object
+		 * @param	atX			X position on the layer to put new sprite
+		 * @param	atY			Y position on the layer to put new sprite
+		 * @param	atZIndex	ZIndex for the new sprite
 		 */
 		public function addSprite(newSprite:Sprite, atX:Object = null, atY:Object = null, atZIndex:Object = null):void
 		{
 			if (newSprite is Sprite)
 			{
-				if (newSprite.zIndex == 0)
+				if (sprites.indexOf(newSprite) == -1)
 				{
-					if (atZIndex != null)
-						newSprite.zIndex = (atZIndex as Number);
-					else
+					if (newSprite.zIndex == 0)
 					{
-						newSprite.zIndex = _nextSpriteZIndex;
-						_nextSpriteZIndex++;
+						if (atZIndex != null)
+							newSprite.zIndex = (atZIndex as Number);
+						else
+						{
+							newSprite.zIndex = _nextSpriteZIndex;
+							_nextSpriteZIndex++;
+						}
 					}
+					
+					newSprite.setPosition((atX != null) && (atX is Number) ? (atX as Number) : newSprite.x, (atY != null) && (atY is Number) ? (atY as Number) : newSprite.y);
+					Sprites[Sprites.length] = newSprite;
+					if (_collisionsAlgorithm != null)
+					{
+						_collisionsAlgorithm.AddToCollection(newSprite);
+					}
+					newSprite.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.ADDED_TO_LAYER, this));
 				}
-				
-				newSprite.setPosition((atX != null) && (atX is Number) ? (atX as Number) : newSprite.x, (atY != null) && (atY is Number) ? (atY as Number) : newSprite.y);
-				Sprites[Sprites.length] = newSprite;
-				if (_collisionsAlgorithm != null)
+				else
 				{
-					_collisionsAlgorithm.AddToCollection(newSprite);
+					FlinjinLog.l("This sprite <" + newSprite.toString() + "> is already in the layer's <" + this.toString() + "> list");
 				}
-				newSprite.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.ADDED_TO_LAYER, this));
 			}
 			else
 			{
@@ -351,22 +361,6 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Set visibility of all sprites
-		 *
-		 * @param	toClass
-		 * @param	val
-		 */
-		public function setVisibility(toClass:Class, val:Boolean):void
-		{
-			// TODO looks like kostyl
-			for (var i:int = 0; i < Sprites.length; i++)
-			{
-				if (Sprites[i] is toClass)
-					Sprite(Sprites[i]).Visible = val;
-			}
-		}
-		
-		/**
 		 * Mouse down on Layer
 		 *
 		 * @param	mousePos
@@ -381,23 +375,34 @@ package flinjin.graphics
 			 */
 			for each (var eachSprite:Sprite in Sprites)
 			{
-				/** @todo if(eachSprite.Interactive) **/
-				var _tmpRect:Rectangle;
-				
-				if (scale != 1)
+				if (eachSprite.Interactive)
 				{
-					/**
-					 * @todo Mind the scale of the sprites. Need to count new rect to check interuption with pointer
-					 */
-				}
-				else
-					_tmpRect = eachSprite.rect;
-				
-				if (_tmpRect.containsPoint(mousePos)) {
-					if (1) { /** @todo pixelCheck **/
+					var _tmpRect:Rectangle;
+					
+					if (scale != 1)
+					{
+						/**
+						 * @todo Mind the scale of the sprites. Need to count new rect to check interuption with pointer
+						 */
+					}
+					else
+						_tmpRect = eachSprite.rect;
+					
+					if (_tmpRect.containsPoint(mousePos))
+					{
+						if (eachSprite.pixelCheck)
+						{
+							if (eachSprite.lastDrawedBitmap.getPixel(e.localX - eachSprite.x, e.localY - eachSprite.y) != 0)
+							{
+								clickedSprites.push(eachSprite);
+							}
+						}
+						else
+						{
+							clickedSprites.push(eachSprite);
+						}
 						
 					}
-					clickedSprites.push(eachSprite);
 				}
 			}
 			
@@ -517,7 +522,8 @@ package flinjin.graphics
 		}
 		
 		/**
-		 *
+		 * Function for sorting sprites by zIndex value
+		 * 
 		 * @param	cmp1
 		 * @param	cmp2
 		 * @return

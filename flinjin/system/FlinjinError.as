@@ -9,7 +9,8 @@ package flinjin.system
 		
 		public function FlinjinError(message:*="", id:*=0) 
 		{
-			super(message, id);			
+			super(message, id);
+			FlinjinLog.l(message, FlinjinLog.W_CRTC);
 		}
 		
 	}

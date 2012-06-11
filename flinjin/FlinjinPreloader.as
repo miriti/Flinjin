@@ -57,9 +57,6 @@ package flinjin
 			removeEventListener(Event.ENTER_FRAME, checkFrame);
 			loaderInfo.removeEventListener(ProgressEvent.PROGRESS, progress);
 			loaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, ioError);
-			
-			// TODO hide loader
-			
 			startup();
 		}
 		

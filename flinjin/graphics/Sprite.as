@@ -18,6 +18,8 @@ package flinjin.graphics
 	
 	/**
 	 * Base Sprite class
+	 * 
+	 * @todo Rename to FlinjinSprtite some day
 	 *
 	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
@@ -60,6 +62,7 @@ package flinjin.graphics
 		protected var _colorTransform:ColorTransform = new ColorTransform();
 		protected var _flipHorizontal:Boolean = false;
 		protected var _flipVertical:Boolean = false;
+		protected var _pixelCheck:Boolean = false;
 		
 		protected var _motion:Motion = null;
 		
@@ -67,7 +70,7 @@ package flinjin.graphics
 		public var Drawed:Boolean = false;
 		public var DeleteFlag:Boolean = false;
 		public var zIndex:int = 0;
-		public var Interactive:Boolean = false;
+		public var Interactive:Boolean = true;
 		public var MouseOver:Boolean = false;
 		
 		public static var Smoothing:Boolean = true;
@@ -392,6 +395,19 @@ package flinjin.graphics
 		public function set motion(value:Motion):void
 		{
 			_motion = value;
+		}
+		
+		/**
+		 * Determinates the pixelCheck for interactions
+		 */
+		public function get pixelCheck():Boolean 
+		{
+			return _pixelCheck;
+		}
+		
+		public function set pixelCheck(value:Boolean):void 
+		{
+			_pixelCheck = value;
 		}
 		
 		/**

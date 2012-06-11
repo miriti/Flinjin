@@ -26,6 +26,12 @@ package flinjin
 	 */
 	public class Flinjin extends Sprite
 	{
+		// Default application name constant
+		private static const DEFAULT_APPLICATION_NAME:String = 'Flinjin v' + Consts.ENGINE_VERSION + ' application';
+		
+		// Name of the Flinjin Application
+		private static var _applicationName:String = DEFAULT_APPLICATION_NAME;
+		
 		// Camera
 		private var _Camera:FlinjinCamera;
 		
@@ -91,6 +97,10 @@ package flinjin
 			stage.focus = _Camera;
 			stage.addEventListener(Event.RESIZE, onStageResize);
 			dispatchEvent(new FlinjinEvent(FlinjinEvent.ENGINE_STARTUP, e.bubbles, e.cancelable));
+			FlinjinLog.l("Flinjin started: " + sceneWidth + "x" + sceneHeight + " Frame rate: " + stage.frameRate);
+			
+			if (_applicationName == DEFAULT_APPLICATION_NAME)
+				FlinjinLog.l("Application name not set. Recommended to set this value in your Flinjin subclass constructor using Flinjin.applicationName", FlinjinLog.W_HINT);
 		}
 		
 		/**
@@ -119,7 +129,7 @@ package flinjin
 				_stage3dAvail = false;
 			}
 			
-			trace(context3d.driverInfo);
+			FlinjinLog.l('context3d driver info: ' + context3d.driverInfo);
 			context3d.enableErrorChecking = false;
 			context3d.configureBackBuffer(_sceneWidth, _sceneHeight, 0, true);
 		}
@@ -165,6 +175,16 @@ package flinjin
 		public function get Camera():FlinjinCamera
 		{
 			return _Camera;
+		}
+		
+		static public function get applicationName():String
+		{
+			return _applicationName;
+		}
+		
+		static public function set applicationName(value:String):void
+		{
+			_applicationName = value;
 		}
 		
 		/**

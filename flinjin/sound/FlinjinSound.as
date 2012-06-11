@@ -28,12 +28,12 @@ package flinjin.sound
 			return this;
 		}
 		
-		public function play():FlinjinSound
+		public function play(shift:Number = 0):FlinjinSound
 		{
 			if (!FlinjinSoundCollection.enabled)
 				return this;
 				
-			_sndChannel = _snd.play();
+			_sndChannel = _snd.play(shift);
 			if (_sndChannel != null)
 			{
 				FlinjinSoundCollection.Channels.push(_sndChannel);
@@ -89,7 +89,7 @@ package flinjin.sound
 		{
 			_volume = value;
 			if (_sndChannel != null)
-				_sndChannel.soundTransform.volume = value;
+				_sndChannel.soundTransform.volume = _volume;
 		}
 	
 	}
