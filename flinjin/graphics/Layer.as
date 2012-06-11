@@ -6,11 +6,10 @@ package flinjin.graphics
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.system.System;
-	import flinjin.algorithms.collisions.BruteForce;
 	import flinjin.algorithms.collisions.CollisionDetection;
 	import flinjin.events.FlinjinEvent;
 	import flinjin.events.FlinjinSpriteEvent;
+	import flinjin.FlinjinLog;
 	import flinjin.system.FlinjinError;
 	
 	/**
