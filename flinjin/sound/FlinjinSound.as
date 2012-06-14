@@ -3,9 +3,11 @@ package flinjin.sound
 	import flash.events.Event;
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
+	import flinjin.FlinjinLog;
 	
 	/**
-	 * ...
+	 * This class represents sound
+	 *
 	 * @author Michael Miriti
 	 */
 	public class FlinjinSound
@@ -13,14 +15,28 @@ package flinjin.sound
 		private var _snd:Sound;
 		private var _sndChannel:SoundChannel;
 		private var _loop:Boolean;
-		
 		private var _volume:Number = 1;
 		
+		public function FlinjinSound(snd:Sound)
+		{
+			_snd = snd;
+		}
+		
+		private function _deleteChannel():void
+		{
+			FlinjinSoundCollection.Channels.splice(FlinjinSoundCollection.Channels.indexOf(_sndChannel), 1);
+		}
+		
+		/**
+		 * Stop the sound
+		 * 
+		 * @return
+		 */
 		public function stop():FlinjinSound
 		{
 			if (_sndChannel != null)
 			{
-				FlinjinSoundCollection.Channels.splice(FlinjinSoundCollection.Channels.indexOf(_sndChannel), 1);
+				_deleteChannel();
 				_sndChannel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete);
 				_sndChannel.stop();
 			}
@@ -28,11 +44,17 @@ package flinjin.sound
 			return this;
 		}
 		
+		/**
+		 * Play the sound
+		 *
+		 * @param	shift			Shift from start of the sound
+		 * @return	FlinjinSound	Returns this object
+		 */
 		public function play(shift:Number = 0):FlinjinSound
 		{
 			if (!FlinjinSoundCollection.enabled)
 				return this;
-				
+			
 			_sndChannel = _snd.play(shift);
 			if (_sndChannel != null)
 			{
@@ -41,25 +63,21 @@ package flinjin.sound
 				_sndChannel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete);
 			}
 			else
-			{
-				trace('Maximum sound channels count riched');
-			}
+				FlinjinLog.l('Maximum sound channels count riched');
+			
 			return this;
 		}
 		
+		/**
+		 * 
+		 * @param	e
+		 */
 		private function onSoundComplete(e:Event = null):void
 		{
 			_sndChannel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete);
-			FlinjinSoundCollection.Channels.splice(FlinjinSoundCollection.Channels.indexOf(_sndChannel), 1);
+			_deleteChannel();
 			if (_loop)
-			{
 				play();
-			}
-		}
-		
-		public function FlinjinSound(snd:Sound)
-		{
-			_snd = snd;
 		}
 		
 		public function get sndChannel():SoundChannel

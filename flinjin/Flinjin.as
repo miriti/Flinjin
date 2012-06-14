@@ -46,6 +46,7 @@ package flinjin
 		
 		private static var _sceneWidth:Number;
 		private static var _sceneHeight:Number;
+		private static var _frameRate:Number;
 		
 		private static var _stage3dAvail:Boolean = false;
 		private var _contextMenu:ContextMenu;
@@ -88,6 +89,8 @@ package flinjin
 				_regionRect.y = y;
 			}
 			
+			_frameRate = stage.frameRate;
+			
 			_Camera.fillColor = stage.color;
 			_Camera.setViewport(_sceneWidth, _sceneHeight);
 			addChild(_Camera);
@@ -97,7 +100,7 @@ package flinjin
 			stage.focus = _Camera;
 			stage.addEventListener(Event.RESIZE, onStageResize);
 			dispatchEvent(new FlinjinEvent(FlinjinEvent.ENGINE_STARTUP, e.bubbles, e.cancelable));
-			FlinjinLog.l("Flinjin started: " + sceneWidth + "x" + sceneHeight + " Frame rate: " + stage.frameRate);
+			FlinjinLog.l("Flinjin started: " + sceneWidth + "x" + sceneHeight + " Frame rate: " + frameRate);
 			
 			if (_applicationName == DEFAULT_APPLICATION_NAME)
 				FlinjinLog.l("Application name not set. Recommended to set this value in your Flinjin subclass constructor using Flinjin.applicationName", FlinjinLog.W_HINT);
@@ -185,6 +188,11 @@ package flinjin
 		static public function set applicationName(value:String):void
 		{
 			_applicationName = value;
+		}
+		
+		static public function get frameRate():Number 
+		{
+			return _frameRate;
 		}
 		
 		/**
