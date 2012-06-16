@@ -15,7 +15,7 @@ package flinjin
 	
 	/**
 	 * Default Flinjin preloader class
-	 * 
+	 *
 	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
 	public class FlinjinPreloader extends MovieClip
@@ -28,6 +28,10 @@ package flinjin
 		
 		private var logoObject:DisplayObject = null;
 		
+		/**
+		 * Constructor
+		 * 
+		 */
 		public function FlinjinPreloader()
 		{
 			if (stage)
@@ -39,10 +43,9 @@ package flinjin
 				graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
 				graphics.endFill();
 				
-				var flinjinLogo:Bitmap = new _flinjinLogo() as Bitmap;
-				flinjinLogo.x = (stage.stageWidth - flinjinLogo.width) / 2;
-				flinjinLogo.y = (stage.stageHeight - flinjinLogo.height) / 2;
-				addChild(flinjinLogo);
+				if (logoObject == null)
+					setLogo(new _flinjinLogo() as Bitmap);
+				addChild(logoObject);
 				
 				_progressBar = new PreloaderProgressBar(stage.stageWidth);
 				_progressBar.y = stage.stageHeight - _progressBar.height;
@@ -55,16 +58,19 @@ package flinjin
 		
 		/**
 		 * Change the logo, that displayed in preloader
-		 * 
+		 *
 		 * @param	logoObject
 		 */
-		protected function setLogo(logoObject:DisplayObject):void {
-			
+		protected function setLogo(newLogo:DisplayObject):void
+		{
+			logoObject = newLogo;
+			logoObject.x = (stage.stageWidth - logoObject.width) / 2;
+			logoObject.y = (stage.stageHeight - logoObject.height) / 2;
 		}
 		
 		/**
 		 * Some possible error
-		 * 
+		 *
 		 * @param	e
 		 */
 		private function ioError(e:IOErrorEvent):void
@@ -74,7 +80,7 @@ package flinjin
 		
 		/**
 		 * Dispatching progress
-		 * 
+		 *
 		 * @param	e
 		 */
 		private function progress(e:ProgressEvent):void
@@ -84,7 +90,7 @@ package flinjin
 		
 		/**
 		 * Checking frame
-		 * 
+		 *
 		 * @param	e
 		 */
 		private function checkFrame(e:Event):void
@@ -98,7 +104,7 @@ package flinjin
 		
 		/**
 		 * Loading finished
-		 * 
+		 *
 		 */
 		private function loadingFinished():void
 		{
@@ -110,7 +116,7 @@ package flinjin
 		
 		/**
 		 * Start game
-		 * 
+		 *
 		 */
 		private function startup():void
 		{
