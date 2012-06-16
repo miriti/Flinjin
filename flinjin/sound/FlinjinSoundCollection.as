@@ -3,6 +3,7 @@ package flinjin.sound
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.utils.Dictionary;
+	import flinjin.FlinjinLog;
 	import flinjin.system.FlinjinError;
 	
 	/**
@@ -23,13 +24,26 @@ package flinjin.sound
 		 */
 		public static function playSound(name:String):FlinjinSound
 		{
-			return FlinjinSoundCollection.getSound(name).play();
+			var _snd:FlinjinSound = FlinjinSoundCollection.getSound(name);
+			if (_snd != null)
+				return _snd.play();
+			else
+			{
+				FlinjinLog.l("Sound <" + name + "> not found", FlinjinLog.W_ERRO);
+				return null;
+			}
 		}
 		
 		public static function getSound(name:String):FlinjinSound
 		{
-			var _newSnd:FlinjinSound = new FlinjinSound(Sounds[name]);
-			return _newSnd;
+			if (Sounds[name] != null)
+			{
+				var _newSnd:FlinjinSound = new FlinjinSound(Sounds[name]);
+				return _newSnd;
+			}
+			else
+				return null;
+		
 		}
 		
 		/**

@@ -20,7 +20,7 @@ package flinjin
 	import flinjin.system.Consts;
 	
 	/**
-	 * Flinjin application base class
+	 * Flinjin application base class singletone
 	 *
 	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
@@ -190,7 +190,7 @@ package flinjin
 			_applicationName = value;
 		}
 		
-		static public function get frameRate():Number 
+		static public function get frameRate():Number
 		{
 			return _frameRate;
 		}
@@ -232,15 +232,25 @@ package flinjin
 			}
 		}
 		
+		/**
+		 * Click on context menu item
+		 *
+		 * @param	e
+		 */
 		private function onFlinjinMenuItemSelect(e:ContextMenuEvent):void
 		{
 			/**
-			 * @todo utm_ marks in URL?
+			 * Please don't change this, I need this for statistics
 			 */
-			var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/");
+			var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/?utm_source=ingame&utm_medium=contextmenu&utm_campaign=" + encodeURIComponent(applicationName));
 			navigateToURL(_flinjinURLRequest);
 		}
 		
+		/**
+		 * Enter frame event
+		 *
+		 * @param	e
+		 */
 		private function onEnterFrame(e:Event):void
 		{
 			_Camera.Render();
@@ -273,7 +283,7 @@ package flinjin
 		 */
 		private function onDeactivate(e:Event):void
 		{
-		/** @todo It is possible to make pause here **/
+			// TODO It is possible to make pause here
 		}
 	}
 }

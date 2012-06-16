@@ -9,8 +9,9 @@ package flinjin.particles
 	import flinjin.graphics.Sprite;
 	
 	/**
-	 * ...
-	 * @author
+	 * @todo Make an object pool to not create particle every time when emmit needed
+	 * 
+	 * @author Michael Miriti
 	 */
 	public class Emitter extends Sprite
 	{
