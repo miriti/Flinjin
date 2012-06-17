@@ -22,6 +22,7 @@ package flinjin.particles
 		{
 			super(spriteBmp, rotationCenter, animated, frameWidth, frameHeight, frameRate);
 			_lastTime = _date.getTime();
+			setCenterInBitmapCenter();
 		}
 		
 		override public function Move():void

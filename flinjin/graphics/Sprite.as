@@ -12,13 +12,14 @@ package flinjin.graphics
 	import flash.utils.Dictionary;
 	import flinjin.events.FlinjinSpriteEvent;
 	import flinjin.Flinjin;
+	import flinjin.FlinjinLog;
 	import flinjin.motion.Motion;
 	import flinjin.system.FlinjinError;
 	import flinjin.types.BoundingShape;
 	
 	/**
 	 * Base Sprite class
-	 * 
+	 *
 	 * @todo Rename to FlinjinSprtite some day
 	 *
 	 * @author Michael Miriti <m.s.miriti@gmail.com>
@@ -161,8 +162,22 @@ package flinjin.graphics
 		
 		public function set currentFrame(val:uint):void
 		{
-			_currentFrame = val;
-			_current_bitmap = _frames[val];
+			if (_frames != null)
+			{
+				if (val < _frames.length)
+				{
+					_currentFrame = val;
+					_current_bitmap = _frames[val];
+				}
+				else
+				{
+					throw new FlinjinError("Frame index is out of bounds");
+				}
+			}
+			else
+			{
+				FlinjinLog.l("This sprite <" + this + "> not animated", FlinjinLog.W_ERRO);
+			}
 		}
 		
 		public function get totalFrames():uint
@@ -400,12 +415,12 @@ package flinjin.graphics
 		/**
 		 * Determinates the pixelCheck for interactions
 		 */
-		public function get pixelCheck():Boolean 
+		public function get pixelCheck():Boolean
 		{
 			return _pixelCheck;
 		}
 		
-		public function set pixelCheck(value:Boolean):void 
+		public function set pixelCheck(value:Boolean):void
 		{
 			_pixelCheck = value;
 		}
@@ -524,7 +539,7 @@ package flinjin.graphics
 		
 		/**
 		 * Set center of sprite in it's bitmap (or frame) center
-		 * 
+		 *
 		 */
 		public function setCenterInBitmapCenter():void
 		{
@@ -780,7 +795,7 @@ package flinjin.graphics
 		
 		/**
 		 * Sets bounding shape for this sprite
-		 * 
+		 *
 		 * @param	boundingShape BoundingShape or null if you need to disable collisions for this sprite
 		 * @return
 		 */

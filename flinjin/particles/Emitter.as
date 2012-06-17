@@ -35,7 +35,6 @@ package flinjin.particles
 		
 		private var _lastTimestamp:uint = 0;
 		private var _timeSinceLastEmmit:int = 0;
-		private var _date:Date = new Date();
 		private var _emmitIterations:Number = 0;
 		
 		/**
@@ -45,8 +44,9 @@ package flinjin.particles
 		 * @param	rect		Rectangle of emmiting area. You can define only size (width and height), x and y will be automaticly set on adding to layer
 		 */
 		public function Emitter(samples:Array, rect:Rectangle)
-		{
+		{			
 			super(null);
+			var _date:Date = new Date();
 			_samples = samples;
 			_emmitRect = rect;
 			_lastTimestamp = _date.getTime();
@@ -64,11 +64,12 @@ package flinjin.particles
 		 */
 		override public function Move():void
 		{
+			var _date:Date = new Date();
 			_prepareParticles();
 			
 			super.Move();
 			
-			if ((_emmitIterations < _emmitCount) || (_emmitCount == -1))
+			if ((_emmitCount == -1) || (_emmitIterations < _emmitCount))
 			{
 				if (_timeSinceLastEmmit <= 0)
 				{
@@ -81,7 +82,7 @@ package flinjin.particles
 						_newParticle.setPosition(x + _newPosition.x, y + _newPosition.y);
 						_newParticle.speedVector = _pickNewParticleVector(i);
 						_emmitedParticles.push(_newParticle);
-						(parent as Layer).addSprite(_newParticle);
+						(parent as Layer).addSprite(_newParticle, null, null, zIndex);
 					}
 					_emmitIterations++;
 				}
@@ -125,14 +126,14 @@ package flinjin.particles
 		}
 		
 		/**
-		 * Count and return position of new emmited particle
+		 * Count and return position of new emmited particle related to emitter position
 		 *
 		 * @param	iteration	Number of particle in emmiting set
 		 * @return	Point
 		 */
 		protected function _pickNewParticlePosition(iteration:int = 0):Point
 		{
-			return new Point(_emmitRect.x + Math.random() * _emmitRect.width, _emmitRect.y + Math.random() * _emmitRect.height);
+			return new Point(Math.random() * _emmitRect.width, Math.random() * _emmitRect.height);
 		}
 		
 		/**
@@ -153,7 +154,7 @@ package flinjin.particles
 				}
 			}
 			
-			if ((_emmitIterations >= _emmitCount) && (_emmitedParticles.length == 0))
+			if ((_emmitIterations >= _emmitCount) && (_emmitedParticles.length == 0) && (_emmitCount != -1))
 				Delete();
 		}
 	}
