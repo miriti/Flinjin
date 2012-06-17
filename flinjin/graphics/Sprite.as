@@ -780,6 +780,7 @@ package flinjin.graphics
 		
 		/**
 		 * Sets bounding shape for this sprite
+		 * 
 		 * @param	boundingShape BoundingShape or null if you need to disable collisions for this sprite
 		 * @return
 		 */

@@ -10,7 +10,7 @@ package flinjin.particles
 	
 	/**
 	 * @todo Make an object pool to not create particle every time when emmit needed
-	 * 
+	 *
 	 * @author Michael Miriti
 	 */
 	public class Emitter extends Sprite
@@ -24,8 +24,8 @@ package flinjin.particles
 		/** Emmited particles **/
 		protected var _emmitedParticles:Vector.<Particle> = new Vector.<Particle>();
 		
-		/** Count of emmit iterations **/
-		protected var _emmitCount:int;
+		/** Count of emmit iterations. -1 for infinitie emmition **/
+		protected var _emmitCount:int = -1;
 		
 		/** Interval between emmiting iterations in milliseconds **/
 		protected var _emmitInterval:int;
@@ -68,7 +68,7 @@ package flinjin.particles
 			
 			super.Move();
 			
-			if (_emmitIterations < _emmitCount)
+			if ((_emmitIterations < _emmitCount) || (_emmitCount == -1))
 			{
 				if (_timeSinceLastEmmit <= 0)
 				{
