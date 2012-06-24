@@ -15,7 +15,8 @@ package flinjin.types
 		protected var _position:Point = new Point(0, 0);
 		protected var _connectedObject:Sprite = null;
 		
-		public function BoundingShape(toObj:Sprite) {
+		public function BoundingShape(toObj:Sprite)
+		{
 			_connectedObject = toObj;
 		}
 		
@@ -70,7 +71,7 @@ package flinjin.types
 			_position.x = value;
 		}
 		
-		public function get connectedObject():Sprite 
+		public function get connectedObject():Sprite
 		{
 			return _connectedObject;
 		}

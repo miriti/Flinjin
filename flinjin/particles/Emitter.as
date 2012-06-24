@@ -33,8 +33,10 @@ package flinjin.particles
 		/** Count of particles to emmit on each iteration **/
 		protected var _particlesPerEmmit:int;
 		
-		private var _lastTimestamp:uint = 0;
-		private var _timeSinceLastEmmit:int = 0;
+		/** Time left to next emmition **/
+		private var _timeUntilNextEmmit:int = 0;
+		
+		/** Number of done emmit iterations **/
 		private var _emmitIterations:Number = 0;
 		
 		/**
@@ -44,12 +46,10 @@ package flinjin.particles
 		 * @param	rect		Rectangle of emmiting area. You can define only size (width and height), x and y will be automaticly set on adding to layer
 		 */
 		public function Emitter(samples:Array, rect:Rectangle)
-		{			
+		{
 			super(null);
-			var _date:Date = new Date();
 			_samples = samples;
 			_emmitRect = rect;
-			_lastTimestamp = _date.getTime();
 			addEventListener(FlinjinSpriteEvent.ADDED_TO_LAYER, onAddedToLayer);
 		}
 		
@@ -62,35 +62,38 @@ package flinjin.particles
 		 * Update emmiter
 		 *
 		 */
-		override public function Move():void
+		override public function Move(deltaTime:Number):void
 		{
-			var _date:Date = new Date();
 			_prepareParticles();
 			
-			super.Move();
+			super.Move(deltaTime);
 			
 			if ((_emmitCount == -1) || (_emmitIterations < _emmitCount))
 			{
-				if (_timeSinceLastEmmit <= 0)
+				if (_timeUntilNextEmmit <= 0)
 				{
-					_timeSinceLastEmmit = _emmitInterval;
-					for (var i:int = 0; i < _particlesPerEmmit; i++)
-					{
-						var _newParticleClass:Class = _pickNewParticleClass();
-						var _newParticle:Particle = new _newParticleClass() as Particle;
-						var _newPosition:Point = _pickNewParticlePosition(i);
-						_newParticle.setPosition(x + _newPosition.x, y + _newPosition.y);
-						_newParticle.speedVector = _pickNewParticleVector(i);
-						_emmitedParticles.push(_newParticle);
-						(parent as Layer).addSprite(_newParticle, null, null, zIndex);
-					}
+					_timeUntilNextEmmit = _emmitInterval;
+					_emmit();
 					_emmitIterations++;
 				}
 				else
 				{
-					_timeSinceLastEmmit -= _date.getTime() - _lastTimestamp;
-					_lastTimestamp = _date.getTime();
+					_timeUntilNextEmmit -= deltaTime;
 				}
+			}
+		}
+		
+		protected function _emmit():void
+		{
+			for (var i:int = 0; i < _particlesPerEmmit; i++)
+			{
+				var _newParticleClass:Class = _pickNewParticleClass();
+				var _newParticle:Particle = new _newParticleClass() as Particle;
+				var _newPosition:Point = _pickNewParticlePosition(i);
+				_newParticle.setPosition(x + _newPosition.x, y + _newPosition.y);
+				_newParticle.speedVector = _pickNewParticleVector(i);
+				_emmitedParticles.push(_newParticle);
+				(parent as Layer).addSprite(_newParticle, null, null, zIndex);
 			}
 		}
 		

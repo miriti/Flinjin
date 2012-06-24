@@ -291,6 +291,7 @@ package flinjin.graphics
 		 */
 		override public function Delete():void
 		{
+			// TODO are you sure you need this?
 			for each (var eachSprite:Sprite in Sprites)
 			{
 				eachSprite.Delete();
@@ -312,11 +313,11 @@ package flinjin.graphics
 		 * Move all child sprites
 		 *
 		 */
-		override public function Move():void
+		override public function Move(deltaTime:Number):void
 		{
 			for each (var eachSprite:Sprite in Sprites)
 			{
-				eachSprite.Move();
+				eachSprite.Move(deltaTime);
 			}
 			
 			if (_collisionsAlgorithm != null)
@@ -522,7 +523,7 @@ package flinjin.graphics
 		
 		/**
 		 * Function for sorting sprites by zIndex value
-		 * 
+		 *
 		 * @param	cmp1
 		 * @param	cmp2
 		 * @return
@@ -558,7 +559,11 @@ package flinjin.graphics
 					if ((sprites[i] as Sprite).DeleteFlag)
 					{
 						(sprites[i] as Sprite).dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.REMOVED_FROM_LAYER, this));
-						sprites[i] = sprites.pop();
+						
+						if (i != sprites.length - 1)
+							sprites[i] = sprites.pop();
+						else
+							sprites.pop();
 					}
 				}
 				
@@ -583,8 +588,15 @@ package flinjin.graphics
 			_layerRect.width = layerWidth;
 			_layerRect.height = layerHeight;
 			
+			//addEventListener(MouseEvent.MOUSE_MOVE, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
+			addEventListener(MouseEvent.MOUSE_OUT, onMouseEvent);
+			//addEventListener(MouseEvent.MOUSE_OVER, onMouseEvent);
+			addEventListener(MouseEvent.CLICK, onMouseEvent);
+			addEventListener(MouseEvent.DOUBLE_CLICK, onMouseEvent);
+			addEventListener(MouseEvent.MOUSE_WHEEL, onMouseEvent);
+			
 			addEventListener(KeyboardEvent.KEY_DOWN, onKeyboardEvent);
 			addEventListener(KeyboardEvent.KEY_UP, onKeyboardEvent);
 			

@@ -6,6 +6,7 @@ package flinjin.algorithms.collisions
 	import flinjin.graphics.Sprite;
 	import flinjin.system.FlinjinError;
 	import flinjin.types.BoundingCircle;
+	import flinjin.types.BoundingPoint;
 	import flinjin.types.BoundingRect;
 	import flinjin.types.BoundingShape;
 	import flinjin.types.FlinjinLine;
@@ -146,7 +147,7 @@ package flinjin.algorithms.collisions
 			{
 				if (sp1.Moved() || sp2.Moved())
 				{
-					return testShapeIntersection(sp1.collisionShape, sp2.collisionShape)
+					return sp1.collisionShape.CollisionTest(sp2.collisionShape);
 				}
 				else
 				{

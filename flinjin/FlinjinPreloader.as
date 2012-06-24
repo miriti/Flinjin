@@ -43,8 +43,11 @@ package flinjin
 				graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
 				graphics.endFill();
 				
-				if (logoObject == null)
-					setLogo(new _flinjinLogo() as Bitmap);
+				if (logoObject == null) {
+					var _flinjinLogoBmb:Bitmap = new _flinjinLogo() as Bitmap;
+					_flinjinLogoBmb.addEventListener(MouseEvent.CLICK, onFlinjinLogoClick);
+					setLogo(_flinjinLogoBmb);
+				}
 				addChild(logoObject);
 				
 				_progressBar = new PreloaderProgressBar(stage.stageWidth);
@@ -54,6 +57,15 @@ package flinjin
 			addEventListener(Event.ENTER_FRAME, checkFrame);
 			loaderInfo.addEventListener(ProgressEvent.PROGRESS, progress);
 			loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, ioError);
+		}
+		
+		private function onFlinjinLogoClick(e:MouseEvent):void 
+		{
+			/**
+			 * Please don't change this, I need this for statistics
+			 */
+			var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/?utm_source=game&utm_medium=preloader&utm_campaign=" + encodeURIComponent(Flinjin.applicationName));
+			navigateToURL(_flinjinURLRequest);
 		}
 		
 		/**

@@ -4,15 +4,16 @@ package flinjin.graphics
 	import flash.display.BitmapData;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.net.drm.AuthenticationMethod;
 	import flash.utils.Dictionary;
 	import flinjin.events.FlinjinSpriteEvent;
 	import flinjin.Flinjin;
 	import flinjin.FlinjinLog;
+	import flinjin.input.Input;
 	import flinjin.motion.Motion;
 	import flinjin.system.FlinjinError;
 	import flinjin.types.BoundingShape;
@@ -33,11 +34,6 @@ package flinjin.graphics
 		protected var _lastDrawedBitmap:BitmapData = null;
 		protected var _name:String = "untitled sprite";
 		
-		private var _spriteSourceWidth:uint;
-		private var _spriteSourceHeight:uint;
-		private var _spriteWidth:uint;
-		private var _spriteHeight:uint;
-		private var _spriteRect:Rectangle;
 		private var _repeatX:Boolean = false;
 		private var _repeatY:Boolean = false;
 		private var _namedAnimationRegions:Dictionary = new Dictionary();
@@ -50,6 +46,11 @@ package flinjin.graphics
 		private var _playing:Boolean = true;
 		private var _collisionShape:BoundingShape = null;
 		
+		protected var _spriteSourceWidth:uint;
+		protected var _spriteSourceHeight:uint;
+		protected var _spriteWidth:uint;
+		protected var _spriteHeight:uint;
+		protected var _spriteRect:Rectangle;
 		protected var _prevPosition:Point = new Point();
 		protected var _position:Point = new Point();
 		protected var _center:Point;
@@ -65,14 +66,15 @@ package flinjin.graphics
 		protected var _flipVertical:Boolean = false;
 		protected var _pixelCheck:Boolean = false;
 		
+		protected var _mouseOver:Boolean = false;
+		
 		protected var _motion:Motion = null;
 		
 		public var Dynamic:Boolean = true;
 		public var Drawed:Boolean = false;
 		public var DeleteFlag:Boolean = false;
 		public var zIndex:int = 0;
-		public var Interactive:Boolean = true;
-		public var MouseOver:Boolean = false;
+		public var Interactive:Boolean = false;
 		
 		public static var Smoothing:Boolean = true;
 		public static var SharpBlitting:Boolean = true;
@@ -425,6 +427,36 @@ package flinjin.graphics
 			_pixelCheck = value;
 		}
 		
+		public function get sourceBitmap():Bitmap
+		{
+			return _bitmap;
+		}
+		
+		public function set sourceBitmap(value:Bitmap):void
+		{
+			_bitmap = value;
+			if (!_animated)
+				_current_bitmap = _bitmap.bitmapData;
+		}
+		
+		public function get mouseOver():Boolean
+		{
+			return _mouseOver;
+		}
+		
+		public function set mouseOver(value:Boolean):void
+		{
+			if ((_mouseOver == false) && (value == true))
+			{
+				dispatchEvent(new MouseEvent(MouseEvent.MOUSE_OVER, true, false, Input.MousePosition.x - x, Input.MousePosition.y - y));
+			}
+			if ((_mouseOver == true) && (value == false))
+			{
+				dispatchEvent(new MouseEvent(MouseEvent.MOUSE_OUT, true, false, Input.MousePosition.x - x, Input.MousePosition.y - y));
+			}
+			_mouseOver = value;
+		}
+		
 		/**
 		 * Mark this sprite for deletion
 		 *
@@ -558,10 +590,11 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Updating sprite properties
+		 * Update action in game sprite
 		 *
+		 * @param	deltaTime time in milliseconds since last move action
 		 */
-		public function Move():void
+		public function Move(deltaTime:Number):void
 		{
 			if (_animated)
 			{

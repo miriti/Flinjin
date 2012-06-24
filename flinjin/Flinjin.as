@@ -10,6 +10,7 @@ package flinjin
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.filters.BlurFilter;
 	import flash.geom.Rectangle;
 	import flash.net.navigateToURL;
 	import flash.net.URLRequest;
@@ -51,6 +52,17 @@ package flinjin
 		private static var _stage3dAvail:Boolean = false;
 		private var _contextMenu:ContextMenu;
 		private var _flinjinContextMenuItem:ContextMenuItem;
+		private var _deactivated:Boolean = false;
+		private var _deactivatedFilters:Array = new Array(new BlurFilter(10, 10));
+		
+		/**
+		 * Maximum value of frame time.
+		 *
+		 */
+		public static function get frameDelta():Number
+		{
+			return 1000 / _frameRate;
+		}
 		
 		override public function get width():Number
 		{
@@ -69,13 +81,6 @@ package flinjin
 		private function onAddedToStage(e:Event):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-			
-			if (ApplicationDomain.currentDomain.hasDefinition('flash.display.Stage3D'))
-			{
-				stage.stage3Ds[0].addEventListener(Event.CONTEXT3D_CREATE, onContext3DCreate);
-				stage.stage3Ds[0].addEventListener(ErrorEvent.ERROR, onContext3DError);
-				stage.stage3Ds[0].requestContext3D();
-			}
 			
 			if (_regionRect == null)
 			{
@@ -104,37 +109,6 @@ package flinjin
 			
 			if (_applicationName == DEFAULT_APPLICATION_NAME)
 				FlinjinLog.l("Application name not set. Recommended to set this value in your Flinjin subclass constructor using Flinjin.applicationName", FlinjinLog.W_HINT);
-		}
-		
-		/**
-		 * Stage3d initializing error event handler
-		 *
-		 * @param	e
-		 */
-		private function onContext3DError(e:ErrorEvent):void
-		{
-			// error initializing stage3d
-		}
-		
-		/**
-		 * Stage3d initializing Context3d created event handler
-		 *
-		 * @todo Go in this direction
-		 * @param	e
-		 */
-		private function onContext3DCreate(e:Event):void
-		{
-			var s3d:Stage3D = e.target as Stage3D;
-			var context3d:Context3D = s3d.context3D;
-			
-			if (context3d == null)
-			{
-				_stage3dAvail = false;
-			}
-			
-			FlinjinLog.l('context3d driver info: ' + context3d.driverInfo);
-			context3d.enableErrorChecking = false;
-			context3d.configureBackBuffer(_sceneWidth, _sceneHeight, 0, true);
 		}
 		
 		/**
@@ -195,6 +169,11 @@ package flinjin
 			return _frameRate;
 		}
 		
+		public function get deactivated():Boolean
+		{
+			return _deactivated;
+		}
+		
 		/**
 		 *
 		 * @param	nWidth		Width of the main scene
@@ -240,9 +219,9 @@ package flinjin
 		private function onFlinjinMenuItemSelect(e:ContextMenuEvent):void
 		{
 			/**
-			 * Please don't change this, I need this for statistics
+			 * Please, don't change this, I need this for statistics
 			 */
-			var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/?utm_source=ingame&utm_medium=contextmenu&utm_campaign=" + encodeURIComponent(applicationName));
+			var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/?utm_source=game&utm_medium=contextmenu&utm_campaign=" + encodeURIComponent(applicationName));
 			navigateToURL(_flinjinURLRequest);
 		}
 		
@@ -253,7 +232,8 @@ package flinjin
 		 */
 		private function onEnterFrame(e:Event):void
 		{
-			_Camera.Render();
+			if (!_deactivated)
+				_Camera.Render();
 		}
 		
 		/**
@@ -274,6 +254,10 @@ package flinjin
 		private function onActivate(e:Event):void
 		{
 			stage.focus = _Camera;
+			_deactivated = false;
+			_Camera.filmSurface.filters = [];
+			_Camera.resetTimeDelta();
+			
 		}
 		
 		/**
@@ -283,7 +267,8 @@ package flinjin
 		 */
 		private function onDeactivate(e:Event):void
 		{
-			// TODO It is possible to make pause here
+			_deactivated = true;
+			_Camera.filmSurface.filters = _deactivatedFilters;
 		}
 	}
 }

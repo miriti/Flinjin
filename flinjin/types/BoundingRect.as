@@ -2,8 +2,11 @@ package flinjin.types
 {
 	import flash.display.BitmapData;
 	import flash.display.IBitmapDrawable;
+	import flash.display.Shape;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flinjin.events.FlinjinCollisionEvent;
+	import flinjin.FlinjinLog;
 	import flinjin.graphics.Sprite;
 	
 	/**
@@ -17,6 +20,14 @@ package flinjin.types
 		protected var _centerShift:Point = new Point();
 		protected var _rect:Rectangle = new Rectangle();
 		
+		/**
+		 * Rectangle bounding shape
+		 *
+		 * @param	toObj
+		 * @param	newHalfWidth
+		 * @param	newHalfHeight
+		 * @param	centerShift
+		 */
 		public function BoundingRect(toObj:Sprite, newHalfWidth:Number, newHalfHeight:Number, centerShift:Point = null)
 		{
 			_halfWidth = newHalfWidth;
@@ -30,6 +41,11 @@ package flinjin.types
 			super(toObj);
 		}
 		
+		/**
+		 * returns the rectangle
+		 *
+		 * @return
+		 */
 		public function getRect():Rectangle
 		{
 			_rect.x = x - halfWidth + _centerShift.x;
@@ -39,6 +55,53 @@ package flinjin.types
 			return _rect;
 		}
 		
+		/**
+		 * Test collision to another kinds of shapes
+		 *
+		 * @param	shape
+		 * @return
+		 */
+		override public function CollisionTest(shape:BoundingShape):Boolean
+		{
+			switch (typeof(shape))
+			{
+				case BoundingPoint: 
+					return _collidePoint(shape as BoundingPoint);
+				case BoundingBitmap: 
+				case BoundingCircle: 
+				case BoundingFreeForm: 
+				case BoundingRect: 
+				case BoundingShapeGroup: 
+				default: 
+					FlinjinLog.l("Shape cannot be collided", FlinjinLog.W_ERRO);
+					return false;
+			}
+			return super.CollisionTest(shape);
+		}
+		
+		/**
+		 * Collision with point
+		 *
+		 * @param	shape
+		 */
+		private function _collidePoint(shape:BoundingPoint):Boolean
+		{
+			if (_rect.contains(shape.x, shape.y))
+			{
+				dispatchEvent(new FlinjinCollisionEvent(FlinjinCollisionEvent.COLLISION, shape.connectedObject));
+				shape.dispatchEvent(new FlinjinCollisionEvent(FlinjinCollisionEvent.COLLISION, this.connectedObject));
+				return true;
+			}
+			else
+				return false;
+		}
+		
+		/**
+		 * Draw debug rectangle
+		 *
+		 * @param	surface
+		 * @param	shiftVector
+		 */
 		override public function DebugDraw(surface:BitmapData, shiftVector:Point):void
 		{
 			var stX:Number = (shiftVector.x + x + _centerShift.x) - _halfWidth;

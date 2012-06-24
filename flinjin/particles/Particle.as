@@ -25,11 +25,11 @@ package flinjin.particles
 			setCenterInBitmapCenter();
 		}
 		
-		override public function Move():void
+		override public function Move(deltaTime:Number):void
 		{
 			x += speedVector.x;
 			y += speedVector.y;
-			super.Move();
+			super.Move(deltaTime);
 			_timeToLive -= 1000 / Flinjin.frameRate;
 		}
 		
