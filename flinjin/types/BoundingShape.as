@@ -3,7 +3,7 @@ package flinjin.types
 	import flash.display.BitmapData;
 	import flash.events.EventDispatcher;
 	import flash.geom.Point;
-	import flinjin.graphics.Sprite;
+	import flinjin.graphics.FjSprite;
 	import flinjin.system.FlinjinError;
 	
 	/**
@@ -13,9 +13,9 @@ package flinjin.types
 	public class BoundingShape extends EventDispatcher
 	{
 		protected var _position:Point = new Point(0, 0);
-		protected var _connectedObject:Sprite = null;
+		protected var _connectedObject:FjSprite = null;
 		
-		public function BoundingShape(toObj:Sprite)
+		public function BoundingShape(toObj:FjSprite)
 		{
 			_connectedObject = toObj;
 		}
@@ -75,7 +75,7 @@ package flinjin.types
 			_position.x = value;
 		}
 		
-		public function get connectedObject():Sprite
+		public function get connectedObject():FjSprite
 		{
 			return _connectedObject;
 		}

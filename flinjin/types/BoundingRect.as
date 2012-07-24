@@ -6,8 +6,8 @@ package flinjin.types
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flinjin.events.FlinjinCollisionEvent;
-	import flinjin.FlinjinLog;
-	import flinjin.graphics.Sprite;
+	import flinjin.FjLog;
+	import flinjin.graphics.FjSprite;
 	
 	/**
 	 * ...
@@ -28,7 +28,7 @@ package flinjin.types
 		 * @param	newHalfHeight
 		 * @param	centerShift
 		 */
-		public function BoundingRect(toObj:Sprite, newHalfWidth:Number, newHalfHeight:Number, centerShift:Point = null)
+		public function BoundingRect(toObj:FjSprite, newHalfWidth:Number, newHalfHeight:Number, centerShift:Point = null)
 		{
 			_halfWidth = newHalfWidth;
 			_halfHeight = newHalfHeight;
@@ -78,7 +78,7 @@ package flinjin.types
 				case BoundingRect: 
 				case BoundingShapeGroup: 
 				default: 
-					FlinjinLog.l("Shape cannot be collided", FlinjinLog.W_ERRO);
+					FjLog.l("Shape cannot be collided", FjLog.W_ERRO);
 					return false;
 			}
 			return super.CollisionTest(shape);

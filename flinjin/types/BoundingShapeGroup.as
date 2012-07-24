@@ -2,7 +2,7 @@ package flinjin.types
 {
 	import flash.geom.Point;
 	import flash.display.BitmapData;
-	import flinjin.graphics.Sprite;
+	import flinjin.graphics.FjSprite;
 	
 	/**
 	 * ...
@@ -50,7 +50,7 @@ package flinjin.types
 			super.DebugDraw(surface);
 		}
 		
-		public function BoundingShapeGroup(toObj:Sprite, listObjects:Array)
+		public function BoundingShapeGroup(toObj:FjSprite, listObjects:Array)
 		{
 			for (var i:int = 0; i < listObjects.length; i++)
 			{

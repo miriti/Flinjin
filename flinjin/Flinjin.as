@@ -1,24 +1,20 @@
 package flinjin
 {
 	import flash.display.Sprite;
-	import flash.display.Stage3D;
 	import flash.display.StageAlign;
 	import flash.display.StageQuality;
 	import flash.display.StageScaleMode;
-	import flash.display3D.Context3D;
 	import flash.events.ContextMenuEvent;
-	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filters.BlurFilter;
 	import flash.geom.Rectangle;
 	import flash.net.navigateToURL;
 	import flash.net.URLRequest;
-	import flash.system.ApplicationDomain;
 	import flash.ui.ContextMenu;
 	import flash.ui.ContextMenuItem;
 	import flinjin.events.FlinjinEvent;
-	import flinjin.system.Consts;
+	import flinjin.system.FjConsts;
 	
 	/**
 	 * Flinjin application base class singletone
@@ -28,13 +24,13 @@ package flinjin
 	public class Flinjin extends Sprite
 	{
 		// Default application name constant
-		private static const DEFAULT_APPLICATION_NAME:String = 'Flinjin v' + Consts.ENGINE_VERSION + ' application';
+		private static const DEFAULT_APPLICATION_NAME:String = 'Flinjin v' + FjConsts.ENGINE_VERSION + ' application';
 		
 		// Name of the Flinjin Application
 		private static var _applicationName:String = DEFAULT_APPLICATION_NAME;
 		
 		// Camera
-		private var _Camera:FlinjinCamera;
+		private var _Camera:FjCamera;
 		
 		// Rendering region
 		private var _regionRect:Rectangle = null;
@@ -137,10 +133,10 @@ package flinjin
 			stage.focus = _Camera;
 			stage.addEventListener(Event.RESIZE, onStageResize);
 			dispatchEvent(new FlinjinEvent(FlinjinEvent.ENGINE_STARTUP, e.bubbles, e.cancelable));
-			FlinjinLog.l("Flinjin started: " + sceneWidth + "x" + sceneHeight + " Frame rate: " + frameRate);
+			FjLog.l("Flinjin started: " + sceneWidth + "x" + sceneHeight + " Frame rate: " + frameRate);
 			
 			if (_applicationName == DEFAULT_APPLICATION_NAME)
-				FlinjinLog.l("Application name not set. Recommended to set this value in your Flinjin subclass constructor using Flinjin.applicationName", FlinjinLog.W_HINT);
+				FjLog.l("Application name not set. Recommended to set this value in your Flinjin subclass constructor using Flinjin.applicationName", FjLog.W_HINT);
 		}
 		
 		/**
@@ -176,7 +172,7 @@ package flinjin
 		/**
 		 *
 		 */
-		public function get Camera():FlinjinCamera
+		public function get Camera():FjCamera
 		{
 			return _Camera;
 		}
@@ -208,7 +204,7 @@ package flinjin
 		 */
 		public function Flinjin(nWidth:Number = -1, nHeight:Number = -1)
 		{
-			_Camera = new FlinjinCamera();
+			_Camera = new FjCamera();
 			if ((nWidth != -1) && (nHeight != -1))
 			{
 				_regionRect = new Rectangle(0, 0, nWidth, nHeight);
@@ -224,7 +220,7 @@ package flinjin
 			
 			Flinjin.Instance = this;
 			
-			contextMenuAddItem("Flinjin v" + Consts.ENGINE_VERSION, function():void
+			contextMenuAddItem("Flinjin v" + FjConsts.ENGINE_VERSION, function():void
 				{
 					/**
 					 * Please, don't change this, I need this for statistics

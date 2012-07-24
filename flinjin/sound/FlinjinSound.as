@@ -4,7 +4,7 @@ package flinjin.sound
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.media.SoundTransform;
-	import flinjin.FlinjinLog;
+	import flinjin.FjLog;
 	
 	/**
 	 * This class represents sound
@@ -64,7 +64,7 @@ package flinjin.sound
 				_sndChannel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete);
 			}
 			else
-				FlinjinLog.l("Maximum sound channels count riched");
+				FjLog.l("Maximum sound channels count riched");
 			
 			return this;
 		}

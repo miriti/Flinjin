@@ -1,6 +1,6 @@
 package flinjin.types 
 {
-	import flinjin.graphics.Sprite;
+	import flinjin.graphics.FjSprite;
 	import flinjin.system.FlinjinError;
 	
 	/**
@@ -9,7 +9,7 @@ package flinjin.types
 	 */
 	public class BoundingFreeForm extends BoundingShape 
 	{
-		public function BoundingFreeForm(toObj:Sprite, points:Array) 
+		public function BoundingFreeForm(toObj:FjSprite, points:Array) 
 		{
 			super(toObj);
 			

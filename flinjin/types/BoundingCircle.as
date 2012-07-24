@@ -2,7 +2,7 @@ package flinjin.types
 {
 	import flash.geom.Point;
 	import flash.display.BitmapData;
-	import flinjin.graphics.Sprite;
+	import flinjin.graphics.FjSprite;
 	
 	/**
 	 * ...
@@ -24,7 +24,7 @@ package flinjin.types
 			}
 		}
 		
-		public function BoundingCircle(toObj:Sprite, nRadius:Number)
+		public function BoundingCircle(toObj:FjSprite, nRadius:Number)
 		{
 			_radius = nRadius;
 			super(toObj);

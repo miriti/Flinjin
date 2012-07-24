@@ -1,7 +1,7 @@
 package flinjin.algorithms.camera
 {
 	import flash.display.BitmapData;
-	import flinjin.graphics.Layer;
+	import flinjin.graphics.FjLayer;
 	
 	/**
 	 * ...
@@ -9,8 +9,8 @@ package flinjin.algorithms.camera
 	 */
 	public class CameraTransitionEffect
 	{
-		protected var _sceneFrom:Layer;
-		protected var _sceneTo:Layer;
+		protected var _sceneFrom:FjLayer;
+		protected var _sceneTo:FjLayer;
 		protected var _finished:Boolean = false;
 		
 		public function start():void
@@ -43,22 +43,22 @@ package flinjin.algorithms.camera
 		
 		}
 		
-		public function get sceneTo():Layer
+		public function get sceneTo():FjLayer
 		{
 			return _sceneTo;
 		}
 		
-		public function set sceneTo(value:Layer):void
+		public function set sceneTo(value:FjLayer):void
 		{
 			_sceneTo = value;
 		}
 		
-		public function get sceneFrom():Layer
+		public function get sceneFrom():FjLayer
 		{
 			return _sceneFrom;
 		}
 		
-		public function set sceneFrom(value:Layer):void
+		public function set sceneFrom(value:FjLayer):void
 		{
 			_sceneFrom = value;
 		}

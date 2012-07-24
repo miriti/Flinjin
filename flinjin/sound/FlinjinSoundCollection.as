@@ -3,7 +3,7 @@ package flinjin.sound
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.utils.Dictionary;
-	import flinjin.FlinjinLog;
+	import flinjin.FjLog;
 	import flinjin.system.FlinjinError;
 	
 	/**
@@ -33,7 +33,7 @@ package flinjin.sound
 			}
 			else
 			{
-				FlinjinLog.l("Sound <" + name + "> not found", FlinjinLog.W_ERRO);
+				FjLog.l("Sound <" + name + "> not found", FjLog.W_ERRO);
 				return null;
 			}
 		}

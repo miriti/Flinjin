@@ -3,7 +3,7 @@ package flinjin.algorithms.collisions
 	import flash.display.BitmapData;
 	import flash.geom.Point;
 	import flinjin.events.FlinjinCollisionEvent;
-	import flinjin.graphics.Sprite;
+	import flinjin.graphics.FjSprite;
 	import flinjin.system.FlinjinError;
 	import flinjin.types.BoundingCircle;
 	import flinjin.types.BoundingPoint;
@@ -135,7 +135,7 @@ package flinjin.algorithms.collisions
 		 * @param	sp2
 		 * @return
 		 */
-		public function CollisionTest(sp1:Sprite, sp2:Sprite):Boolean
+		public function CollisionTest(sp1:FjSprite, sp2:FjSprite):Boolean
 		{
 			if (sp1 == sp2)
 			{
@@ -160,7 +160,7 @@ package flinjin.algorithms.collisions
 			}
 		}
 		
-		public function FindCollision(toSprite:Sprite):Boolean
+		public function FindCollision(toSprite:FjSprite):Boolean
 		{
 			return false;
 		}
@@ -170,11 +170,11 @@ package flinjin.algorithms.collisions
 		
 		}
 		
-		public function RemoveFromCollection(obj:Sprite):void
+		public function RemoveFromCollection(obj:FjSprite):void
 		{
 		}
 		
-		public function AddToCollection(obj:Sprite):void
+		public function AddToCollection(obj:FjSprite):void
 		{
 		}
 		

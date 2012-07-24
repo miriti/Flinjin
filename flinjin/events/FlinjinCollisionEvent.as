@@ -1,7 +1,7 @@
 package flinjin.events 
 {
 	import flash.geom.Point;
-	import flinjin.graphics.Sprite;
+	import flinjin.graphics.FjSprite;
 	
 	/**
 	 * ...
@@ -13,7 +13,7 @@ package flinjin.events
 		
 		public var resolveVector:Point = new Point(0, 0);
 		
-		public function FlinjinCollisionEvent(type:String, interactionSprite:Sprite=null, resolveVector:Point=null, bubbles:Boolean=false, cancelable:Boolean=false) 
+		public function FlinjinCollisionEvent(type:String, interactionSprite:FjSprite=null, resolveVector:Point=null, bubbles:Boolean=false, cancelable:Boolean=false) 
 		{
 			super(type, interactionSprite, bubbles, cancelable);
 			

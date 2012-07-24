@@ -1,6 +1,5 @@
 package flinjin.system 
-{
-	import flinjin.FlinjinLog;
+{	
 	/**
 	 * ...
 	 * @author Michael Miriti <m.s.miriti@gmail.com>

@@ -1,7 +1,7 @@
 package flinjin.events
 {
 	import flash.events.Event;
-	import flinjin.graphics.Sprite;
+	import flinjin.graphics.FjSprite;
 	
 	/**
 	 * ...
@@ -30,9 +30,9 @@ package flinjin.events
 		public static const ADDED_TO_LAYER:String = "addedToLayer";
 		public static const REMOVED_FROM_LAYER:String = "removedFromLayer";
 		
-		public var interactionSprite:Sprite = null;
+		public var interactionSprite:FjSprite = null;
 		
-		public function FlinjinSpriteEvent(type:String, interactionSprite:Sprite = null, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function FlinjinSpriteEvent(type:String, interactionSprite:FjSprite = null, bubbles:Boolean = false, cancelable:Boolean = false)
 		{
 			super(type, bubbles, cancelable);
 			this.interactionSprite = interactionSprite;

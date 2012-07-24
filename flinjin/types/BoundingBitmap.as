@@ -1,7 +1,7 @@
 package flinjin.types
 {
 	import flash.display.BitmapData;
-	import flinjin.graphics.Sprite;
+	import flinjin.graphics.FjSprite;
 	import flinjin.system.FlinjinError;
 	
 	/**
@@ -12,7 +12,7 @@ package flinjin.types
 	{
 		private var _data:BitmapData = null;
 		
-		public function BoundingBitmap(toObj:Sprite, data:BitmapData)
+		public function BoundingBitmap(toObj:FjSprite, data:BitmapData)
 		{
 			super(toObj, _data.width / 2, _data.height / 2);
 			_data = data;

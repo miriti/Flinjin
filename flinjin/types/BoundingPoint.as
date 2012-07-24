@@ -2,7 +2,7 @@ package flinjin.types
 {
 	import flash.geom.Point;
 	import flash.display.BitmapData;
-	import flinjin.graphics.Sprite;
+	import flinjin.graphics.FjSprite;
 	
 	/**
 	 * ...
@@ -15,7 +15,7 @@ package flinjin.types
 			surface.setPixel32(_position.x, _position.y, 0xffff0000);
 		}
 		
-		public function BoundingPoint(toObj:Sprite, pX:Number, pY:Number)
+		public function BoundingPoint(toObj:FjSprite, pX:Number, pY:Number)
 		{
 			super(toObj);
 			
