@@ -25,7 +25,7 @@ package flinjin.graphics
 		
 		public function set text(val:String):void
 		{
-			_field.text = val;
+			_field.htmlText = val;
 			_field.setTextFormat(_textformat);
 			
 			var bd:BitmapData = new BitmapData(_field.width, _field.height, true, 0x00000000);
@@ -39,9 +39,9 @@ package flinjin.graphics
 			_spriteRect.height = bd.height;
 		}
 		
-		override protected function _Draw(surface:BitmapData, shiftVector:Point = null, innerScale:Number = 1):void
+		override protected function _Draw(surface:BitmapData):void
 		{
-			super._Draw(surface, shiftVector, innerScale);
+			super._Draw(surface);
 		}
 		
 		public function get text():String

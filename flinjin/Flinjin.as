@@ -48,12 +48,44 @@ package flinjin
 		private static var _sceneWidth:Number;
 		private static var _sceneHeight:Number;
 		private static var _frameRate:Number;
+		private static var _contextMenu:ContextMenu = null;
 		
 		private static var _stage3dAvail:Boolean = false;
 		private var _contextMenu:ContextMenu;
 		private var _flinjinContextMenuItem:ContextMenuItem;
 		private var _deactivated:Boolean = false;
 		private var _deactivatedFilters:Array = new Array(new BlurFilter(10, 10));
+		
+		/**
+		 * Adding item to the context menu of the application
+		 *
+		 * If callback function is not defined (null given) then item will be added as disabled
+		 *
+		 * @param	caption		Caption of the item
+		 * @param	callback	Callback function to be called by clicking the item
+		 *
+		 * @return New created ContextMenuItem object
+		 */
+		public function contextMenuAddItem(caption:String, callback:Function = null):ContextMenuItem
+		{
+			if (_contextMenu == null)
+			{
+				_contextMenu = new ContextMenu();
+				_contextMenu.hideBuiltInItems();
+				contextMenu = _contextMenu;
+			}
+			
+			var _newMenuItem:ContextMenuItem = new ContextMenuItem(caption, (_contextMenu.customItems.length == 1), (callback != null));
+			if (callback != null)
+			{
+				_newMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void
+					{
+						callback.call();
+					});
+			}
+			_contextMenu.customItems.push(_newMenuItem);
+			return _newMenuItem;
+		}
 		
 		/**
 		 * Maximum value of frame time.
@@ -141,11 +173,6 @@ package flinjin
 			return _sceneWidth;
 		}
 		
-		static public function get stage3dAvail():Boolean
-		{
-			return _stage3dAvail;
-		}
-		
 		/**
 		 *
 		 */
@@ -197,32 +224,14 @@ package flinjin
 			
 			Flinjin.Instance = this;
 			
-			_contextMenu = new ContextMenu();
-			if (_contextMenu.customItems != null)
-			{
-				_contextMenu.hideBuiltInItems();
-				
-				_flinjinContextMenuItem = new ContextMenuItem("powered by Flinjin v" + Consts.ENGINE_VERSION);
-				_flinjinContextMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onFlinjinMenuItemSelect);
-				
-				_contextMenu.customItems.push(_flinjinContextMenuItem);
-				
-				contextMenu = _contextMenu;
-			}
-		}
-		
-		/**
-		 * Click on context menu item
-		 *
-		 * @param	e
-		 */
-		private function onFlinjinMenuItemSelect(e:ContextMenuEvent):void
-		{
-			/**
-			 * Please, don't change this, I need this for statistics
-			 */
-			var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/?utm_source=game&utm_medium=contextmenu&utm_campaign=" + encodeURIComponent(applicationName));
-			navigateToURL(_flinjinURLRequest);
+			contextMenuAddItem("Flinjin v" + Consts.ENGINE_VERSION, function():void
+				{
+					/**
+					 * Please, don't change this, I need this for statistics
+					 */
+					var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/?utm_source=game&utm_medium=contextmenu&utm_campaign=" + encodeURIComponent(applicationName));
+					navigateToURL(_flinjinURLRequest);
+				});
 		}
 		
 		/**
@@ -257,7 +266,7 @@ package flinjin
 			_deactivated = false;
 			_Camera.filmSurface.filters = [];
 			_Camera.resetTimeDelta();
-			
+		
 		}
 		
 		/**

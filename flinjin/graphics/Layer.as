@@ -29,7 +29,7 @@ package flinjin.graphics
 		protected var _layerShift:Point = new Point();
 		
 		/** List of the Leyer's sprites **/
-		protected var sprites:Vector.<Sprite> = new Vector.<Sprite>;
+		protected var _sprites:Vector.<Sprite> = new Vector.<Sprite>;
 		
 		/** Enable clipping of the layer by it's rect **/
 		public var EnableClip:Boolean = false;
@@ -76,48 +76,26 @@ package flinjin.graphics
 		 * @param	spriteToDelete Object of sprite or Index in list
 		 * @return
 		 */
-		public function deleteSprite(spriteToDelete:*):Boolean
+		public function deleteSprite(spriteToDelete:Sprite):Boolean
 		{
-			if (spriteToDelete is Sprite)
+			var _itemIndex:int = _sprites.indexOf(spriteToDelete);
+			
+			if (_itemIndex != -1)
 			{
-				var num:int = Sprites.indexOf(spriteToDelete);
-				
-				if (num != -1)
+				_sprites.splice(_itemIndex, 1);
+				if (_collisionsAlgorithm != null)
 				{
-					if (_collisionsAlgorithm != null)
-					{
-						_collisionsAlgorithm.RemoveFromCollection(Sprites[num]);
-					}
-					
-					var _deleting:Sprite = Sprites[num];
-					_deleting.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.REMOVED_FROM_LAYER, this));
-					var _last:Sprite = Sprites.pop();
-					
-					if (num != Sprites.length)
-						Sprites[num] = _last;
-					
-					return true;
+					_collisionsAlgorithm.RemoveFromCollection(spriteToDelete);
 				}
-				else
-				{
-					return false;
-				}
-			}
-			else if (spriteToDelete is int)
-			{
-				if ((spriteToDelete >= 0) && (spriteToDelete < Sprites.length))
-				{
-					return deleteSprite(sprites[spriteToDelete]);
-				}
-				else
-				{
-					throw new FlinjinError("Index is out of range <" + spriteToDelete + ">");
-				}
+				spriteToDelete.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.REMOVED_FROM_LAYER, this));
+				return true;
 			}
 			else
 			{
+				FlinjinLog.l(spriteToDelete + " is not added to " + this, FlinjinLog.W_WARN);
 				return false;
 			}
+		
 		}
 		
 		/**
@@ -132,7 +110,7 @@ package flinjin.graphics
 		{
 			if (newSprite is Sprite)
 			{
-				if (sprites.indexOf(newSprite) == -1)
+				if (_sprites.indexOf(newSprite) == -1)
 				{
 					if (newSprite.zIndex == 0)
 					{
@@ -144,7 +122,6 @@ package flinjin.graphics
 							_nextSpriteZIndex++;
 						}
 					}
-					
 					newSprite.setPosition((atX != null) && (atX is Number) ? (atX as Number) : newSprite.x, (atY != null) && (atY is Number) ? (atY as Number) : newSprite.y);
 					Sprites[Sprites.length] = newSprite;
 					if (_collisionsAlgorithm != null)
@@ -262,7 +239,8 @@ package flinjin.graphics
 		 */
 		override public function get rect():Rectangle
 		{
-			return _layerRect;
+			// TODO Warning: possible memory leak, and also this code is fucked up
+			return new Rectangle(_layerRect.x - _center.x, _layerRect.y - _center.y, _layerRect.width, _layerRect.height);
 		}
 		
 		public function get collisionsAlgorithm():CollisionDetection
@@ -272,7 +250,7 @@ package flinjin.graphics
 		
 		public function get Sprites():Vector.<Sprite>
 		{
-			return sprites;
+			return _sprites;
 		}
 		
 		public function get contentScale():Number
@@ -286,27 +264,13 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Delete all child sprites form this layer
-		 *
-		 */
-		override public function Delete():void
-		{
-			// TODO are you sure you need this?
-			for each (var eachSprite:Sprite in Sprites)
-			{
-				eachSprite.Delete();
-			}
-			super.Delete();
-		}
-		
-		/**
 		 * Delete all sprites
 		 *
 		 */
-		public function Clear():void
+		public function clear():void
 		{
-			for (var i:int = Sprites.length - 1; i >= 0; i--)
-				deleteSprite(i);
+			for (var i:int = _sprites.length - 1; i >= 0; i--)
+				deleteSprite(_sprites[i]);
 		}
 		
 		/**
@@ -325,47 +289,11 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Pause animation for all sprites
-		 *
-		 */
-		override public function PauseAnimation():void
-		{
-			for each (var eachSprite:Sprite in Sprites)
-			{
-				eachSprite.PauseAnimation();
-			}
-		}
-		
-		/**
-		 * Play animation for all sprites
-		 *
-		 */
-		override public function PlayAnimation():void
-		{
-			for each (var eachSprite:Sprite in Sprites)
-			{
-				eachSprite.PlayAnimation();
-			}
-		}
-		
-		/**
-		 * Stop animation for all sprites
-		 *
-		 */
-		override public function StopAnimation():void
-		{
-			for each (var eachSprite:Sprite in Sprites)
-			{
-				eachSprite.StopAnimation();
-			}
-		}
-		
-		/**
 		 * Mouse down on Layer
 		 *
 		 * @param	mousePos
 		 */
-		private function onMouseEvent(e:MouseEvent):void
+		protected function onMouseEvent(e:MouseEvent):void
 		{
 			var mousePos:Point = new Point(e.localX * _scaleX, e.localY * _scaleY);
 			var clickedSprites:Vector.<Sprite> = new Vector.<Sprite>;
@@ -373,22 +301,11 @@ package flinjin.graphics
 			/**
 			 * @todo use simple for here
 			 */
-			for each (var eachSprite:Sprite in Sprites)
+			for each (var eachSprite:Sprite in _sprites)
 			{
-				if (eachSprite.Interactive)
+				if (eachSprite.interactive)
 				{
-					var _tmpRect:Rectangle;
-					
-					if (scale != 1)
-					{
-						/**
-						 * @todo Mind the scale of the sprites. Need to count new rect to check interuption with pointer
-						 */
-					}
-					else
-						_tmpRect = eachSprite.rect;
-					
-					if (_tmpRect.containsPoint(mousePos))
+					if (eachSprite.rect.containsPoint(mousePos))
 					{
 						if (eachSprite.pixelCheck)
 						{
@@ -423,8 +340,10 @@ package flinjin.graphics
 			for (var i:int = 0; i < clickedSprites.length; i++)
 			{
 				var subEvent:MouseEvent = e.clone() as MouseEvent;
-				subEvent.localX -= eachSprite.x;
-				subEvent.localY -= eachSprite.y;
+				subEvent.localX -= clickedSprites[i].x;
+				subEvent.localY -= clickedSprites[i].y;
+				
+				trace(clickedSprites, subEvent.type);
 				
 				clickedSprites[i].dispatchEvent(subEvent);
 			}
@@ -435,7 +354,7 @@ package flinjin.graphics
 		 *
 		 * @param	e
 		 */
-		private function onKeyboardEvent(e:KeyboardEvent):void
+		protected function onKeyboardEvent(e:KeyboardEvent):void
 		{
 			for each (var eachSprite:Sprite in Sprites)
 			{
@@ -486,39 +405,33 @@ package flinjin.graphics
 		 *
 		 * @param	surface
 		 */
-		override public function Draw(surface:BitmapData, shiftVector:Point = null, innerScale:Number = 1):void
+		override public function Draw(surface:BitmapData):void
 		{
-			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.BEFORE_RENDER));
-			
 			if ((_current_bitmap != null) && (Sprites.length > 0))
 			{
 				_current_bitmap.fillRect(_current_bitmap.rect, FillColor);
 				
 				_prepareSprites();
 				
-				/**
-				 * @todo DRY here
-				 *
-				 */
-				for each (var eachSprite:Sprite in Sprites)
+				for (var i:int = _sprites.length - 1; i >= 0; i--)
 				{
+					var eachSprite:Sprite = _sprites[i];
+					
 					if (EnableClip)
 					{
 						if (_isSpriteVisible(eachSprite, _layerShift))
 						{
-							eachSprite.Draw(_current_bitmap, _layerShift, _contentScale);
+							eachSprite.Draw(_current_bitmap);
 						}
 					}
 					else
 					{
-						eachSprite.Draw(_current_bitmap, _layerShift, _contentScale);
+						eachSprite.Draw(_current_bitmap);
 					}
 				}
 				
-				super.Draw(surface, shiftVector, innerScale);
+				super.Draw(surface);
 			}
-			
-			dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.AFTER_RENDER));
 		}
 		
 		/**
@@ -532,11 +445,11 @@ package flinjin.graphics
 		{
 			if (cmp1.zIndex < cmp2.zIndex)
 			{
-				return -1;
+				return 1;
 			}
 			else if (cmp1.zIndex > cmp2.zIndex)
 			{
-				return 1;
+				return -1;
 			}
 			else
 			{
@@ -551,26 +464,12 @@ package flinjin.graphics
 		 */
 		private function _prepareSprites():void
 		{
-			if (sprites.length > 0)
+			if (_sprites.length > 0)
 			{
-				// Delete sprites
-				for (var i:int = sprites.length - 1; i > 0; i--)
-				{
-					if ((sprites[i] as Sprite).DeleteFlag)
-					{
-						(sprites[i] as Sprite).dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.REMOVED_FROM_LAYER, this));
-						
-						if (i != sprites.length - 1)
-							sprites[i] = sprites.pop();
-						else
-							sprites.pop();
-					}
-				}
-				
 				// Sort sprites by zIndex
-				if (sprites.length >= 2)
+				if (_sprites.length >= 2)
 				{
-					sprites = sprites.sort(_spriteSortFunction);
+					_sprites = _sprites.sort(_spriteSortFunction);
 				}
 			}
 		}
@@ -583,16 +482,14 @@ package flinjin.graphics
 		 */
 		public function Layer(layerWidth:uint, layerHeight:uint)
 		{
-			super(new Bitmap(new BitmapData(layerWidth, layerHeight, true, 0x00000000), "auto", Sprite.Smoothing));
+			super(new Bitmap(new BitmapData(layerWidth, layerHeight, true, FillColor), "auto", Sprite.Smoothing));
 			
 			_layerRect.width = layerWidth;
 			_layerRect.height = layerHeight;
 			
-			//addEventListener(MouseEvent.MOUSE_MOVE, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_OUT, onMouseEvent);
-			//addEventListener(MouseEvent.MOUSE_OVER, onMouseEvent);
 			addEventListener(MouseEvent.CLICK, onMouseEvent);
 			addEventListener(MouseEvent.DOUBLE_CLICK, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_WHEEL, onMouseEvent);

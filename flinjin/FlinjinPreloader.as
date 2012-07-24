@@ -20,7 +20,7 @@ package flinjin
 	 */
 	public class FlinjinPreloader extends MovieClip
 	{
-		public static var MainClassName:String;
+		private var _applicationClass:String;
 		private var _progressBar:PreloaderProgressBar;
 		
 		[Embed(source="assets/flinjin-logo.png")]
@@ -132,8 +132,18 @@ package flinjin
 		 */
 		private function startup():void
 		{
-			var mainClass:Class = getDefinitionByName(MainClassName) as Class;
+			var mainClass:Class = getDefinitionByName(_applicationClass) as Class;
 			addChild(new mainClass() as DisplayObject);
+		}
+		
+		public function get applicationClass():String 
+		{
+			return _applicationClass;
+		}
+		
+		public function set applicationClass(value:String):void 
+		{
+			_applicationClass = value;
 		}
 	
 	}

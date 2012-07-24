@@ -41,6 +41,11 @@ package flinjin.types
 			super(toObj);
 		}
 		
+		override public function containPoint(p:Point):Boolean
+		{
+			return getRect().containsPoint(p);
+		}
+		
 		/**
 		 * returns the rectangle
 		 *
@@ -102,10 +107,10 @@ package flinjin.types
 		 * @param	surface
 		 * @param	shiftVector
 		 */
-		override public function DebugDraw(surface:BitmapData, shiftVector:Point):void
+		override public function DebugDraw(surface:BitmapData):void
 		{
-			var stX:Number = (shiftVector.x + x + _centerShift.x) - _halfWidth;
-			var stY:Number = (shiftVector.y + y + _centerShift.y) - _halfWidth;
+			var stX:Number = (x + _centerShift.x) - _halfWidth;
+			var stY:Number = (y + _centerShift.y) - _halfWidth;
 			
 			for (var i:int = stX; i < (stX + width); i++)
 			{

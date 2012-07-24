@@ -22,11 +22,15 @@ package flinjin.sound
 		 *
 		 * @param	name
 		 */
-		public static function playSound(name:String):FlinjinSound
+		public static function playSound(name:String, volume:Number = 1, pan:Number = 0):FlinjinSound
 		{
 			var _snd:FlinjinSound = FlinjinSoundCollection.getSound(name);
 			if (_snd != null)
+			{
+				_snd.volume = volume;
+				_snd.pan = pan;
 				return _snd.play();
+			}
 			else
 			{
 				FlinjinLog.l("Sound <" + name + "> not found", FlinjinLog.W_ERRO);

@@ -20,7 +20,11 @@ package flinjin.types
 			_connectedObject = toObj;
 		}
 		
-		public function DebugDraw(surface:BitmapData, shiftVector:Point):void
+		public function containPoint(p:Point):Boolean {
+			return false;
+		}
+		
+		public function DebugDraw(surface:BitmapData):void
 		{
 		
 		}

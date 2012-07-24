@@ -33,6 +33,8 @@ package flinjin.particles
 		/** Count of particles to emmit on each iteration **/
 		protected var _particlesPerEmmit:int;
 		
+		protected var _active:Boolean = true;
+		
 		/** Time left to next emmition **/
 		private var _timeUntilNextEmmit:int = 0;
 		
@@ -64,21 +66,23 @@ package flinjin.particles
 		 */
 		override public function Move(deltaTime:Number):void
 		{
-			_prepareParticles();
-			
 			super.Move(deltaTime);
 			
-			if ((_emmitCount == -1) || (_emmitIterations < _emmitCount))
+			if (_active)
 			{
-				if (_timeUntilNextEmmit <= 0)
+				_prepareParticles();
+				if ((_emmitCount == -1) || (_emmitIterations < _emmitCount))
 				{
-					_timeUntilNextEmmit = _emmitInterval;
-					_emmit();
-					_emmitIterations++;
-				}
-				else
-				{
-					_timeUntilNextEmmit -= deltaTime;
+					if (_timeUntilNextEmmit <= 0)
+					{
+						_timeUntilNextEmmit = _emmitInterval;
+						_emmit();
+						_emmitIterations++;
+					}
+					else
+					{
+						_timeUntilNextEmmit -= deltaTime;
+					}
 				}
 			}
 		}
@@ -149,16 +153,31 @@ package flinjin.particles
 			{
 				if (_emmitedParticles[i].timeToLive <= 0)
 				{
-					_emmitedParticles[i].Delete();
-					if (_emmitedParticles.length > 1)
-						_emmitedParticles[i] = _emmitedParticles.pop();
-					else
-						_emmitedParticles.pop();
+					_emmitedParticles.splice(i, 1);
 				}
 			}
 			
 			if ((_emmitIterations >= _emmitCount) && (_emmitedParticles.length == 0) && (_emmitCount != -1))
 				Delete();
+		}
+		
+		public function emmit():void
+		{
+			_emmit();
+		}
+		
+		public function get active():Boolean
+		{
+			return _active;
+		}
+		
+		public function set active(value:Boolean):void
+		{
+			if ((_active == false) && (value == true))
+			{
+				_timeUntilNextEmmit = 0;
+			}
+			_active = value;
 		}
 	}
 

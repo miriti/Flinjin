@@ -1,5 +1,6 @@
 package flinjin
 {
+	import flinjin.system.FlinjinError;
 	
 	/**
 	 * ...
@@ -12,6 +13,8 @@ package flinjin
 		public static const W_WARN:int = 2;
 		public static const W_ERRO:int = 3;
 		public static const W_CRTC:int = 4;
+		
+		private static var _haltOn:int = W_CRTC;
 		
 		private static var _warningLevelsNames:Array = new Array('Info', 'Hint', 'Warning', 'Error', 'Critical Error');
 		
@@ -27,8 +30,26 @@ package flinjin
 				_msgStr = message.toString;
 			else
 				_msgStr = '???';
-				
+			
 			_log.push(new FlinjinLogEntry('[' + _warningLevelsNames[warnLevel] + ']: ' + _msgStr));
+			
+			if (warnLevel >= _haltOn)
+			{
+				throw new FlinjinError(_msgStr);
+			}
+		}
+		
+		static public function get haltOn():int
+		{
+			return _haltOn;
+		}
+		
+		static public function set haltOn(value:int):void
+		{
+			if (value <= W_CRTC)
+				_haltOn = value;
+			else
+				_haltOn = W_CRTC;
 		}
 	
 	}

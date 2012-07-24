@@ -41,13 +41,13 @@ package flinjin.types
 			super.y = value;
 		}
 		
-		override public function DebugDraw(surface:BitmapData, shiftVector:Point):void
+		override public function DebugDraw(surface:BitmapData):void
 		{
 			for each (var BS:BoundingShape in _list)
 			{
-				BS.DebugDraw(surface, shiftVector);
+				BS.DebugDraw(surface);
 			}
-			super.DebugDraw(surface, shiftVector);
+			super.DebugDraw(surface);
 		}
 		
 		public function BoundingShapeGroup(toObj:Sprite, listObjects:Array)

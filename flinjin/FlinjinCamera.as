@@ -49,6 +49,7 @@ package flinjin
 		private var _debugTimer:Timer;
 		private var _debugLastDeltaTime:Number = 0;
 		private var _transitionEffect:CameraTransitionEffect = null;
+		private var _sceneStack:Vector.<Layer> = new Vector.<Layer>();
 		
 		public function resetTimeDelta():void
 		{
@@ -79,6 +80,38 @@ package flinjin
 			return _filmSurface;
 		}
 		
+		public function get zoom():Number
+		{
+			return _zoom;
+		}
+		
+		public function set zoom(value:Number):void
+		{
+			_zoom = value;
+			// TODO fix zooming
+			/*
+			if (_scene != null)
+				_scene.scale = _zoom;
+			else if (_transitionEffect != null)
+			{
+				_transitionEffect.sceneFrom.scale = _zoom;
+				_transitionEffect.sceneTo.scale = _zoom;
+			}*/
+		}
+		
+		public function get scene():Layer
+		{
+			return _scene;
+		}
+		
+		public function set scene(value:Layer):void
+		{
+			_sceneStack.push(_scene);
+			_scene = value;
+			// TODO fix scaling
+			//_scene.scale = _zoom;
+		}
+		
 		/**
 		 * Change the layer to look at by camera
 		 *
@@ -86,21 +119,34 @@ package flinjin
 		 * @param	transitionEffect	Transition effect
 		 * @return
 		 */
-		public function LookAt(scene:Layer, transitionEffect:CameraTransitionEffect = null):Layer
+		public function LookAt(lookAtScene:Layer, transitionEffect:CameraTransitionEffect = null):Layer
 		{
 			if (transitionEffect == null)
 			{
-				_scene = scene;
+				scene = lookAtScene;
 			}
 			else
 			{
 				_transitionEffect = transitionEffect;
 				_transitionEffect.sceneFrom = _scene;
-				_transitionEffect.sceneTo = scene;
+				//_transitionEffect.sceneFrom.scale = _zoom;
+				_transitionEffect.sceneTo = lookAtScene;
+				//_transitionEffect.sceneTo.scale = _zoom;
 				_transitionEffect.start();
 				_scene = null;
 			}
 			return scene;
+		}
+		
+		/**
+		 * Look at the previous scene
+		 * 
+		 * @param	transitionEffect
+		 */
+		public function LookBack(transitionEffect:CameraTransitionEffect = null):void
+		{
+			LookAt(_sceneStack.pop(), transitionEffect);
+			_sceneStack.pop();
 		}
 		
 		/**
@@ -112,6 +158,7 @@ package flinjin
 			var _date:Date = new Date();
 			var _newLastTime:Number = _date.getTime();
 			var _deltaTime:Number = _newLastTime - _lastTime;
+			var _repeatMoveCount:int = 1;
 			
 			if (Flinjin.Debug)
 			{
@@ -120,21 +167,43 @@ package flinjin
 				_debugTotalUpdateTime += _deltaTime;
 			}
 			
-			if (null != _scene)
-				_scene.Move(_deltaTime);
-			
-			else
+			if (_deltaTime > Flinjin.frameDelta)
 			{
-				if (null != _transitionEffect)
+				_repeatMoveCount = _deltaTime / Flinjin.frameDelta;
+				if (_deltaTime % Flinjin.frameDelta != 0)
+					_repeatMoveCount++;
+			}
+			
+			for (var i:int = 0; i < _repeatMoveCount; i++)
+			{
+				var _iterationDeltaTime:Number;
+				
+				if (_deltaTime <= Flinjin.frameDelta)
 				{
-					_transitionEffect.sceneFrom.Move(_deltaTime);
-					_transitionEffect.sceneTo.Move(_deltaTime);
-					_transitionEffect.update(_deltaTime);
-					
-					if (_transitionEffect.finished)
+					_iterationDeltaTime = _deltaTime;
+				}
+				else
+				{
+					_iterationDeltaTime = Flinjin.frameDelta;
+				}
+				_deltaTime -= Flinjin.frameDelta;
+				
+				if (null != _scene)
+					_scene.Move(_iterationDeltaTime);
+				
+				else
+				{
+					if (null != _transitionEffect)
 					{
-						_scene = _transitionEffect.sceneTo;
-						_transitionEffect = null;
+						_transitionEffect.sceneFrom.Move(_iterationDeltaTime);
+						_transitionEffect.sceneTo.Move(_iterationDeltaTime);
+						_transitionEffect.update(_iterationDeltaTime);
+						
+						if (_transitionEffect.finished)
+						{
+							scene = _transitionEffect.sceneTo;
+							_transitionEffect = null;
+						}
 					}
 				}
 			}
@@ -185,6 +254,7 @@ package flinjin
 		}
 		
 		/**
+		 * Flinjin Camera constructor
 		 *
 		 */
 		public function FlinjinCamera()
@@ -224,6 +294,11 @@ package flinjin
 			buttonMode = true;
 		}
 		
+		/**
+		 * Debug timer event
+		 *
+		 * @param	e
+		 */
 		private function onDebugTimer(e:TimerEvent):void
 		{
 			FlinjinLog.l('FPS: ' + 1000 / (_debugTotalUpdateTime / _debugTotalUpdateCount) + ' / ' + Flinjin.frameRate);
@@ -260,8 +335,8 @@ package flinjin
 		 */
 		private function onMouseMove(e:MouseEvent):void
 		{
-			Input.MousePosition.x = e.stageX;
-			Input.MousePosition.y = e.stageY;
+			Input.MousePosition.x = e.stageX / _zoom;
+			Input.MousePosition.y = e.stageY / _zoom;
 		}
 		
 		/**

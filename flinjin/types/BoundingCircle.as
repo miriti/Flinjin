@@ -12,10 +12,10 @@ package flinjin.types
 	{
 		private var _radius:Number;
 		
-		override public function DebugDraw(surface:BitmapData, shiftVector:Point):void
+		override public function DebugDraw(surface:BitmapData):void
 		{
-			var stX:Number = shiftVector.x + x;
-			var stY:Number = shiftVector.y + y;
+			var stX:Number = x;
+			var stY:Number = y;
 			
 			for (var i:int = 0; i < 8; i++)
 			{

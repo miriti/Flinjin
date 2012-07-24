@@ -3,6 +3,7 @@ package flinjin.sound
 	import flash.events.Event;
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
+	import flash.media.SoundTransform;
 	import flinjin.FlinjinLog;
 	
 	/**
@@ -16,6 +17,7 @@ package flinjin.sound
 		private var _sndChannel:SoundChannel;
 		private var _loop:Boolean;
 		private var _volume:Number = 1;
+		private var _pan:Number = 0;
 		
 		public function FlinjinSound(snd:Sound)
 		{
@@ -29,7 +31,7 @@ package flinjin.sound
 		
 		/**
 		 * Stop the sound
-		 * 
+		 *
 		 * @return
 		 */
 		public function stop():FlinjinSound
@@ -55,21 +57,20 @@ package flinjin.sound
 			if (!FlinjinSoundCollection.enabled)
 				return this;
 			
-			_sndChannel = _snd.play(shift);
+			_sndChannel = _snd.play(shift, 0, new SoundTransform(_volume, _pan));
 			if (_sndChannel != null)
 			{
 				FlinjinSoundCollection.Channels.push(_sndChannel);
-				_sndChannel.soundTransform.volume = _volume;
 				_sndChannel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete);
 			}
 			else
-				FlinjinLog.l('Maximum sound channels count riched');
+				FlinjinLog.l("Maximum sound channels count riched");
 			
 			return this;
 		}
 		
 		/**
-		 * 
+		 *
 		 * @param	e
 		 */
 		private function onSoundComplete(e:Event = null):void
@@ -108,6 +109,21 @@ package flinjin.sound
 			_volume = value;
 			if (_sndChannel != null)
 				_sndChannel.soundTransform.volume = _volume;
+		}
+		
+		public function get pan():Number
+		{
+			if (_sndChannel != null)
+				return _sndChannel.soundTransform.pan;
+			else
+				return _pan;
+		}
+		
+		public function set pan(value:Number):void
+		{
+			_pan = value;
+			if (_sndChannel != null)
+				_sndChannel.soundTransform.pan = _pan;
 		}
 	
 	}

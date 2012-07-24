@@ -2,9 +2,7 @@ package flinjin.graphics
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
-	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
@@ -13,7 +11,6 @@ package flinjin.graphics
 	import flinjin.events.FlinjinSpriteEvent;
 	import flinjin.Flinjin;
 	import flinjin.FlinjinLog;
-	import flinjin.input.Input;
 	import flinjin.motion.Motion;
 	import flinjin.system.FlinjinError;
 	import flinjin.types.BoundingShape;
@@ -27,59 +24,49 @@ package flinjin.graphics
 	 */
 	public class Sprite extends EventDispatcher
 	{
-		protected var _bitmap:Bitmap;
-		protected var _frames:Array = null;
-		protected var _current_bitmap:BitmapData = null;
-		protected var _current_result:BitmapData = null;
-		protected var _lastDrawedBitmap:BitmapData = null;
-		protected var _name:String = "untitled sprite";
-		
 		private var _repeatX:Boolean = false;
 		private var _repeatY:Boolean = false;
-		private var _namedAnimationRegions:Dictionary = new Dictionary();
-		private var _currentRegion:String = null;
-		private var _animated:Boolean = false;
-		private var _minFrame:uint = 0;
-		private var _maxFrame:uint = 0;
 		private var _currentFrame:Number = 0;
-		private var _frameRate:Number = 1;
-		private var _playing:Boolean = true;
-		private var _collisionShape:BoundingShape = null;
 		
+		protected var _angle:Number = 0;
+		protected var _animations:Dictionary = new Dictionary();
+		protected var _bitmap:Bitmap;
+		protected var _blendMode:String = null;
+		protected var _center:Point;
+		protected var _colorTransform:ColorTransform = new ColorTransform();
+		protected var _collisionShape:BoundingShape = null;
+		protected var _currentAnimation:SpriteAnimation = null;
+		protected var _cropRect:Rectangle = null;
+		protected var _current_bitmap:BitmapData = null;
+		protected var _current_result:BitmapData = null;
+		protected var _flipHorizontal:Boolean = false;
+		protected var _flipVertical:Boolean = false;
+		protected var _frames:Array = null;
+		protected var _interactive:Boolean = false;
+		protected var _lastDrawedBitmap:BitmapData = null;
+		protected var _matrix:Matrix = new Matrix();
+		protected var _mouseOver:Boolean = false;
+		protected var _motion:Motion = null;
+		protected var _parent:Layer = null;
+		protected var _pixelCheck:Boolean = false;
+		protected var _position:Point = new Point();
+		protected var _prevPosition:Point = new Point();
 		protected var _spriteSourceWidth:uint;
 		protected var _spriteSourceHeight:uint;
 		protected var _spriteWidth:uint;
 		protected var _spriteHeight:uint;
 		protected var _spriteRect:Rectangle;
-		protected var _prevPosition:Point = new Point();
-		protected var _position:Point = new Point();
-		protected var _center:Point;
-		protected var _angle:Number = 0;
-		protected var _scale:Number = 1;
+		protected var _spriteRectTransformed:Rectangle;
 		protected var _scaleX:Number = 1;
 		protected var _scaleY:Number = 1;
-		protected var _scroll:Point = new Point(0, 0);
 		protected var _visible:Boolean = true;
-		protected var _matrix:Matrix = new Matrix();
-		protected var _colorTransform:ColorTransform = new ColorTransform();
-		protected var _flipHorizontal:Boolean = false;
-		protected var _flipVertical:Boolean = false;
-		protected var _pixelCheck:Boolean = false;
-		
-		protected var _mouseOver:Boolean = false;
-		
-		protected var _motion:Motion = null;
 		
 		public var Dynamic:Boolean = true;
 		public var Drawed:Boolean = false;
-		public var DeleteFlag:Boolean = false;
 		public var zIndex:int = 0;
-		public var Interactive:Boolean = false;
 		
 		public static var Smoothing:Boolean = true;
 		public static var SharpBlitting:Boolean = true;
-		
-		protected var _parentSprite:Sprite = null;
 		
 		private function _resizeCanvas(newW:uint, newH:uint):BitmapData
 		{
@@ -87,6 +74,22 @@ package flinjin.graphics
 			newBmp.draw(_current_result);
 			_current_result = newBmp;
 			return _current_result
+		}
+		
+		/**
+		 *
+		 * @param	anim
+		 * @param	setAsCurrent
+		 */
+		public function addAnimation(anim:SpriteAnimation, setAsCurrent:Boolean = false):void
+		{
+			anim.sprite = this;
+			_animations[anim.name] = anim;
+			
+			if (setAsCurrent)
+			{
+				setAnimation(anim);
+			}
 		}
 		
 		/**
@@ -131,29 +134,6 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Current animation named range
-		 *
-		 */
-		public function set currentAnimation(val:String):void
-		{
-			for each (var o:Object in _namedAnimationRegions)
-			{
-				if (o['name'] == val)
-				{
-					setNamedAnimationRegion(val);
-					return;
-				}
-			}
-			
-			throw new FlinjinError("Animation not found in list <" + val + ">");
-		}
-		
-		public function get currentAnimation():String
-		{
-			return _currentRegion;
-		}
-		
-		/**
 		 * Current animation frame
 		 *
 		 */
@@ -173,12 +153,12 @@ package flinjin.graphics
 				}
 				else
 				{
-					throw new FlinjinError("Frame index is out of bounds");
+					FlinjinLog.l(this + ": Frame index [" + val + "] is out of bounds", FlinjinLog.W_ERRO);
 				}
 			}
 			else
 			{
-				FlinjinLog.l("This sprite <" + this + "> not animated", FlinjinLog.W_ERRO);
+				FlinjinLog.l("Sprite <" + this + "> is not animated", FlinjinLog.W_ERRO);
 			}
 		}
 		
@@ -223,33 +203,25 @@ package flinjin.graphics
 		
 		public function get width():Number
 		{
-			return _spriteWidth;
+			return _spriteWidth * _scaleX;
 		}
 		
 		public function set width(value:Number):void
 		{
-			if (value != _spriteWidth)
-			{
-				_spriteWidth = value;
-				_resizeCanvas(value, _spriteHeight);
-			}
+			_scaleX = value / _spriteWidth;
 		}
 		
 		public function get height():Number
 		{
-			return _spriteHeight;
+			return _spriteHeight * _scaleY;
 		}
 		
 		public function set height(value:Number):void
 		{
-			if (value != _spriteHeight)
-			{
-				_spriteHeight = value;
-				_resizeCanvas(_spriteWidth, value);
-			}
+			_scaleY = value / _spriteHeight;
 		}
 		
-		public function set Center(val:Point):void
+		public function set center(val:Point):void
 		{
 			if (val != null)
 			{
@@ -261,29 +233,17 @@ package flinjin.graphics
 			}
 		}
 		
-		public function get Center():Point
+		public function get center():Point
 		{
 			return _center;
 		}
 		
-		public function set scale(val:Number):void
-		{
-			_scale = val;
-		}
-		
-		public function get scale():Number
-		{
-			return _scale;
-		}
-		
 		public function get rect():Rectangle
 		{
-			return _spriteRect;
-		}
-		
-		public function get Paused():Boolean
-		{
-			return _animated;
+			_spriteRectTransformed.copyFrom(_spriteRect);
+			_spriteRectTransformed.width = _spriteWidth * _scaleX;
+			_spriteRectTransformed.height = _spriteHeight * _scaleY;
+			return _spriteRectTransformed;
 		}
 		
 		public function get position():Point
@@ -301,19 +261,19 @@ package flinjin.graphics
 			_colorTransform = value;
 		}
 		
-		public function get Visible():Boolean
+		public function get visible():Boolean
 		{
 			return _visible;
 		}
 		
-		public function set Visible(value:Boolean):void
+		public function set visible(value:Boolean):void
 		{
 			_visible = value;
 		}
 		
-		public function get parent():Sprite
+		public function get parent():Layer
 		{
-			return _parentSprite;
+			return _parent;
 		}
 		
 		public function get collisionShape():BoundingShape
@@ -321,62 +281,9 @@ package flinjin.graphics
 			return _collisionShape;
 		}
 		
-		public function get name():String
-		{
-			return _name;
-		}
-		
 		public function get prevPosition():Point
 		{
 			return _prevPosition;
-		}
-		
-		public function get repeatX():Boolean
-		{
-			return _repeatX;
-		}
-		
-		public function set repeatX(value:Boolean):void
-		{
-			_repeatX = value;
-		}
-		
-		public function get repeatY():Boolean
-		{
-			return _repeatY;
-		}
-		
-		public function set repeatY(value:Boolean):void
-		{
-			_repeatY = value;
-		}
-		
-		public function get scrollX():Number
-		{
-			return _scroll.x;
-		}
-		
-		public function set scrollX(value:Number):void
-		{
-			if (value < 0)
-				value = _spriteWidth + value;
-			if (value >= _spriteWidth)
-				value = value - _spriteWidth;
-			_scroll.x = value;
-		}
-		
-		public function get scrollY():Number
-		{
-			return _scroll.y;
-		}
-		
-		public function set scrollY(value:Number):void
-		{
-			if (value < 0)
-				value = _spriteHeight + value;
-			if (value >= _spriteHeight)
-				value = value - _spriteHeight;
-			_scroll.y = value;
 		}
 		
 		public function get flipHorizontal():Boolean
@@ -414,9 +321,6 @@ package flinjin.graphics
 			_motion = value;
 		}
 		
-		/**
-		 * Determinates the pixelCheck for interactions
-		 */
 		public function get pixelCheck():Boolean
 		{
 			return _pixelCheck;
@@ -435,71 +339,58 @@ package flinjin.graphics
 		public function set sourceBitmap(value:Bitmap):void
 		{
 			_bitmap = value;
-			if (!_animated)
+			if (null != _currentAnimation)
 				_current_bitmap = _bitmap.bitmapData;
 		}
 		
-		public function get mouseOver():Boolean
+		public function set animation(value:SpriteAnimation):void
 		{
-			return _mouseOver;
+			setAnimation(value);
 		}
 		
-		public function set mouseOver(value:Boolean):void
+		public function get animation():SpriteAnimation
 		{
-			if ((_mouseOver == false) && (value == true))
-			{
-				dispatchEvent(new MouseEvent(MouseEvent.MOUSE_OVER, true, false, Input.MousePosition.x - x, Input.MousePosition.y - y));
-			}
-			if ((_mouseOver == true) && (value == false))
-			{
-				dispatchEvent(new MouseEvent(MouseEvent.MOUSE_OUT, true, false, Input.MousePosition.x - x, Input.MousePosition.y - y));
-			}
-			_mouseOver = value;
+			return _currentAnimation;
+		}
+		
+		public function get interactive():Boolean
+		{
+			return _interactive;
+		}
+		
+		public function set interactive(value:Boolean):void
+		{
+			_interactive = value;
+		}
+		
+		public function get blendMode():String
+		{
+			return _blendMode;
+		}
+		
+		public function set blendMode(value:String):void
+		{
+			_blendMode = value;
+		}
+		
+		public function get originalHeight():Number
+		{
+			return _spriteHeight;
+		}
+		
+		public function get originalWidth():Number
+		{
+			return _spriteWidth;
 		}
 		
 		/**
-		 * Mark this sprite for deletion
+		 * Delete sprite form layer
 		 *
 		 */
 		public function Delete():void
 		{
-			DeleteFlag = true;
-		}
-		
-		/**
-		 * Gettting private property _matrix to read
-		 *
-		 * @return
-		 */
-		public function getMatrix():Matrix
-		{
-			return _matrix;
-		}
-		
-		/**
-		 * Start or resume playing animation
-		 */
-		public function PlayAnimation():void
-		{
-			_animated = true;
-		}
-		
-		/**
-		 * Stop playing animation
-		 */
-		public function StopAnimation():void
-		{
-			_animated = false;
-			_currentFrame = _minFrame;
-		}
-		
-		/**
-		 * Pause animation
-		 *
-		 */
-		public function PauseAnimation():void
-		{
-			_animated = false;
+			if (_parent != null)
+				_parent.deleteSprite(this);
 		}
 		
 		/**
@@ -507,6 +398,7 @@ package flinjin.graphics
 		 *
 		 * @param	frameNumber
 		 * @param	rotationPoint
+		 * @todo	what the fuck is it?
 		 * @return
 		 */
 		public function CreateSpriteFromFrame(frameNumber:uint, rotationPoint:Point = null):Sprite
@@ -538,47 +430,6 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Creating name animation region
-		 *
-		 * @param	name
-		 * @param	frameStart
-		 * @param	frameEnd
-		 * @return
-		 */
-		public function addNamedAnimationRegion(name:String, frameStart:uint, frameEnd:uint):AnimationNamedRegion
-		{
-			var newRegion:AnimationNamedRegion = new AnimationNamedRegion(frameStart, frameEnd);
-			_namedAnimationRegions[name] = newRegion;
-			return newRegion;
-		}
-		
-		/**
-		 * Set current animation min and max frame from named animation region
-		 *
-		 * @param	name
-		 */
-		public function setNamedAnimationRegion(name:String):void
-		{
-			var o:AnimationNamedRegion;
-			if ((o = _namedAnimationRegions[name]) != null)
-			{
-				_minFrame = o.start;
-				_maxFrame = o.end;
-				_currentRegion = name;
-				_currentFrame = _minFrame;
-			}
-		}
-		
-		/**
-		 * Set center of sprite in it's bitmap (or frame) center
-		 *
-		 */
-		public function setCenterInBitmapCenter():void
-		{
-			setCenter(width / 2, height / 2);
-		}
-		
-		/**
 		 * If sprite changed position
 		 *
 		 * @return
@@ -596,20 +447,11 @@ package flinjin.graphics
 		 */
 		public function Move(deltaTime:Number):void
 		{
-			if (_animated)
+			if (null != _currentAnimation)
 			{
-				_current_bitmap = _frames[Math.floor(_currentFrame)];
-				
-				if (_playing)
-				{
-					_currentFrame += _frameRate;
-					if (Math.floor(_currentFrame) > _maxFrame)
-					{
-						_currentFrame = _minFrame;
-						dispatchEvent(new Event(FlinjinSpriteEvent.ANIMATION_FINISHED));
-					}
-				}
+				_currentAnimation.update(deltaTime);
 			}
+			
 			_prevPosition.x = _position.x;
 			_prevPosition.y = _position.y;
 			
@@ -621,17 +463,6 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Reset animation region to 0 .. _frames.length
-		 *
-		 */
-		public function ResetAnimationRegion():void
-		{
-			_minFrame = 0;
-			_maxFrame = _frames.length - 1;
-			_currentRegion = null;
-		}
-		
-		/**
 		 * Actual draw of sprite
 		 *
 		 * Wrap of protected method _Draw
@@ -639,9 +470,9 @@ package flinjin.graphics
 		 * @param	surface
 		 * @param	shiftVector
 		 */
-		public function Draw(surface:BitmapData, shiftVector:Point = null, innerScale:Number = 1):void
+		public function Draw(surface:BitmapData):void
 		{
-			_Draw(surface, shiftVector, innerScale);
+			_Draw(surface);
 		}
 		
 		/**
@@ -667,96 +498,25 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Checks is point not transporent
-		 *
-		 * @param	p Point
-		 * @return Boolean True is this is non transporent pixel, false otherwise.
-		 */
-		public function PointPixelCheck(p:Point):Boolean
-		{
-			if (p != null)
-			{
-				if ((p.x < width) && (p.y < height) && (p.x >= 0) && (p.y >= 0))
-				{
-					var pixel:uint = _current_bitmap.getPixel(p.x, p.y);
-					return true;
-				}
-				else
-				{
-					throw new FlinjinError("Point is out of sprite");
-				}
-			}
-			else
-			{
-				throw new FlinjinError("Point must not be null");
-			}
-			
-			return false;
-		}
-		
-		/**
 		 * Draw sprite on the surface with all transformations
 		 *
 		 * @param	surface
 		 */
-		protected function _Draw(surface:BitmapData, shiftVector:Point = null, innerScale:Number = 1):void
+		protected function _Draw(surface:BitmapData):void
 		{
 			if ((null != _current_bitmap) && (null != _current_result))
 			{
 				// nothing to do if visible is false
-				if (false == Visible)
+				if (false == visible)
 					return;
 				
 				// nothing to do is scale is zero
-				if (0 == _scale)
+				if ((0 == _scaleX) || (0 == _scaleY))
 					return;
 				
 				// absolutly transporent
 				if (0 == _colorTransform.alphaMultiplier)
 					return;
-				
-				//
-				var _bitmapToDraw:BitmapData = _current_bitmap;
-				
-				// tiling/repeating sprite
-				if ((_scroll.x != 0) || (_scroll.y != 0))
-				{
-					var _rpX:uint = _repeatX ? Math.ceil(_spriteSourceWidth / _current_bitmap.width) + 1 : 1;
-					var _rpY:uint = _repeatY ? Math.ceil(_spriteSourceHeight / _current_bitmap.height) + 1 : 1;
-					var _tmpMatrix:Matrix = new Matrix();
-					
-					_current_result.fillRect(_current_result.rect, 0x00000000);
-					
-					for (var j:int = 0; j < _rpY; j++)
-					{
-						if (_rpY == 1)
-							_tmpMatrix.ty = 0;
-						else
-						{
-							_tmpMatrix.ty = -_spriteHeight + _scroll.y + (j * _spriteHeight);
-							
-							if (SharpBlitting)
-								_tmpMatrix.ty = Math.floor(_tmpMatrix.ty);
-						}
-						
-						for (var i:int = 0; i < _rpX; i++)
-						{
-							if (_rpX == 1)
-								_tmpMatrix.tx = 0;
-							else
-							{
-								_tmpMatrix.tx = -_spriteWidth + _scroll.x + (i * _spriteWidth);
-								
-								if (SharpBlitting)
-									_tmpMatrix.tx = Math.floor(_tmpMatrix.tx);
-							}
-							
-							_current_result.draw(_current_bitmap, _tmpMatrix);
-						}
-					}
-					
-					_bitmapToDraw = _current_result;
-				}
 				
 				// Loading matrix indentity
 				_matrix.identity();
@@ -784,45 +544,77 @@ package flinjin.graphics
 				}
 				
 				// Scaling
-				if ((_scaleX != 1) || (_scaleY != 1) || (_scale != 1))
+				if ((_scaleX != 1) || (_scaleY != 1))
 				{
-					_matrix.scale(_scaleX * _scale, _scaleY * _scale);
-				}
-				
-				if (innerScale != 1)
-					_matrix.scale(innerScale, innerScale);
-				
-				if (shiftVector != null)
-				{
-					if (SharpBlitting)
-					{
-						shiftVector.x = Math.floor(shiftVector.x);
-						shiftVector.y = Math.floor(shiftVector.y);
-					}
-					
-					_matrix.translate(shiftVector.x, shiftVector.y);
+					_matrix.scale(_scaleX, _scaleY);
 				}
 				
 				// Moving to the place
 				if (SharpBlitting)
 				{
-					_matrix.translate(Math.floor(_position.x * innerScale), Math.floor(_position.y * innerScale));
+					_matrix.translate(Math.floor(_position.x), Math.floor(_position.y));
 				}
 				else
 				{
-					_matrix.translate(_position.x * innerScale, _position.y * innerScale);
+					_matrix.translate(_position.x, _position.y);
 				}
 				
-				surface.draw(_bitmapToDraw, _matrix, _colorTransform, null, null, Smoothing);
-				_lastDrawedBitmap = _bitmapToDraw;
+				surface.draw(_current_bitmap, _matrix, _colorTransform, _blendMode, _cropRect, Smoothing);
+				_lastDrawedBitmap = _current_bitmap;
 				
 				if ((_collisionShape != null) && (Flinjin.Debug))
 				{
-					_collisionShape.DebugDraw(surface, shiftVector);
+					_collisionShape.DebugDraw(surface);
 				}
 				
 				_spriteRect.x = _matrix.tx;
 				_spriteRect.y = _matrix.ty;
+			}
+		}
+		
+		/**
+		 * This strange function is basicly divides current deltaTime by Flinjin.frameDalte and returns this value.
+		 * Use this value in your Move function to provide FPS independence
+		 *
+		 * @param	deltaTime
+		 * @return
+		 */
+		protected function r(deltaTime:Number):Number
+		{
+			return deltaTime / Flinjin.frameDelta;
+		}
+		
+		/**
+		 * This function returns the deltaTime's fraction of the second.
+		 * For example 500 ms gives 0.5 fraction and 1000 gives 1.0 etc.
+		 * @param	deltaTime
+		 * @return
+		 */
+		protected function s(deltaTime:Number):Number
+		{
+			return deltaTime / 1000;
+		}
+		
+		public function setAnimation(anim:Object):void
+		{
+			if (anim is String)
+			{
+				if (null != _animations[anim])
+				{
+					_currentAnimation = _animations[anim];
+				}
+			}
+			else if (anim is SpriteAnimation)
+			{
+				_currentAnimation = (anim as SpriteAnimation);
+			}
+			else if (anim == null)
+			{
+				_currentAnimation = null;
+			}
+			else
+			{
+				FlinjinLog.l("Connot set <" + anim + "> as animation", FlinjinLog.W_ERRO);
 			}
 		}
 		
@@ -855,6 +647,15 @@ package flinjin.graphics
 		}
 		
 		/**
+		 * Set center of sprite in it's bitmap (or frame) center
+		 *
+		 */
+		public function setCenterInBitmapCenter():void
+		{
+			setCenter(width / 2, height / 2);
+		}
+		
+		/**
 		 * Set new possition for sprite
 		 *
 		 * @param	newX
@@ -881,54 +682,42 @@ package flinjin.graphics
 		 *
 		 * @param	spriteBmp
 		 * @param	rotationCenter
-		 * @param	animated
-		 * @param	frameWidth
-		 * @param	frameHeight
-		 * @param	frameRate
+		 * @param	frameSize
+		 * @param	spriteAnimation
 		 */
-		protected function _initSprite(spriteBmp:Bitmap, rotationCenter:Point = null, animated:Boolean = false, frameWidth:uint = 0, frameHeight:uint = 0, frameRate:Number = 1):void
+		protected function _initSprite(spriteBmp:Bitmap, rotationCenter:Point = null, frameSize:Point = null, spriteAnimation:SpriteAnimation = null):void
 		{
-			if ((!(spriteBmp is Bitmap)) && (null != spriteBmp))
-			{
-				throw new FlinjinError('Invalid argument type for "spriteBmp": <' + typeof(spriteBmp) + '> must be Bitmap');
-				return;
-			}
-			
 			_bitmap = spriteBmp;
 			_matrix = new Matrix();
 			
-			Center = rotationCenter;
+			center = rotationCenter;
 			
-			_animated = animated;
-			
-			if ((animated) && (null != spriteBmp))
+			if ((null != frameSize) && (null != spriteBmp))
 			{
-				if ((_bitmap.width % frameWidth != 0) || (_bitmap.height % frameHeight != 0))
+				if ((_bitmap.width % frameSize.x != 0) || (_bitmap.height % frameSize.y != 0))
 				{
 					throw new FlinjinError('Frame size does not fits Bitmap size');
 					return;
 				}
 				
-				_spriteWidth = frameWidth;
-				_spriteSourceWidth = frameWidth;
+				_spriteWidth = frameSize.x;
+				_spriteSourceWidth = frameSize.x;
 				
-				_spriteHeight = frameHeight;
-				_spriteSourceHeight = frameHeight;
+				_spriteHeight = frameSize.y;
+				_spriteSourceHeight = frameSize.y;
 				
-				_frameRate = frameRate;
 				_frames = new Array();
 				
-				for (var j:uint = 0; j < Math.floor(_bitmap.height / frameHeight); j++)
+				for (var j:uint = 0; j < Math.floor(_bitmap.height / frameSize.y); j++)
 				{
-					for (var i:uint = 0; i < Math.floor(_bitmap.width / frameWidth); i++)
+					for (var i:uint = 0; i < Math.floor(_bitmap.width / frameSize.x); i++)
 					{
-						var _frameData:BitmapData = new BitmapData(frameWidth, frameHeight);
-						_frameData.copyPixels(_bitmap.bitmapData, new Rectangle(i * frameWidth, j * frameHeight, frameWidth, frameHeight), new Point(0, 0));
+						var _frameData:BitmapData = new BitmapData(frameSize.x, frameSize.y);
+						_frameData.copyPixels(_bitmap.bitmapData, new Rectangle(i * frameSize.x, j * frameSize.y, frameSize.x, frameSize.y), new Point(0, 0));
 						_frames[_frames.length] = _frameData;
 					}
 				}
 				
-				ResetAnimationRegion();
 				_current_bitmap = _frames[0];
 			}
 			else
@@ -951,54 +740,36 @@ package flinjin.graphics
 				}
 			}
 			
+			if (spriteAnimation != null)
+			{
+				addAnimation(spriteAnimation, true);
+			}
+			
 			if (null != spriteBmp)
 				_current_result = _current_bitmap.clone();
 			
 			_spriteRect = new Rectangle(-_center.x, -_center.y, _spriteWidth, _spriteHeight);
+			_spriteRectTransformed = _spriteRect.clone();
 		}
 		
 		/**
-		 * Base Sprite class constructor
+		 * Creates new raser sprite
 		 *
-		 * @param	spriteBmp	Bitmap containing sprite frame(s)
-		 * @param	rotationCenter	Rotation point of sprite
-		 * @param	animated	Is sprite animated
-		 * @param	frameWidth	Width of animation frame
-		 * @param	frameHeight	Height of animation frame
-		 * @param	frameRate	Animation speed scale. Defines how many frames of animation passes in one application frame. 1/2 means 1 animation frame per 2 application frames
+		 * @param	spriteBmp
+		 * @param	rotationCenter
+		 * @param	frameSize
+		 * @param	spriteAnimation
 		 */
-		public function Sprite(spriteBmp:Bitmap, rotationCenter:Point = null, animated:Boolean = false, frameWidth:uint = 0, frameHeight:uint = 0, frameRate:Number = 1)
+		public function Sprite(spriteBmp:Bitmap, rotationCenter:Point = null, frameSize:Point = null, spriteAnimation:SpriteAnimation = null)
 		{
-			_initSprite(spriteBmp, rotationCenter, animated, frameWidth, frameHeight, frameRate);
+			_initSprite(spriteBmp, rotationCenter, frameSize, spriteAnimation);
 			addEventListener(FlinjinSpriteEvent.ADDED_TO_LAYER, onAddedToLayer);
 		}
 		
 		private function onAddedToLayer(e:FlinjinSpriteEvent):void
 		{
-			_parentSprite = e.interactionSprite;
+			_parent = (e.interactionSprite as Layer);
 		}
 	}
 
-}
-
-class AnimationNamedRegion
-{
-	private var _start:uint;
-	private var _end:uint;
-	
-	function AnimationNamedRegion(newStart:uint, newEnd:uint)
-	{
-		_start = newStart;
-		_end = newEnd;
-	}
-	
-	public function get start():uint
-	{
-		return _start;
-	}
-	
-	public function get end():uint
-	{
-		return _end;
-	}
 }

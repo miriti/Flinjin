@@ -10,9 +10,9 @@ package flinjin.types
 	 */
 	public class BoundingPoint extends BoundingShape
 	{
-		override public function DebugDraw(surface:BitmapData, shiftVector:Point):void
+		override public function DebugDraw(surface:BitmapData):void
 		{
-			surface.setPixel32(_position.x + shiftVector.x, _position.y + shiftVector.y, 0xffff0000);
+			surface.setPixel32(_position.x, _position.y, 0xffff0000);
 		}
 		
 		public function BoundingPoint(toObj:Sprite, pX:Number, pY:Number)
