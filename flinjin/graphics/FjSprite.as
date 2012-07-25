@@ -430,6 +430,22 @@ package flinjin.graphics
 		}
 		
 		/**
+		 * Call mouse over method 
+		 * 
+		 * @param	localX
+		 * @param	localY
+		 */
+		public function mouseOver(localX:Number, localY:Number):void
+		{
+			// abstract	
+			_mouseOver = true;
+		}
+		
+		public function mouseOut():void {
+			_mouseOver = false;
+		}
+		
+		/**
 		 * If sprite changed position
 		 *
 		 * @return
@@ -644,6 +660,8 @@ package flinjin.graphics
 		{
 			_center.x = newCX;
 			_center.y = newCY;
+			_spriteRect.x = _position.x - newCX;
+			_spriteRect.y = _position.y - newCY;
 		}
 		
 		/**

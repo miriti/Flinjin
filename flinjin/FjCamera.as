@@ -50,6 +50,7 @@ package flinjin
 		private var _debugLastDeltaTime:Number = 0;
 		private var _transitionEffect:CameraTransitionEffect = null;
 		private var _sceneStack:Vector.<FjLayer> = new Vector.<FjLayer>();
+		private var _fps:Number;
 		
 		public function resetTimeDelta():void
 		{
@@ -89,14 +90,14 @@ package flinjin
 		{
 			_zoom = value;
 			// TODO fix zooming
-			/*
-			if (_scene != null)
-				_scene.scale = _zoom;
-			else if (_transitionEffect != null)
-			{
-				_transitionEffect.sceneFrom.scale = _zoom;
-				_transitionEffect.sceneTo.scale = _zoom;
-			}*/
+		/*
+		   if (_scene != null)
+		   _scene.scale = _zoom;
+		   else if (_transitionEffect != null)
+		   {
+		   _transitionEffect.sceneFrom.scale = _zoom;
+		   _transitionEffect.sceneTo.scale = _zoom;
+		 }*/
 		}
 		
 		public function get scene():FjLayer
@@ -110,6 +111,11 @@ package flinjin
 			_scene = value;
 			// TODO fix scaling
 			//_scene.scale = _zoom;
+		}
+		
+		public function get fps():Number 
+		{
+			return _fps;
 		}
 		
 		/**
@@ -140,7 +146,7 @@ package flinjin
 		
 		/**
 		 * Look at the previous scene
-		 * 
+		 *
 		 * @param	transitionEffect
 		 */
 		public function LookBack(transitionEffect:CameraTransitionEffect = null):void
@@ -265,7 +271,6 @@ package flinjin
 			
 			// Translate Mouse Events
 			addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-			addEventListener(MouseEvent.MOUSE_MOVE, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
 			addEventListener(MouseEvent.CLICK, onMouseEvent);
@@ -301,7 +306,7 @@ package flinjin
 		 */
 		private function onDebugTimer(e:TimerEvent):void
 		{
-			FjLog.l('FPS: ' + 1000 / (_debugTotalUpdateTime / _debugTotalUpdateCount) + ' / ' + Flinjin.frameRate);
+			_fps = 1000 / (_debugTotalUpdateTime / _debugTotalUpdateCount);
 			_debugTotalUpdateCount = 0;
 			_debugTotalUpdateTime = 0;
 		}
@@ -313,6 +318,7 @@ package flinjin
 		 */
 		private function onKeyEvent(e:KeyboardEvent):void
 		{
+			// TODO dispatch events on transitions
 			if (null != _scene)
 				_scene.dispatchEvent(e);
 		}
@@ -335,8 +341,15 @@ package flinjin
 		 */
 		private function onMouseMove(e:MouseEvent):void
 		{
-			FjInput.mousePosition.x = e.stageX / _zoom;
-			FjInput.mousePosition.y = e.stageY / _zoom;
+			var _newX:Number = e.stageX / _zoom;
+			var _newY:Number = e.stageY / _zoom;
+			FjInput.mousePosition.x = _newX;
+			FjInput.mousePosition.y = _newY;
+			
+			if (null != _scene)
+			{
+				_scene.mouseOver(_newX, _newY);
+			}
 		}
 		
 		/**

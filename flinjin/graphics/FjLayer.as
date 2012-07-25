@@ -154,6 +154,30 @@ package flinjin.graphics
 			}
 		}
 		
+		override public function mouseOver(localX:Number, localY:Number):void
+		{
+			super.mouseOver(localX, localY);
+			for (var i:int = 0; i < _sprites.length; i++)
+			{
+				var _s:FjSprite = _sprites[i];
+				if ((_s.rect.contains(localX, localY)) && (_s.interactive))
+				{
+					_s.mouseOver(localX - _s.x, localY - _s.y);
+				}
+				else if (_s.interactive)
+					_s.mouseOut();
+			}
+		}
+		
+		override public function mouseOut():void
+		{
+			super.mouseOut();
+			for (var i:int = 0; i < _sprites.length; i++)
+			{
+				_sprites[i].mouseOut();
+			}
+		}
+		
 		public function resetDefaultZIndex():Number
 		{
 			_nextSpriteZIndex = 1;
@@ -303,7 +327,7 @@ package flinjin.graphics
 			 */
 			for each (var eachSprite:FjSprite in _sprites)
 			{
-				if (eachSprite.interactive)
+				if ((eachSprite.interactive) && (eachSprite.visible))
 				{
 					if (eachSprite.rect.containsPoint(mousePos))
 					{
@@ -334,7 +358,7 @@ package flinjin.graphics
 			 */
 			if (1)
 			{
-				clickedSprites = clickedSprites.splice(clickedSprites.length - 1, 1);
+				clickedSprites = clickedSprites.splice(0, 1);
 			}
 			
 			for (var i:int = 0; i < clickedSprites.length; i++)
@@ -342,8 +366,6 @@ package flinjin.graphics
 				var subEvent:MouseEvent = e.clone() as MouseEvent;
 				subEvent.localX -= clickedSprites[i].x;
 				subEvent.localY -= clickedSprites[i].y;
-				
-				trace(clickedSprites, subEvent.type);
 				
 				clickedSprites[i].dispatchEvent(subEvent);
 			}
@@ -358,8 +380,8 @@ package flinjin.graphics
 		{
 			for each (var eachSprite:FjSprite in Sprites)
 			{
-				if(eachSprite.interactive)
-				eachSprite.dispatchEvent(e);
+				if (eachSprite.interactive)
+					eachSprite.dispatchEvent(e);
 			}
 		}
 		
@@ -370,9 +392,9 @@ package flinjin.graphics
 		 * @param	shift
 		 * @return
 		 */
-		protected function _isSpriteVisible(sp:FjSprite, shift:Point):Boolean
+		protected function _isSpriteVisible(sp:FjSprite):Boolean
 		{
-			var sR:Rectangle = new Rectangle(sp.x + shift.x, sp.y + shift.y, sp.width, sp.height);
+			var sR:Rectangle = new Rectangle(sp.x, sp.y, sp.width, sp.height);
 			return rect.intersects(sR);
 		}
 		
@@ -420,7 +442,7 @@ package flinjin.graphics
 					
 					if (EnableClip)
 					{
-						if (_isSpriteVisible(eachSprite, _layerShift))
+						if (_isSpriteVisible(eachSprite))
 						{
 							eachSprite.Draw(_current_bitmap);
 						}

@@ -228,6 +228,15 @@ package flinjin
 					var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/?utm_source=game&utm_medium=contextmenu&utm_campaign=" + encodeURIComponent(applicationName));
 					navigateToURL(_flinjinURLRequest);
 				});
+			
+			if (Debug)
+			{
+				contextMenuAddItem("Console", function():void
+					{
+						FjConsole.active = !FjConsole.active;
+					});
+				FjConsole.inspect(_Camera, "fps", "Camera FPS");
+			}
 		}
 		
 		/**
