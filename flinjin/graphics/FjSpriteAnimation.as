@@ -104,7 +104,7 @@ package flinjin.graphics
 							{
 								stop();
 							}
-							dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.ANIMATION_FINISHED));
+							_sprite.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.ANIMATION_FINISHED));
 						}
 					}
 					else if (_playHead < 0)
@@ -118,7 +118,7 @@ package flinjin.graphics
 							{
 								stop();
 							}
-							dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.ANIMATION_FINISHED));
+							_sprite.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.ANIMATION_FINISHED));
 						}
 						else
 						{

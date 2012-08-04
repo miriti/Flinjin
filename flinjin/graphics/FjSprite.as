@@ -8,7 +8,9 @@ package flinjin.graphics
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
+	import flinjin.events.FlinjinObjectPoolEvent;
 	import flinjin.events.FlinjinSpriteEvent;
+	import flinjin.FjObjectPool;
 	import flinjin.Flinjin;
 	import flinjin.FjLog;
 	import flinjin.motion.Motion;
@@ -387,10 +389,13 @@ package flinjin.graphics
 		 * Delete sprite form layer
 		 *
 		 */
-		public function Delete():void
+		public function Delete(doDispose:Boolean = false):void
 		{
 			if (_parent != null)
 				_parent.deleteSprite(this);
+			
+			if (doDispose)
+				Dispose();
 		}
 		
 		/**
@@ -430,8 +435,8 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Call mouse over method 
-		 * 
+		 * Call mouse over method
+		 *
 		 * @param	localX
 		 * @param	localY
 		 */
@@ -441,7 +446,8 @@ package flinjin.graphics
 			_mouseOver = true;
 		}
 		
-		public function mouseOut():void {
+		public function mouseOut():void
+		{
 			_mouseOver = false;
 		}
 		
@@ -496,19 +502,26 @@ package flinjin.graphics
 		 */
 		public function Dispose():void
 		{
-			if (_bitmap != null)
-				_bitmap.bitmapData.dispose();
-			if (_current_bitmap != null)
-				_current_bitmap.dispose();
-			if (_current_result != null)
-				_current_result.dispose();
-			
-			if (_frames != null)
+			if (FjObjectPool.enabled)
 			{
-				for (var i:int = 0; i < _frames.length; i++)
+				FjObjectPool.put(this);
+			}
+			else
+			{
+				if (_bitmap != null)
+					_bitmap.bitmapData.dispose();
+				if (_current_bitmap != null)
+					_current_bitmap.dispose();
+				if (_current_result != null)
+					_current_result.dispose();
+				
+				if (_frames != null)
 				{
-					if (_frames[i] != null)
-						(_frames[i] as BitmapData).dispose();
+					for (var i:int = 0; i < _frames.length; i++)
+					{
+						if (_frames[i] != null)
+							(_frames[i] as BitmapData).dispose();
+					}
 				}
 			}
 		}
@@ -656,21 +669,16 @@ package flinjin.graphics
 		 * @param	newCX
 		 * @param	newCY
 		 */
-		public function setCenter(newCX:Number, newCY:Number):void
+		public function setCenter(newCX:Number = NaN, newCY:Number = NaN):void
 		{
+			if (isNaN(newCX))
+				newCX = width / 2;
+			if (isNaN(newCY))
+				newCY = height / 2;
 			_center.x = newCX;
 			_center.y = newCY;
 			_spriteRect.x = _position.x - newCX;
 			_spriteRect.y = _position.y - newCY;
-		}
-		
-		/**
-		 * Set center of sprite in it's bitmap (or frame) center
-		 *
-		 */
-		public function setCenterInBitmapCenter():void
-		{
-			setCenter(width / 2, height / 2);
 		}
 		
 		/**
@@ -690,10 +698,10 @@ package flinjin.graphics
 		 *
 		 * @param	v
 		 */
-		public function addPositionVector(v:Point):void
+		public function addPositionVector(v:Point, w:Number = 1):void
 		{
-			x += v.x;
-			y += v.y;
+			x += v.x * w;
+			y += v.y * w;
 		}
 		
 		/**
@@ -782,6 +790,17 @@ package flinjin.graphics
 		{
 			_initSprite(spriteBmp, rotationCenter, frameSize, spriteAnimation);
 			addEventListener(FlinjinSpriteEvent.ADDED_TO_LAYER, onAddedToLayer);
+			addEventListener(FlinjinObjectPoolEvent.RESTORE, restore);
+		}
+		
+		/**
+		 * This method triggers when sprite is restored from Object Pool
+		 * 
+		 * @param	e
+		 */
+		protected function restore(e:FlinjinObjectPoolEvent = null):void 
+		{
+			
 		}
 		
 		private function onAddedToLayer(e:FlinjinSpriteEvent):void

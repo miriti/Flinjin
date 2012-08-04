@@ -231,7 +231,7 @@ package flinjin
 			
 			if (Debug)
 			{
-				contextMenuAddItem("Console", function():void
+				contextMenuAddItem("Toggle Flinjin Console", function():void
 					{
 						FjConsole.active = !FjConsole.active;
 					});

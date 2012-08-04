@@ -173,7 +173,7 @@ package flinjin
 				_debugTotalUpdateTime += _deltaTime;
 			}
 			
-			if (_deltaTime > Flinjin.frameDelta)
+			if (_deltaTime > Flinjin.frameDelta * 1.5)
 			{
 				_repeatMoveCount = _deltaTime / Flinjin.frameDelta;
 				if (_deltaTime % Flinjin.frameDelta != 0)

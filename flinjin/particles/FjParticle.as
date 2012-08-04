@@ -2,6 +2,7 @@ package flinjin.particles
 {
 	import flash.display.Bitmap;
 	import flash.geom.Point;
+	import flinjin.events.FlinjinObjectPoolEvent;
 	import flinjin.Flinjin;
 	import flinjin.graphics.FjSprite;
 	import flinjin.graphics.FjSpriteAnimation;
@@ -13,7 +14,6 @@ package flinjin.particles
 	public class FjParticle extends FjSprite
 	{
 		protected var _timeToLive:Number;
-		
 		protected var _speedVector:Point;
 		
 		private var _date:Date = new Date();
@@ -22,8 +22,13 @@ package flinjin.particles
 		public function FjParticle(spriteBmp:Bitmap, rotationCenter:Point = null, frameSize:Point = null, spriteAnimation:FjSpriteAnimation = null)
 		{
 			super(spriteBmp, rotationCenter, frameSize, spriteAnimation);
+			setCenter();
+			restore();
+		}
+		
+		override protected function restore(e:FlinjinObjectPoolEvent = null):void 
+		{
 			_lastTime = _date.getTime();
-			setCenterInBitmapCenter();
 		}
 		
 		override public function Move(deltaTime:Number):void

@@ -30,7 +30,7 @@ package flinjin
 		
 		/**
 		 * Constructor
-		 * 
+		 *
 		 */
 		public function FjPreloader()
 		{
@@ -43,7 +43,8 @@ package flinjin
 				graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
 				graphics.endFill();
 				
-				if (logoObject == null) {
+				if (logoObject == null)
+				{
 					var _flinjinLogoBmb:Bitmap = new _flinjinLogo() as Bitmap;
 					_flinjinLogoBmb.addEventListener(MouseEvent.CLICK, onFlinjinLogoClick);
 					setLogo(_flinjinLogoBmb);
@@ -59,7 +60,7 @@ package flinjin
 			loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, ioError);
 		}
 		
-		private function onFlinjinLogoClick(e:MouseEvent):void 
+		private function onFlinjinLogoClick(e:MouseEvent):void
 		{
 			/**
 			 * Please don't change this, I need this for statistics
@@ -97,7 +98,8 @@ package flinjin
 		 */
 		private function progress(e:ProgressEvent):void
 		{
-			_progressBar.progress = Math.floor(e.bytesTotal / e.bytesLoaded * 100);
+			trace(e.bytesLoaded, e.bytesTotal);
+			_progressBar.progress = Math.floor((e.bytesTotal / e.bytesLoaded) * 100);
 		}
 		
 		/**
@@ -136,12 +138,12 @@ package flinjin
 			addChild(new mainClass() as DisplayObject);
 		}
 		
-		public function get applicationClass():String 
+		public function get applicationClass():String
 		{
 			return _applicationClass;
 		}
 		
-		public function set applicationClass(value:String):void 
+		public function set applicationClass(value:String):void
 		{
 			_applicationClass = value;
 		}

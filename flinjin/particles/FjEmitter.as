@@ -5,6 +5,7 @@ package flinjin.particles
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flinjin.events.FlinjinSpriteEvent;
+	import flinjin.FjObjectPool;
 	import flinjin.graphics.FjLayer;
 	import flinjin.graphics.FjSprite;
 	
@@ -92,7 +93,7 @@ package flinjin.particles
 			for (var i:int = 0; i < _particlesPerEmmit; i++)
 			{
 				var _newParticleClass:Class = _pickNewParticleClass();
-				var _newParticle:FjParticle = new _newParticleClass() as FjParticle;
+				var _newParticle:FjParticle = FjObjectPool.pull(_newParticleClass) as FjParticle;
 				var _newPosition:Point = _pickNewParticlePosition(i);
 				_newParticle.setPosition(x + _newPosition.x, y + _newPosition.y);
 				_newParticle.speedVector = _pickNewParticleVector(i);
@@ -153,12 +154,14 @@ package flinjin.particles
 			{
 				if (_emmitedParticles[i].timeToLive <= 0)
 				{
+					var p:FjParticle = _emmitedParticles[i];
 					_emmitedParticles.splice(i, 1);
+					p.Delete(true);
 				}
 			}
 			
 			if ((_emmitIterations >= _emmitCount) && (_emmitedParticles.length == 0) && (_emmitCount != -1))
-				Delete();
+				Delete(true);
 		}
 		
 		public function emmit():void
