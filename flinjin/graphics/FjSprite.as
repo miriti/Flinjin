@@ -13,7 +13,6 @@ package flinjin.graphics
 	import flinjin.FjObjectPool;
 	import flinjin.Flinjin;
 	import flinjin.FjLog;
-	import flinjin.motion.Motion;
 	import flinjin.system.FlinjinError;
 	import flinjin.types.BoundingShape;
 	
@@ -48,7 +47,6 @@ package flinjin.graphics
 		protected var _lastDrawedBitmap:BitmapData = null;
 		protected var _matrix:Matrix = new Matrix();
 		protected var _mouseOver:Boolean = false;
-		protected var _motion:Motion = null;
 		protected var _parent:FjLayer = null;
 		protected var _pixelCheck:Boolean = false;
 		protected var _position:Point = new Point();
@@ -313,16 +311,6 @@ package flinjin.graphics
 			return _lastDrawedBitmap;
 		}
 		
-		public function get motion():Motion
-		{
-			return _motion;
-		}
-		
-		public function set motion(value:Motion):void
-		{
-			_motion = value;
-		}
-		
 		public function get pixelCheck():Boolean
 		{
 			return _pixelCheck;
@@ -476,12 +464,6 @@ package flinjin.graphics
 			
 			_prevPosition.x = _position.x;
 			_prevPosition.y = _position.y;
-			
-			if (_motion != null)
-			{
-				_motion.Update();
-				_position = _motion.currentPoint;
-			}
 		}
 		
 		/**

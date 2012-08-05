@@ -89,15 +89,6 @@ package flinjin
 		public function set zoom(value:Number):void
 		{
 			_zoom = value;
-			// TODO fix zooming
-		/*
-		   if (_scene != null)
-		   _scene.scale = _zoom;
-		   else if (_transitionEffect != null)
-		   {
-		   _transitionEffect.sceneFrom.scale = _zoom;
-		   _transitionEffect.sceneTo.scale = _zoom;
-		 }*/
 		}
 		
 		public function get scene():FjLayer
@@ -109,8 +100,6 @@ package flinjin
 		{
 			_sceneStack.push(_scene);
 			_scene = value;
-			// TODO fix scaling
-			//_scene.scale = _zoom;
 		}
 		
 		public function get fps():Number 
@@ -127,6 +116,8 @@ package flinjin
 		 */
 		public function LookAt(lookAtScene:FjLayer, transitionEffect:CameraTransitionEffect = null):FjLayer
 		{
+			lookAtScene.width = lookAtScene.originalWidth * _zoom;
+			lookAtScene.height = lookAtScene.originalHeight * _zoom;
 			if (transitionEffect == null)
 			{
 				scene = lookAtScene;
@@ -135,9 +126,7 @@ package flinjin
 			{
 				_transitionEffect = transitionEffect;
 				_transitionEffect.sceneFrom = _scene;
-				//_transitionEffect.sceneFrom.scale = _zoom;
 				_transitionEffect.sceneTo = lookAtScene;
-				//_transitionEffect.sceneTo.scale = _zoom;
 				_transitionEffect.start();
 				_scene = null;
 			}
