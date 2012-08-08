@@ -543,6 +543,11 @@ package flinjin.graphics
 			return deltaTime / 1000;
 		}
 		
+		/**
+		 * Set current sprite animation
+		 * 
+		 * @param	anim	Animation id. Can be string name or FjSpriteAnimation instance
+		 */
 		public function setAnimation(anim:Object):void
 		{
 			if (anim is String)
@@ -588,7 +593,7 @@ package flinjin.graphics
 		 * @param	newCX
 		 * @param	newCY
 		 */
-		public function setCenter(newCX:Number = NaN, newCY:Number = NaN):void
+		public function setCenter(newCX:Number = NaN, newCY:Number = NaN):FjSprite
 		{
 			if (isNaN(newCX))
 				newCX = width / 2;
@@ -598,6 +603,8 @@ package flinjin.graphics
 			_center.y = newCY;
 			_spriteRect.x = _position.x - newCX;
 			_spriteRect.y = _position.y - newCY;
+			
+			return this;
 		}
 		
 		/**
@@ -698,7 +705,7 @@ package flinjin.graphics
 		}
 		
 		/**
-		 * Creates new raser sprite
+		 * Creates new raster sprite
 		 *
 		 * @param	spriteBmp
 		 * @param	rotationCenter
@@ -715,11 +722,10 @@ package flinjin.graphics
 		/**
 		 * This method triggers when sprite is restored from Object Pool
 		 *
-		 * @param	e
+		 * @param	e	FlinjinObjectPoolEvent instance
 		 */
 		protected function restore(e:FlinjinObjectPoolEvent = null):void
 		{
-		
 		}
 		
 		private function onAddedToLayer(e:FlinjinSpriteEvent):void
