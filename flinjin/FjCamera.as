@@ -13,6 +13,7 @@ package flinjin
 	import flinjin.algorithms.camera.CameraTransitionEffect;
 	import flinjin.graphics.FjLayer;
 	import flinjin.FjInput;
+	import flinjin.graphics.FjSprite;
 	
 	/**
 	 * Camera
@@ -218,7 +219,7 @@ package flinjin
 			{
 				_scene.x = -_posX;
 				_scene.y = -_posY;
-				_scene.Draw(_filmSurface.bitmapData);
+				_filmSurface.bitmapData.draw(_scene.render, _scene.matrix, _scene.colorTransform, null, null, FjSprite.Smoothing);
 			}
 			else
 			{

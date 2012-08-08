@@ -44,7 +44,6 @@ package flinjin.graphics
 		protected var _flipVertical:Boolean = false;
 		protected var _frames:Array = null;
 		protected var _interactive:Boolean = false;
-		protected var _lastDrawedBitmap:BitmapData = null;
 		protected var _matrix:Matrix = new Matrix();
 		protected var _mouseOver:Boolean = false;
 		protected var _parent:FjLayer = null;
@@ -67,14 +66,6 @@ package flinjin.graphics
 		
 		public static var Smoothing:Boolean = true;
 		public static var SharpBlitting:Boolean = true;
-		
-		private function _resizeCanvas(newW:uint, newH:uint):BitmapData
-		{
-			var newBmp:BitmapData = new BitmapData(newW, newH);
-			newBmp.draw(_current_result);
-			_current_result = newBmp;
-			return _current_result
-		}
 		
 		/**
 		 *
@@ -306,11 +297,6 @@ package flinjin.graphics
 			_flipVertical = value;
 		}
 		
-		public function get lastDrawedBitmap():BitmapData
-		{
-			return _lastDrawedBitmap;
-		}
-		
 		public function get pixelCheck():Boolean
 		{
 			return _pixelCheck;
@@ -374,6 +360,63 @@ package flinjin.graphics
 		}
 		
 		/**
+		 *
+		 */
+		public function get matrix():Matrix
+		{
+			// Loading matrix indentity
+			_matrix.identity();
+			
+			// Flipping if necessery
+			if (_flipHorizontal)
+			{
+				_matrix.scale(-1, 1);
+				_matrix.translate(_spriteWidth, 0);
+			}
+			
+			if (_flipVertical)
+			{
+				_matrix.scale(1, -1);
+				_matrix.translate(0, _spriteHeight);
+			}
+			
+			// Moving to center
+			_matrix.translate(-_center.x, -_center.y);
+			
+			// Rotation
+			if (0 != _angle)
+			{
+				_matrix.rotate(_angle);
+			}
+			
+			// Scaling
+			if ((_scaleX != 1) || (_scaleY != 1))
+			{
+				_matrix.scale(_scaleX, _scaleY);
+			}
+			
+			// Moving to the place
+			if (SharpBlitting)
+			{
+				_matrix.translate(Math.floor(_position.x), Math.floor(_position.y));
+			}
+			else
+			{
+				_matrix.translate(_position.x, _position.y);
+			}
+			
+			_spriteRect.x = _matrix.tx;
+			_spriteRect.y = _matrix.ty;
+			
+			return _matrix;
+		}
+		
+		public function get render():BitmapData
+		{
+			return _current_bitmap;
+		}
+		
+		/**
 		 * Delete sprite form layer
 		 *
 		 */
@@ -384,24 +427,6 @@ package flinjin.graphics
 			
 			if (doDispose)
 				Dispose();
-		}
-		
-		/**
-		 * Creating new Sprite object from frame bitmap data
-		 *
-		 * @param	frameNumber
-		 * @param	rotationPoint
-		 * @todo	what the fuck is it?
-		 * @return
-		 */
-		public function CreateSpriteFromFrame(frameNumber:uint, rotationPoint:Point = null):FjSprite
-		{
-			if (rotationPoint == null)
-			{
-				rotationPoint = new Point();
-			}
-			
-			return new FjSprite(getBitmapAtFrame(frameNumber), rotationPoint);
 		}
 		
 		/**
@@ -444,7 +469,7 @@ package flinjin.graphics
 		 *
 		 * @return
 		 */
-		public function Moved():Boolean
+		public function get moved():Boolean
 		{
 			// TODO can change some flags in setters of x and y maybe..
 			return _position.equals(_prevPosition);
@@ -464,19 +489,6 @@ package flinjin.graphics
 			
 			_prevPosition.x = _position.x;
 			_prevPosition.y = _position.y;
-		}
-		
-		/**
-		 * Actual draw of sprite
-		 *
-		 * Wrap of protected method _Draw
-		 *
-		 * @param	surface
-		 * @param	shiftVector
-		 */
-		public function Draw(surface:BitmapData):void
-		{
-			_Draw(surface);
 		}
 		
 		/**
@@ -505,81 +517,6 @@ package flinjin.graphics
 							(_frames[i] as BitmapData).dispose();
 					}
 				}
-			}
-		}
-		
-		/**
-		 * Draw sprite on the surface with all transformations
-		 *
-		 * @param	surface
-		 */
-		protected function _Draw(surface:BitmapData):void
-		{
-			if ((null != _current_bitmap) && (null != _current_result))
-			{
-				// nothing to do if visible is false
-				if (false == visible)
-					return;
-				
-				// nothing to do is scale is zero
-				if ((0 == _scaleX) || (0 == _scaleY))
-					return;
-				
-				// absolutly transporent
-				if (0 == _colorTransform.alphaMultiplier)
-					return;
-				
-				// Loading matrix indentity
-				_matrix.identity();
-				
-				// Flipping if necessery
-				if (_flipHorizontal)
-				{
-					_matrix.scale(-1, 1);
-					_matrix.translate(_spriteWidth, 0);
-				}
-				
-				if (_flipVertical)
-				{
-					_matrix.scale(1, -1);
-					_matrix.translate(0, _spriteHeight);
-				}
-				
-				// Moving to center
-				_matrix.translate(-_center.x, -_center.y);
-				
-				// Rotation
-				if (0 != _angle)
-				{
-					_matrix.rotate(_angle);
-				}
-				
-				// Scaling
-				if ((_scaleX != 1) || (_scaleY != 1))
-				{
-					_matrix.scale(_scaleX, _scaleY);
-				}
-				
-				// Moving to the place
-				if (SharpBlitting)
-				{
-					_matrix.translate(Math.floor(_position.x), Math.floor(_position.y));
-				}
-				else
-				{
-					_matrix.translate(_position.x, _position.y);
-				}
-				
-				surface.draw(_current_bitmap, _matrix, _colorTransform, _blendMode, _cropRect, Smoothing);
-				_lastDrawedBitmap = _current_bitmap;
-				
-				if ((_collisionShape != null) && (Flinjin.Debug))
-				{
-					_collisionShape.DebugDraw(surface);
-				}
-				
-				_spriteRect.x = _matrix.tx;
-				_spriteRect.y = _matrix.ty;
 			}
 		}
 		
@@ -777,12 +714,12 @@ package flinjin.graphics
 		
 		/**
 		 * This method triggers when sprite is restored from Object Pool
-		 * 
+		 *
 		 * @param	e
 		 */
-		protected function restore(e:FlinjinObjectPoolEvent = null):void 
+		protected function restore(e:FlinjinObjectPoolEvent = null):void
 		{
-			
+		
 		}
 		
 		private function onAddedToLayer(e:FlinjinSpriteEvent):void

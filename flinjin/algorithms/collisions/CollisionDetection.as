@@ -145,7 +145,7 @@ package flinjin.algorithms.collisions
 			
 			if ((sp1.collisionShape != null) && (sp2.collisionShape != null))
 			{
-				if (sp1.Moved() || sp2.Moved())
+				if (sp1.moved || sp2.moved)
 				{
 					return sp1.collisionShape.CollisionTest(sp2.collisionShape);
 				}

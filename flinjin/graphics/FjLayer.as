@@ -333,7 +333,7 @@ package flinjin.graphics
 					{
 						if (eachSprite.pixelCheck)
 						{
-							if (eachSprite.lastDrawedBitmap.getPixel(e.localX - eachSprite.x, e.localY - eachSprite.y) != 0)
+							if (eachSprite.render.getPixel(e.localX - eachSprite.x, e.localY - eachSprite.y) != 0)
 							{
 								clickedSprites.push(eachSprite);
 							}
@@ -423,12 +423,7 @@ package flinjin.graphics
 			}
 		}
 		
-		/**
-		 * Draw
-		 *
-		 * @param	surface
-		 */
-		override public function Draw(surface:BitmapData):void
+		override public function get render():BitmapData
 		{
 			if ((_current_bitmap != null) && (Sprites.length > 0))
 			{
@@ -439,21 +434,20 @@ package flinjin.graphics
 				for (var i:int = _sprites.length - 1; i >= 0; i--)
 				{
 					var eachSprite:FjSprite = _sprites[i];
-					
-					if (EnableClip)
+					if (eachSprite.visible)
 					{
-						if (_isSpriteVisible(eachSprite))
-						{
-							eachSprite.Draw(_current_bitmap);
-						}
-					}
-					else
-					{
-						eachSprite.Draw(_current_bitmap);
+						var _render:BitmapData = eachSprite.render;
+						
+						if (null != _render)
+							_current_bitmap.draw(eachSprite.render, eachSprite.matrix, eachSprite.colorTransform, null, null, FjSprite.Smoothing);
 					}
 				}
 				
-				super.Draw(surface);
+				return _current_bitmap;
+			}
+			else
+			{
+				return null;
 			}
 		}
 		

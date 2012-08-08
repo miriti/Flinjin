@@ -39,11 +39,6 @@ package flinjin.graphics
 			_spriteRect.height = bd.height;
 		}
 		
-		override protected function _Draw(surface:BitmapData):void
-		{
-			super._Draw(surface);
-		}
-		
 		public function get text():String
 		{
 			return _field.text;
