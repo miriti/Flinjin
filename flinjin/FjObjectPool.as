@@ -13,7 +13,7 @@ package flinjin
 	{
 		private static var _enabled:Boolean = true;
 		private static var _pool:Vector.<Object> = new Vector.<Object>();
-		private static var _limit:uint = 10000;
+		private static var _limit:uint = 1000;
 		
 		/**
 		 * Clears Object Pool
@@ -22,6 +22,11 @@ package flinjin
 		{
 			_pool = new Vector.<Object>();
 			System.gc();
+		}
+		
+		public static function gotPlace():Boolean
+		{
+			return _pool.length < _limit;
 		}
 		
 		/**
@@ -80,8 +85,11 @@ package flinjin
 		{
 			if (_enabled)
 			{
-				if (_pool.indexOf(obj) == -1)
-					_pool.push(obj);
+				if (_pool.length < _limit)
+				{
+					if (_pool.indexOf(obj) == -1)
+						_pool.push(obj);
+				}
 			}
 			
 			return obj;
@@ -105,6 +113,11 @@ package flinjin
 		static public function set limit(value:uint):void
 		{
 			_limit = value;
+			
+			if (_limit < _pool.length)
+			{
+				_pool.splice(_limit, _pool.length - _limit);
+			}
 		}
 	}
 

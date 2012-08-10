@@ -9,8 +9,12 @@ package flinjin
 	import flash.events.MouseEvent;
 	import flash.filters.BlurFilter;
 	import flash.geom.Rectangle;
+	import flash.net.LocalConnection;
 	import flash.net.navigateToURL;
 	import flash.net.URLRequest;
+	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
+	import flash.text.TextFormat;
 	import flash.ui.ContextMenu;
 	import flash.ui.ContextMenuItem;
 	import flinjin.events.FlinjinEvent;
@@ -45,6 +49,7 @@ package flinjin
 		private static var _sceneHeight:Number;
 		private static var _frameRate:Number;
 		private static var _contextMenu:ContextMenu = null;
+		private static var _siteLocks:Array = null;
 		
 		private static var _stage3dAvail:Boolean = false;
 		private var _contextMenu:ContextMenu;
@@ -81,6 +86,22 @@ package flinjin
 			}
 			_contextMenu.customItems.push(_newMenuItem);
 			return _newMenuItem;
+		}
+		
+		/**
+		 * Add domains for site locking
+		 *
+		 * @param	domains
+		 */
+		public static function lockDomains(domains:Array):void
+		{
+			for (var i:int = 0; i < domains.length; i++)
+			{
+				if (domains[i] is String)
+				{
+					_siteLocks.push(domains[0]);
+				}
+			}
 		}
 		
 		/**
@@ -204,39 +225,69 @@ package flinjin
 		 */
 		public function Flinjin(nWidth:Number = -1, nHeight:Number = -1)
 		{
-			_Camera = new FjCamera();
-			if ((nWidth != -1) && (nHeight != -1))
+			if (checkSiteLock())
 			{
-				_regionRect = new Rectangle(0, 0, nWidth, nHeight);
-				_sceneWidth = nWidth;
-				_sceneHeight = nHeight;
-			}
-			focusRect = false;
-			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-			addEventListener(Event.ACTIVATE, onActivate);
-			addEventListener(Event.DEACTIVATE, onDeactivate);
-			addEventListener(MouseEvent.CLICK, onClick);
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
-			
-			Flinjin.Instance = this;
-			
-			contextMenuAddItem("Flinjin v" + FjConsts.ENGINE_VERSION, function():void
+				_Camera = new FjCamera();
+				if ((nWidth != -1) && (nHeight != -1))
 				{
-					/**
-					 * Please, don't change this, I need this for statistics
-					 */
-					var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/?utm_source=game&utm_medium=contextmenu&utm_campaign=" + encodeURIComponent(applicationName));
-					navigateToURL(_flinjinURLRequest);
-				});
-			
-			if (Debug)
-			{
-				contextMenuAddItem("Toggle Flinjin Console", function():void
+					_regionRect = new Rectangle(0, 0, nWidth, nHeight);
+					_sceneWidth = nWidth;
+					_sceneHeight = nHeight;
+				}
+				focusRect = false;
+				addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+				addEventListener(Event.ACTIVATE, onActivate);
+				addEventListener(Event.DEACTIVATE, onDeactivate);
+				addEventListener(MouseEvent.CLICK, onClick);
+				addEventListener(Event.ENTER_FRAME, onEnterFrame);
+				
+				Flinjin.Instance = this;
+				
+				contextMenuAddItem("Flinjin v" + FjConsts.ENGINE_VERSION, function():void
 					{
-						FjConsole.active = !FjConsole.active;
+						/**
+						 * Please, don't change this, I need this for statistics
+						 */
+						var _flinjinURLRequest:URLRequest = new URLRequest("http://www.flinjin.com/?utm_source=game&utm_medium=contextmenu&utm_campaign=" + encodeURIComponent(applicationName));
+						navigateToURL(_flinjinURLRequest);
 					});
-				FjConsole.inspect(_Camera, "fps", "Camera FPS");
+				
+				if (Debug)
+				{
+					contextMenuAddItem("Toggle Flinjin Console", function():void
+						{
+							FjConsole.active = !FjConsole.active;
+						});
+					FjConsole.inspect(_Camera, "fps", "Camera FPS");
+				}
 			}
+			else
+			{
+				var lockInfo:TextField = new TextField();
+				with (lockInfo)
+				{
+					text = "You can not run this game on this domain!\nContact developer";
+					setTextFormat(new TextFormat("Tahoma", 48, 0xff0000, true));
+					background = true;
+					backgroundColor = 0x00ff00;
+					autoSize = TextFieldAutoSize.LEFT;
+				}
+				
+				lockInfo.x = (width - lockInfo.width) / 2;
+				lockInfo.y = (height - lockInfo.height) / 2;
+				addChild(lockInfo);
+			}
+		}
+		
+		/**
+		 * Returns true is application can be runned in this domain
+		 *
+		 * @return	Boolean
+		 */
+		private function checkSiteLock():Boolean
+		{
+			var lc:LocalConnection = new LocalConnection();
+			return (((_siteLocks != null) && (_siteLocks.indexOf(lc.domain) != -1)) || (lc.domain == "localhost"));
 		}
 		
 		/**

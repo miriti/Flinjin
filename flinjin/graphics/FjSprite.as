@@ -496,7 +496,7 @@ package flinjin.graphics
 		 */
 		public function Dispose():void
 		{
-			if (FjObjectPool.enabled)
+			if ((FjObjectPool.enabled) && (FjObjectPool.gotPlace()))
 			{
 				FjObjectPool.put(this);
 			}
@@ -545,7 +545,7 @@ package flinjin.graphics
 		
 		/**
 		 * Set current sprite animation
-		 * 
+		 *
 		 * @param	anim	Animation id. Can be string name or FjSpriteAnimation instance
 		 */
 		public function setAnimation(anim:Object):void

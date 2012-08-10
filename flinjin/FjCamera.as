@@ -49,6 +49,7 @@ package flinjin
 		private var _debugTotalUpdateCount:Number = 0;
 		private var _debugTimer:Timer;
 		private var _debugLastDeltaTime:Number = 0;
+		private var _stackEnabled:Boolean = true;
 		private var _transitionEffect:CameraTransitionEffect = null;
 		private var _sceneStack:Vector.<FjLayer> = new Vector.<FjLayer>();
 		private var _fps:Number;
@@ -99,13 +100,24 @@ package flinjin
 		
 		public function set scene(value:FjLayer):void
 		{
-			_sceneStack.push(_scene);
+			if (_stackEnabled)
+				_sceneStack.push(_scene);
 			_scene = value;
 		}
 		
-		public function get fps():Number 
+		public function get fps():Number
 		{
 			return _fps;
+		}
+		
+		public function get stackEnabled():Boolean 
+		{
+			return _stackEnabled;
+		}
+		
+		public function set stackEnabled(value:Boolean):void 
+		{
+			_stackEnabled = value;
 		}
 		
 		/**
