@@ -55,11 +55,15 @@ package flinjin
 	}
 
 }
+import flash.external.ExternalInterface;
 
 class FlinjinLogEntry extends Object
 {
 	public function FlinjinLogEntry(text:String):void
 	{
+		if (ExternalInterface.available)
+			ExternalInterface.call("console.log", text);
+		
 		trace(text);
 	}
 	

@@ -40,6 +40,7 @@ package flinjin.graphics
 		protected var _cropRect:Rectangle = null;
 		protected var _current_bitmap:BitmapData = null;
 		protected var _current_result:BitmapData = null;
+		protected var _filters:Array = [];
 		protected var _flipHorizontal:Boolean = false;
 		protected var _flipVertical:Boolean = false;
 		protected var _frames:Array = null;
@@ -413,6 +414,13 @@ package flinjin.graphics
 		
 		public function get render():BitmapData
 		{
+			if ((_filters != null) && (_filters.length > 0))
+			{
+				for (var i:int = 0; i < _filters.length; i++)
+				{
+					_current_bitmap.applyFilter(_current_bitmap, _current_bitmap.rect, new Point(0, 0), _filters[i]);
+				}
+			}
 			return _current_bitmap;
 		}
 		
@@ -473,6 +481,16 @@ package flinjin.graphics
 		{
 			// TODO can change some flags in setters of x and y maybe..
 			return _position.equals(_prevPosition);
+		}
+		
+		public function get filters():Array
+		{
+			return _filters;
+		}
+		
+		public function set filters(value:Array):void
+		{
+			_filters = value;
 		}
 		
 		/**

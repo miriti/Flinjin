@@ -3,6 +3,7 @@ package flinjin
 	import flash.events.IEventDispatcher;
 	import flash.system.System;
 	import flinjin.events.FlinjinObjectPoolEvent;
+	import flinjin.types.IFjPoolObject;
 	
 	/**
 	 * Flinjin Object Pool static class
@@ -45,9 +46,16 @@ package flinjin
 					{
 						var _obj:Object = _pool[i];
 						_pool.splice(i, 1);
-						if (_obj is IEventDispatcher)
+						if (_obj is IFjPoolObject)
 						{
-							(_obj as IEventDispatcher).dispatchEvent(new FlinjinObjectPoolEvent(FlinjinObjectPoolEvent.RESTORE));
+							(_obj as IFjPoolObject).restore();
+						}
+						else
+						{
+							if (_obj is IEventDispatcher)
+							{
+								(_obj as IEventDispatcher).dispatchEvent(new FlinjinObjectPoolEvent(FlinjinObjectPoolEvent.RESTORE));
+							}
 						}
 						return _obj;
 					}

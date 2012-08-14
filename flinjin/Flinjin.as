@@ -129,6 +129,7 @@ package flinjin
 		 */
 		private function onAddedToStage(e:Event):void
 		{
+			FjLog.l("Flinjin added to stage");
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			
 			if (_regionRect == null)
@@ -276,6 +277,7 @@ package flinjin
 				lockInfo.x = (width - lockInfo.width) / 2;
 				lockInfo.y = (height - lockInfo.height) / 2;
 				addChild(lockInfo);
+				FjLog.l("This game is locked");
 			}
 		}
 		
@@ -286,8 +288,15 @@ package flinjin
 		 */
 		private function checkSiteLock():Boolean
 		{
-			var lc:LocalConnection = new LocalConnection();
-			return (((_siteLocks != null) && (_siteLocks.indexOf(lc.domain) != -1)) || (lc.domain == "localhost"));
+			try
+			{
+				var lc:LocalConnection = new LocalConnection();
+				return (((_siteLocks != null) && (_siteLocks.indexOf(lc.domain) != -1)) || (lc.domain == "localhost"));
+			}
+			finally
+			{
+				return true;
+			}
 		}
 		
 		/**
@@ -320,7 +329,8 @@ package flinjin
 		{
 			stage.focus = _Camera;
 			_deactivated = false;
-			_Camera.filmSurface.filters = [];
+			if (_Camera.filmSurface != null)
+				_Camera.filmSurface.filters = [];
 			_Camera.resetTimeDelta();
 		
 		}
@@ -333,7 +343,8 @@ package flinjin
 		private function onDeactivate(e:Event):void
 		{
 			_deactivated = true;
-			_Camera.filmSurface.filters = _deactivatedFilters;
+			if (_Camera.filmSurface != null)
+				_Camera.filmSurface.filters = _deactivatedFilters;
 		}
 	}
 }
