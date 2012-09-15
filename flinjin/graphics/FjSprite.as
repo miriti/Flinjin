@@ -3,6 +3,7 @@ package flinjin.graphics
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.events.EventDispatcher;
+	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
@@ -67,6 +68,7 @@ package flinjin.graphics
 		
 		public static var Smoothing:Boolean = true;
 		public static var SharpBlitting:Boolean = true;
+		static public const DRAW_METHOD:int = 0;
 		
 		/**
 		 *
@@ -232,10 +234,10 @@ package flinjin.graphics
 		
 		public function get rect():Rectangle
 		{
-			_spriteRectTransformed.copyFrom(_spriteRect);
+			/*_spriteRectTransformed.copyFrom(_spriteRect);
 			_spriteRectTransformed.width = _spriteWidth * _scaleX;
-			_spriteRectTransformed.height = _spriteHeight * _scaleY;
-			return _spriteRectTransformed;
+			_spriteRectTransformed.height = _spriteHeight * _scaleY;*/
+			return _spriteRect;
 		}
 		
 		public function get position():Point

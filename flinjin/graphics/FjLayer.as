@@ -11,6 +11,7 @@ package flinjin.graphics
 	import flinjin.events.FlinjinSpriteEvent;
 	import flinjin.FjLog;
 	import flinjin.system.FlinjinError;
+	import Game.GameMain;
 	
 	/**
 	 * ...
@@ -20,6 +21,8 @@ package flinjin.graphics
 	{
 		private var _collisionsAlgorithm:CollisionDetection;
 		private var _nextSpriteZIndex:Number;
+		private var _clickedSprites:Vector.<FjSprite> = new Vector.<FjSprite>;
+		private var _mousePos:Point = new Point();
 		
 		/** scale of the inside components **/
 		protected var _contentScale:Number = 1;
@@ -30,6 +33,9 @@ package flinjin.graphics
 		
 		/** List of the Leyer's sprites **/
 		protected var _sprites:Vector.<FjSprite> = new Vector.<FjSprite>;
+		
+		/** List of the Layer's interactive sprites **/
+		protected var _spritesInteractive:Vector.<FjSprite> = new Vector.<FjSprite>;
 		
 		/** Enable clipping of the layer by it's rect **/
 		public var EnableClip:Boolean = false;
@@ -87,6 +93,16 @@ package flinjin.graphics
 				{
 					_collisionsAlgorithm.RemoveFromCollection(spriteToDelete);
 				}
+				
+				if (spriteToDelete.interactive)
+				{
+					var interactiveIndex:int = _spritesInteractive.indexOf(spriteToDelete);
+					if (interactiveIndex != -1)
+					{
+						_spritesInteractive.splice(interactiveIndex, 1);
+					}
+				}
+				
 				spriteToDelete.dispatchEvent(new FlinjinSpriteEvent(FlinjinSpriteEvent.REMOVED_FROM_LAYER, this));
 				return true;
 			}
@@ -123,7 +139,11 @@ package flinjin.graphics
 						}
 					}
 					newSprite.setPosition((atX != null) && (atX is Number) ? (atX as Number) : newSprite.x, (atY != null) && (atY is Number) ? (atY as Number) : newSprite.y);
-					Sprites[Sprites.length] = newSprite;
+					_sprites[_sprites.length] = newSprite;
+					
+					if (newSprite.interactive)
+						_spritesInteractive[_spritesInteractive.length] = newSprite;
+					
 					if (_collisionsAlgorithm != null)
 					{
 						_collisionsAlgorithm.AddToCollection(newSprite);
@@ -319,37 +339,37 @@ package flinjin.graphics
 		 */
 		protected function onMouseEvent(e:MouseEvent):void
 		{
-			var mousePos:Point = new Point(e.localX * _scaleX, e.localY * _scaleY);
-			var clickedSprites:Vector.<FjSprite> = new Vector.<FjSprite>;
-			
+			_mousePos.x = e.localX * _scaleX
+			_mousePos.y = e.localY * _scaleY;
+			_clickedSprites.splice(0, _clickedSprites.length);
 			/**
 			 * @todo use simple for here
 			 */
-			for each (var eachSprite:FjSprite in _sprites)
+			for each (var eachSprite:FjSprite in _spritesInteractive)
 			{
-				if ((eachSprite.interactive) && (eachSprite.visible))
+				if ((eachSprite.visible) && (eachSprite.rect != null))
 				{
-					if (eachSprite.rect.containsPoint(mousePos))
+					if (eachSprite.rect.containsPoint(_mousePos))
 					{
 						if (eachSprite.pixelCheck)
 						{
 							if (eachSprite.render.getPixel(e.localX - eachSprite.x, e.localY - eachSprite.y) != 0)
 							{
-								clickedSprites.push(eachSprite);
+								_clickedSprites.push(eachSprite);
 							}
 						}
 						else
 						{
-							clickedSprites.push(eachSprite);
+							_clickedSprites.push(eachSprite);
 						}
 						
 					}
 				}
 			}
 			
-			if (clickedSprites.length > 1)
+			if (_clickedSprites.length > 1)
 			{
-				clickedSprites = clickedSprites.sort(_spriteSortFunction);
+				_clickedSprites = _clickedSprites.sort(_spriteSortFunction);
 			}
 			
 			/**
@@ -358,16 +378,16 @@ package flinjin.graphics
 			 */
 			if (1)
 			{
-				clickedSprites = clickedSprites.splice(0, 1);
+				_clickedSprites = _clickedSprites.splice(0, 1);
 			}
 			
-			for (var i:int = 0; i < clickedSprites.length; i++)
+			for (var i:int = 0; i < _clickedSprites.length; i++)
 			{
 				var subEvent:MouseEvent = e.clone() as MouseEvent;
-				subEvent.localX -= clickedSprites[i].x;
-				subEvent.localY -= clickedSprites[i].y;
+				subEvent.localX -= _clickedSprites[i].x;
+				subEvent.localY -= _clickedSprites[i].y;
 				
-				clickedSprites[i].dispatchEvent(subEvent);
+				_clickedSprites[i].dispatchEvent(subEvent);
 			}
 		}
 		
@@ -427,6 +447,8 @@ package flinjin.graphics
 		{
 			if ((_current_bitmap != null) && (Sprites.length > 0))
 			{
+				var t:Date = new Date();
+				
 				_current_bitmap.fillRect(_current_bitmap.rect, FillColor);
 				
 				_prepareSprites();
@@ -439,10 +461,15 @@ package flinjin.graphics
 						var _render:BitmapData = eachSprite.render;
 						
 						if (null != _render)
-							_current_bitmap.draw(eachSprite.render, eachSprite.matrix, eachSprite.colorTransform, null, null, FjSprite.Smoothing);
+						{
+							if (FjSprite.DRAW_METHOD == 0)
+								_current_bitmap.draw(_render, eachSprite.matrix, eachSprite.colorTransform, null, null, FjSprite.Smoothing);
+							else if (FjSprite.DRAW_METHOD == 1) {								
+								_current_bitmap.copyPixels(_render, _render.rect, new Point(eachSprite.x + eachSprite.center.x, eachSprite.y + eachSprite.center.y), _render);
+							}
+						}
 					}
 				}
-				
 				return _current_bitmap;
 			}
 			else

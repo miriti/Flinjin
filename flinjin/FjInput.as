@@ -7,7 +7,6 @@ package flinjin
 	import flinjin.system.FlinjinError;
 	
 	/**
-	 * @todo replace stupid function calls with event dispatching
 	 *
 	 * @author Michael Miriti <m.s.miriti@gmail.com>
 	 */
@@ -39,12 +38,12 @@ package flinjin
 			return (_enabled) && (_keysPressed[Keyboard.DOWN] || (_keysPressed[Keyboard.S] && enableWASD));
 		}
 		
-		public static function isKey(key:uint):Boolean
+		public static function isKeyPressed(key:uint):Boolean
 		{
 			if (key < 256)
 				return _keysPressed[key];
 			else
-				throw new FlinjinError("Invalid key [" + key + "]");
+				return false;
 		}
 		
 		public static function onKeyDown(e:KeyboardEvent):void

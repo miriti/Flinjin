@@ -51,7 +51,6 @@ package flinjin
 		private static var _contextMenu:ContextMenu = null;
 		private static var _siteLocks:Array = null;
 		
-		private static var _stage3dAvail:Boolean = false;
 		private var _contextMenu:ContextMenu;
 		private var _flinjinContextMenuItem:ContextMenuItem;
 		private var _deactivated:Boolean = false;
@@ -129,7 +128,6 @@ package flinjin
 		 */
 		private function onAddedToStage(e:Event):void
 		{
-			FjLog.l("Flinjin added to stage");
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			
 			if (_regionRect == null)
@@ -155,10 +153,13 @@ package flinjin
 			stage.focus = _Camera;
 			stage.addEventListener(Event.RESIZE, onStageResize);
 			dispatchEvent(new FlinjinEvent(FlinjinEvent.ENGINE_STARTUP, e.bubbles, e.cancelable));
-			FjLog.l("Flinjin started: " + sceneWidth + "x" + sceneHeight + " Frame rate: " + frameRate);
-			
-			if (_applicationName == DEFAULT_APPLICATION_NAME)
-				FjLog.l("Application name not set. Recommended to set this value in your Flinjin subclass constructor using Flinjin.applicationName", FjLog.W_HINT);
+			if (Debug)
+			{
+				FjLog.l("Flinjin started: " + sceneWidth + "x" + sceneHeight + " Frame rate: " + frameRate);
+				
+				if (_applicationName == DEFAULT_APPLICATION_NAME)
+					FjLog.l("Application name not set. Recommended to set this value in your Flinjin subclass constructor using Flinjin.applicationName", FjLog.W_HINT);
+			}
 		}
 		
 		/**
@@ -228,6 +229,11 @@ package flinjin
 		{
 			if (checkSiteLock())
 			{
+				if (stage)
+				{
+					stage.scaleMode = StageScaleMode.NO_SCALE;
+					stage.align = StageAlign.TOP_LEFT;
+				}
 				_Camera = new FjCamera();
 				if ((nWidth != -1) && (nHeight != -1))
 				{
@@ -239,7 +245,6 @@ package flinjin
 				addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 				addEventListener(Event.ACTIVATE, onActivate);
 				addEventListener(Event.DEACTIVATE, onDeactivate);
-				addEventListener(MouseEvent.CLICK, onClick);
 				addEventListener(Event.ENTER_FRAME, onEnterFrame);
 				
 				Flinjin.Instance = this;
@@ -311,22 +316,13 @@ package flinjin
 		}
 		
 		/**
-		 * Click event
-		 *
-		 * @param	e
-		 */
-		private function onClick(e:MouseEvent):void
-		{
-			stage.focus = _Camera;
-		}
-		
-		/**
 		 * Activate event
 		 *
 		 * @param	e
 		 */
 		private function onActivate(e:Event):void
 		{
+			FjLog.l('activate');
 			stage.focus = _Camera;
 			_deactivated = false;
 			if (_Camera.filmSurface != null)

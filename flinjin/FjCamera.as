@@ -7,12 +7,12 @@ package flinjin
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
-	import flash.geom.ColorTransform;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.utils.Timer;
 	import flinjin.algorithms.camera.CameraTransitionEffect;
-	import flinjin.graphics.FjLayer;
 	import flinjin.FjInput;
+	import flinjin.graphics.FjLayer;
 	import flinjin.graphics.FjSprite;
 	
 	/**
@@ -25,6 +25,8 @@ package flinjin
 		// Color to fill empty space
 		private var _fillColor:uint = 0x000000;
 		
+		private var _film:BitmapData;
+		
 		// Surface to draw on
 		private var _filmSurface:Bitmap = null;
 		
@@ -32,7 +34,7 @@ package flinjin
 		private var _scene:FjLayer = null;
 		
 		// Zoom factor
-		private var _zoom:Number = 1.0;
+		private var _scale:Number = 1.0;
 		
 		// Camera position X
 		private var _posX:Number = 0;
@@ -53,6 +55,7 @@ package flinjin
 		private var _transitionEffect:CameraTransitionEffect = null;
 		private var _sceneStack:Vector.<FjLayer> = new Vector.<FjLayer>();
 		private var _fps:Number;
+		private var _matrix:Matrix = null;
 		
 		public function resetTimeDelta():void
 		{
@@ -64,7 +67,8 @@ package flinjin
 		 */
 		public function get cameraPos():Point
 		{
-			_cameraPos.setTo(_posX, _posY);
+			_cameraPos.x = _posX;
+			_cameraPos.y = _posY;
 			return _cameraPos;
 		}
 		
@@ -83,14 +87,17 @@ package flinjin
 			return _filmSurface;
 		}
 		
-		public function get zoom():Number
+		public function get scale():Number
 		{
-			return _zoom;
+			return _scale;
 		}
 		
-		public function set zoom(value:Number):void
+		public function set scale(value:Number):void
 		{
-			_zoom = value;
+			_scale = value;
+			if (_matrix == null)
+				_matrix = new Matrix();
+			_matrix.scale(value, value);
 		}
 		
 		public function get scene():FjLayer
@@ -110,12 +117,12 @@ package flinjin
 			return _fps;
 		}
 		
-		public function get stackEnabled():Boolean 
+		public function get stackEnabled():Boolean
 		{
 			return _stackEnabled;
 		}
 		
-		public function set stackEnabled(value:Boolean):void 
+		public function set stackEnabled(value:Boolean):void
 		{
 			_stackEnabled = value;
 		}
@@ -129,8 +136,6 @@ package flinjin
 		 */
 		public function LookAt(lookAtScene:FjLayer, transitionEffect:CameraTransitionEffect = null):FjLayer
 		{
-			lookAtScene.width = lookAtScene.originalWidth * _zoom;
-			lookAtScene.height = lookAtScene.originalHeight * _zoom;
 			if (transitionEffect == null)
 			{
 				scene = lookAtScene;
@@ -196,9 +201,9 @@ package flinjin
 				}
 				_deltaTime -= Flinjin.frameDelta;
 				
-				if (null != _scene)
+				if (null != _scene) {
 					_scene.Move(_iterationDeltaTime);
-				
+				} 
 				else
 				{
 					if (null != _transitionEffect)
@@ -229,9 +234,16 @@ package flinjin
 			
 			if (null != _scene)
 			{
-				_scene.x = -_posX;
-				_scene.y = -_posY;
-				_filmSurface.bitmapData.draw(_scene.render, _scene.matrix, _scene.colorTransform, null, null, FjSprite.Smoothing);
+				var m:Matrix;
+				if (_matrix == null)
+					m = _scene.matrix;
+				else
+					m = _matrix;
+				
+				//var rd:BitmapData = _scene.render;
+				
+				_film.draw(_scene.render, m, _scene.colorTransform, null, null, FjSprite.Smoothing);
+				_filmSurface.bitmapData.copyPixels(_film, _film.rect, new Point(0, 0));
 			}
 			else
 			{
@@ -258,6 +270,7 @@ package flinjin
 			}
 			
 			_filmSurface = new Bitmap(new BitmapData(viewportWidth, viewportHeight, false, _fillColor), "auto", false);
+			_film = new BitmapData(viewportWidth, viewportHeight, true, 0x0);
 			addChild(_filmSurface);
 		}
 		
@@ -275,7 +288,6 @@ package flinjin
 			addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseEvent);
 			addEventListener(MouseEvent.MOUSE_UP, onMouseEvent);
-			addEventListener(MouseEvent.CLICK, onMouseEvent);
 			
 			// Translate Keyboard events
 			addEventListener(KeyboardEvent.KEY_DOWN, onKeyEvent);
@@ -333,7 +345,10 @@ package flinjin
 		private function onMouseEvent(e:MouseEvent):void
 		{
 			if (null != _scene)
-				_scene.dispatchEvent(e);
+			{
+				var ne:MouseEvent = new MouseEvent(e.type, e.bubbles, e.cancelable, e.localX / _scale, e.localY / _scale, e.relatedObject, e.ctrlKey, e.altKey, e.shiftKey, e.buttonDown, e.delta);
+				_scene.dispatchEvent(ne);
+			}
 		}
 		
 		/**
@@ -343,8 +358,8 @@ package flinjin
 		 */
 		private function onMouseMove(e:MouseEvent):void
 		{
-			var _newX:Number = e.stageX / _zoom;
-			var _newY:Number = e.stageY / _zoom;
+			var _newX:Number = e.stageX / _scale;
+			var _newY:Number = e.stageY / _scale;
 			FjInput.mousePosition.x = _newX;
 			FjInput.mousePosition.y = _newY;
 			

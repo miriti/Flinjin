@@ -115,7 +115,7 @@ package flinjin.sound
 		{
 			if (!value)
 			{
-				for (var i:int = 0; i < _channels.length; i++)
+				for (var i:int = _channels.length-1; i >= 0; i--)
 				{
 					_channels.pop().stop();
 				}
